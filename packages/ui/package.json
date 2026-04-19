@@ -1,0 +1,18 @@
+{
+  "name": "@eduquiz/ui",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Composants UI React partagés web/mobile (shadcn/ui côté web, NativeWind côté mobile).",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "echo \"[@eduquiz/ui] lint — configuration ESLint à venir (étape 0.2)\" && exit 0",
+    "test": "echo \"[@eduquiz/ui] test — configuration Vitest à venir (étape 0.2)\" && exit 0",
+    "typecheck": "echo \"[@eduquiz/ui] typecheck — tsconfig à venir (étape 0.2)\" && exit 0",
+    "clean": "rm -rf dist .turbo node_modules"
+  }
+}

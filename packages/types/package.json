@@ -1,0 +1,18 @@
+{
+  "name": "@eduquiz/types",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Types TypeScript partagés (domaine métier, DTO, enums) entre web, mobile et API.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "echo \"[@eduquiz/types] lint — à configurer étape 0.2\" && exit 0",
+    "test": "echo \"[@eduquiz/types] test — à configurer étape 0.2\" && exit 0",
+    "typecheck": "echo \"[@eduquiz/types] typecheck — à configurer étape 0.2\" && exit 0",
+    "clean": "rm -rf dist .turbo node_modules"
+  }
+}

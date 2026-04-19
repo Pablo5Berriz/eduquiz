@@ -1,0 +1,20 @@
+{
+  "name": "@eduquiz/i18n",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Traductions FR/EN partagées (UI, messages d'erreur, courriels transactionnels). Locale par défaut : FR.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./fr": "./src/locales/fr.json",
+    "./en": "./src/locales/en.json"
+  },
+  "scripts": {
+    "lint": "echo \"[@eduquiz/i18n] lint — à configurer étape 0.2\" && exit 0",
+    "test": "echo \"[@eduquiz/i18n] test — à configurer étape 0.2\" && exit 0",
+    "typecheck": "echo \"[@eduquiz/i18n] typecheck — à configurer étape 0.2\" && exit 0",
+    "clean": "rm -rf dist .turbo node_modules"
+  }
+}

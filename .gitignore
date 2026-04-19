@@ -37,6 +37,18 @@ ehthumbs.db
 # Tests
 coverage/
 .nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# TypeScript
+*.tsbuildinfo
+.tsbuildinfo
+
+# Caches divers
+.cache/
+.eslintcache
+.prettiercache
 
 # Mobile
 ios/Pods/

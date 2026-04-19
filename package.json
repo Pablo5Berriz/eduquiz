@@ -1,0 +1,34 @@
+{
+  "name": "eduquiz",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Plateforme éducative bilingue FR/EN pour élèves québécois (Primaire 3 à Secondaire 5).",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pablo5Berriz/eduquiz.git"
+  },
+  "author": "Solutions Infos",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@9.12.3",
+  "engines": {
+    "node": ">=22.11.0",
+    "pnpm": ">=9.12.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\""
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "prettier": "^3.4.2",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "@eduquiz/db",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Schéma Prisma et client partagé pour EduQuiz (PostgreSQL 16 + RLS).",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "db:generate": "echo \"[@eduquiz/db] generate — configuration Prisma à venir (étape 0.3)\" && exit 0",
+    "db:migrate": "echo \"[@eduquiz/db] migrate — configuration Prisma à venir (étape 0.3)\" && exit 0",
+    "db:push": "echo \"[@eduquiz/db] push — configuration Prisma à venir (étape 0.3)\" && exit 0",
+    "db:seed": "echo \"[@eduquiz/db] seed — configuration Prisma à venir (étape 0.3)\" && exit 0",
+    "db:studio": "echo \"[@eduquiz/db] studio — configuration Prisma à venir (étape 0.3)\" && exit 0",
+    "lint": "echo \"[@eduquiz/db] lint — configuration ESLint à venir (étape 0.2)\" && exit 0",
+    "test": "echo \"[@eduquiz/db] test — configuration Vitest à venir (étape 0.2)\" && exit 0",
+    "typecheck": "echo \"[@eduquiz/db] typecheck — tsconfig à venir (étape 0.2)\" && exit 0",
+    "clean": "rm -rf dist .turbo node_modules"
+  }
+}
