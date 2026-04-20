@@ -268,6 +268,15 @@ export const node = [
 export const prettier = [prettierConfig];
 
 /**
+ * Ré-export du parseur et du plugin `typescript-eslint` pour les paquets
+ * qui doivent linter des fichiers TS hors `src/` (seeds Prisma, scripts
+ * de build, etc.) sans ajouter `typescript-eslint` à leurs propres
+ * dépendances.
+ */
+export const tsParser = tseslint.parser;
+export const tsPlugin = tseslint.plugin;
+
+/**
  * Préset par défaut : base + prettier. Pour les paquets non React.
  *
  * @type {import('eslint').Linter.Config[]}

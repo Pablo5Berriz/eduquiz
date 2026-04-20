@@ -1,0 +1,1137 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  EduQuiz — Schéma Prisma
+//
+//  Plateforme éducative bilingue FR/EN pour élèves québécois (P3 → S5).
+//  PostgreSQL 16 + Row Level Security + chiffrement pgcrypto au repos.
+//
+//  Conventions :
+//    • Toutes les clés primaires sont des UUID v7 (@default(uuid(7))).
+//    • Tous les contenus pédagogiques sont bilingues : `xxxFr` + `xxxEn`.
+//    • `createdAt` et `updatedAt` partout, avec `@default(now())` /
+//      `@updatedAt`.
+//    • Les tables `auditLog` et `consentRecord` sont append-only (UPDATE et
+//      DELETE bloqués par triggers PostgreSQL — voir
+//      `prisma/migrations/.../append_only.sql`).
+//    • Tables soumises à RLS : voir `prisma/rls/*.sql`.
+//    • Champ scalaire `data Json` réservé aux structures hétérogènes
+//      (configuration d'exercice par type, payload de notification, etc.).
+//
+//  Convention `@@map` : noms de tables PostgreSQL en snake_case pluriel.
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/client"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgcrypto, citext]
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  ENUMS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Rôle global de l'utilisateur. `LEARNER_ADULT` et `LEARNER_MINOR` sont
+/// distingués pour piloter les écrans, les contrôles parentaux et les RLS.
+enum UserRole {
+  LEARNER_ADULT
+  LEARNER_MINOR
+  PARENT
+  ADMIN
+
+  @@map("user_role")
+}
+
+/// Langue préférée de l'utilisateur. Les contenus pédagogiques restent
+/// disponibles dans les deux langues quoi qu'il arrive.
+enum Locale {
+  FR
+  EN
+
+  @@map("locale")
+}
+
+/// Niveaux scolaires du Québec couverts par la V1 (P3 → S5).
+enum GradeCode {
+  P3
+  P4
+  P5
+  P6
+  S1
+  S2
+  S3
+  S4
+  S5
+
+  @@map("grade_code")
+}
+
+/// Cycle scolaire au Québec : Primaire ou Secondaire.
+enum SchoolCycle {
+  PRIMAIRE
+  SECONDAIRE
+
+  @@map("school_cycle")
+}
+
+/// Statut éditorial d'un contenu pédagogique. Workflow simple :
+/// DRAFT → IN_REVIEW → PUBLISHED → ARCHIVED.
+enum ContentStatus {
+  DRAFT
+  IN_REVIEW
+  PUBLISHED
+  ARCHIVED
+
+  @@map("content_status")
+}
+
+/// Une `Activity` est soit un exercice (pratique guidée), soit un quiz
+/// (évaluation notée). Permet de partager les tentatives et résultats.
+enum ActivityKind {
+  EXERCISE
+  QUIZ
+
+  @@map("activity_kind")
+}
+
+/// Six types d'exercices retenus en V1 (cf. brief §8.1).
+enum ExerciseType {
+  MCQ_SINGLE
+  MCQ_MULTI
+  TRUE_FALSE
+  FILL_IN_THE_BLANK
+  MATCHING
+  ORDERING
+  SHORT_ANSWER
+
+  @@map("exercise_type")
+}
+
+/// Difficulté d'un exercice ou d'une question (échelle subjective auteur).
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+
+  @@map("difficulty")
+}
+
+/// État du rattachement parent ↔ enfant. `PENDING` après saisie du code
+/// par le mineur, `VERIFIED` après confirmation parentale, `REVOKED` si
+/// le parent ou l'admin révoque le lien.
+enum ParentLinkState {
+  PENDING
+  VERIFIED
+  REVOKED
+
+  @@map("parent_link_state")
+}
+
+/// Type d'événement consigné dans `consent_records`. Toujours horodaté,
+/// avec IP et user-agent.
+enum ConsentEventKind {
+  CODE_GENERATED
+  CODE_SUBMITTED
+  PARENT_CONFIRMED
+  PARENT_REVOKED
+  ADMIN_REVOKED
+  TERMS_ACCEPTED
+  PRIVACY_ACCEPTED
+  MARKETING_OPTED_IN
+  MARKETING_OPTED_OUT
+
+  @@map("consent_event_kind")
+}
+
+/// Type d'événement consigné dans `audit_logs`. Liste évolutive selon les
+/// surfaces couvertes (auth, contenu, paiement, supervision parentale).
+enum AuditEventKind {
+  AUTH_SIGNIN
+  AUTH_SIGNOUT
+  AUTH_FAILED
+  AUTH_PASSWORD_RESET
+  PROFILE_UPDATED
+  PARENT_LINK_CREATED
+  PARENT_LINK_VERIFIED
+  PARENT_LINK_REVOKED
+  CONSENT_GRANTED
+  CONSENT_REVOKED
+  CONTENT_CREATED
+  CONTENT_UPDATED
+  CONTENT_PUBLISHED
+  CONTENT_ARCHIVED
+  ATTEMPT_SUBMITTED
+  PAYMENT_SUCCEEDED
+  PAYMENT_FAILED
+  SUBSCRIPTION_UPDATED
+  DATA_EXPORT_REQUESTED
+  DATA_EXPORT_DELIVERED
+  DATA_DELETION_REQUESTED
+  DATA_DELETION_EXECUTED
+  ADMIN_ACTION
+
+  @@map("audit_event_kind")
+}
+
+/// Statut d'un abonnement Stripe (calque sur les états Stripe les plus
+/// courants utiles à la V1).
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+  INCOMPLETE
+
+  @@map("subscription_status")
+}
+
+/// Plan d'abonnement.
+enum PlanCode {
+  FREE
+  INDIVIDUAL
+  FAMILY
+
+  @@map("plan_code")
+}
+
+/// Statut d'un paiement.
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+
+  @@map("payment_status")
+}
+
+/// Statut d'une demande Loi 25 (export ou suppression).
+enum DataRequestStatus {
+  REQUESTED
+  IN_PROGRESS
+  AWAITING_GRACE_PERIOD
+  COMPLETED
+  CANCELED
+  FAILED
+
+  @@map("data_request_status")
+}
+
+/// Type de demande Loi 25.
+enum DataRequestKind {
+  EXPORT
+  DELETION
+
+  @@map("data_request_kind")
+}
+
+/// Sévérité d'un incident inscrit au registre Loi 25.
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+
+  @@map("incident_severity")
+}
+
+/// Catégorie d'un badge.
+enum BadgeKind {
+  PROGRESSION
+  MASTERY
+  STREAK
+  EXPLORATION
+  COMMUNITY
+
+  @@map("badge_kind")
+}
+
+/// Type de notification in-app.
+enum NotificationKind {
+  PARENT_LINK_REQUEST
+  PARENT_LINK_CONFIRMED
+  PARENT_LINK_REVOKED
+  PROGRESS_MILESTONE
+  BADGE_EARNED
+  STREAK_REMINDER
+  WEEKLY_REPORT
+  CONTENT_NEW
+  PAYMENT_RECEIPT
+  DATA_REQUEST_UPDATE
+  SYSTEM
+
+  @@map("notification_kind")
+}
+
+/// Type d'entité versionnable. Sert au pivot `content_versions`.
+enum VersionableKind {
+  LESSON
+  EXERCISE
+  QUIZ
+  QUESTION
+
+  @@map("versionable_kind")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  IDENTITÉ ET COMPTES (Auth.js v5 + extensions EduQuiz)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Compte utilisateur racine. Aligné sur le schéma attendu par Auth.js v5
+/// (NextAuth) avec les champs `email`, `emailVerified`, `name`, `image`,
+/// puis enrichi par EduQuiz (rôle, locale, mot de passe Argon2id, etc.).
+model User {
+  id              String    @id @default(uuid(7)) @db.Uuid
+  email           String    @unique @db.Citext
+  emailVerifiedAt DateTime? @map("email_verified_at")
+  /// Hash Argon2id, jamais le mot de passe en clair.
+  passwordHash    String?   @map("password_hash")
+  role            UserRole  @default(LEARNER_ADULT)
+  locale          Locale    @default(FR)
+  /// Compte désactivé : pas de connexion possible mais conservé 30 jours
+  /// (délai de grâce Loi 25) avant purge.
+  disabledAt      DateTime? @map("disabled_at")
+  /// Date d'effacement réelle (post délai de grâce) — anonymise les FK.
+  deletedAt       DateTime? @map("deleted_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  profile             Profile?
+  accounts            Account[]
+  sessions            Session[]
+  parentLinksAsParent ParentChildLink[] @relation("ParentLinks")
+  parentLinksAsChild  ParentChildLink[] @relation("ChildLinks")
+  consentRecords      ConsentRecord[]
+  auditLogs           AuditLog[]
+  attempts            Attempt[]
+  progress            Progress[]
+  badges              UserBadge[]
+  streak              Streak?
+  notifications       Notification[]
+  subscription        Subscription?
+  payments            Payment[]
+  dataRequests        DataRequest[]
+  authoredContent     ContentVersion[]  @relation("ContentAuthor")
+  reviewedContent     ContentVersion[]  @relation("ContentReviewer")
+
+  @@index([role])
+  @@index([disabledAt])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+/// Profil étendu d'un utilisateur (PII pédagogiques). Toujours 1-1 avec
+/// `User`. `birthDate` est obligatoire pour calculer l'éligibilité
+/// mineur/adulte et le consentement parental.
+model Profile {
+  id              String       @id @default(uuid(7)) @db.Uuid
+  userId          String       @unique @map("user_id") @db.Uuid
+  firstName       String       @map("first_name")
+  lastName        String       @map("last_name")
+  displayName     String?      @map("display_name")
+  /// Date de naissance — chiffrée au repos via pgcrypto (cf. migration).
+  birthDate       DateTime     @map("birth_date") @db.Date
+  /// Niveau scolaire actuel (optionnel pour les adultes).
+  currentGrade    GradeCode?   @map("current_grade")
+  schoolCycle     SchoolCycle?
+  avatarUrl       String?      @map("avatar_url")
+  preferredLocale Locale       @default(FR) @map("preferred_locale")
+  /// Province canadienne — V1 limitée au QC.
+  province        String       @default("QC") @db.VarChar(2)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([currentGrade])
+  @@map("profiles")
+}
+
+/// Compte OAuth tiers (Google, Apple). Schéma Auth.js v5.
+model Account {
+  id                String  @id @default(uuid(7)) @db.Uuid
+  userId            String  @map("user_id") @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+/// Session JWT persistée (Auth.js v5).
+model Session {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id") @db.Uuid
+  expires      DateTime
+  /// IP et user-agent capturés à la création pour l'audit.
+  ipAddress    String?  @map("ip_address") @db.Inet
+  userAgent    String?  @map("user_agent")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+/// Token de vérification d'email, reset password, magic link, etc.
+/// (schéma Auth.js v5).
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  CONSENTEMENT PARENTAL ET RATTACHEMENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Lien parent ↔ enfant. Cycle de vie : `PENDING` à la saisie du code,
+/// `VERIFIED` après confirmation par courriel, `REVOKED` si le parent
+/// retire le lien. Plan Famille : jusqu'à 4 enfants par parent.
+model ParentChildLink {
+  id                  String          @id @default(uuid(7)) @db.Uuid
+  parentId            String          @map("parent_id") @db.Uuid
+  childId             String          @map("child_id") @db.Uuid
+  /// Code à 6 chiffres généré par le parent, valable 24 h.
+  invitationCode      String          @map("invitation_code") @db.Char(6)
+  codeExpiresAt       DateTime        @map("code_expires_at")
+  state               ParentLinkState @default(PENDING)
+  /// IP et user-agent au moment où le mineur saisit le code.
+  childIpAddress      String?         @map("child_ip_address") @db.Inet
+  childUserAgent      String?         @map("child_user_agent")
+  /// IP et user-agent du parent confirmant.
+  parentIpAddress     String?         @map("parent_ip_address") @db.Inet
+  parentUserAgent     String?         @map("parent_user_agent")
+  /// Permet au parent de bloquer/débloquer des matières pour cet enfant.
+  supervisionSettings Json            @default("{}") @map("supervision_settings")
+
+  verifiedAt DateTime? @map("verified_at")
+  revokedAt  DateTime? @map("revoked_at")
+  revokedBy  String?   @map("revoked_by") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  parent User @relation("ParentLinks", fields: [parentId], references: [id], onDelete: Cascade)
+  child  User @relation("ChildLinks", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, childId])
+  @@unique([invitationCode])
+  @@index([state])
+  @@index([codeExpiresAt])
+  @@map("parent_child_links")
+}
+
+/// Journal IMMUABLE des événements de consentement. Append-only :
+/// UPDATE et DELETE bloqués par triggers (cf. migration). Conservation
+/// minimale 7 ans (exigence Loi 25).
+model ConsentRecord {
+  id            String           @id @default(uuid(7)) @db.Uuid
+  userId        String           @map("user_id") @db.Uuid
+  /// Cible (l'enfant concerné si l'événement vient du parent).
+  subjectUserId String?          @map("subject_user_id") @db.Uuid
+  kind          ConsentEventKind
+  /// Document/version ayant été accepté(e) (CGU v3, politique v2…).
+  documentRef   String?          @map("document_ref")
+  /// Détail de l'événement : code envoyé, code saisi, motif de révocation…
+  payload       Json             @default("{}")
+  ipAddress     String?          @map("ip_address") @db.Inet
+  userAgent     String?          @map("user_agent")
+
+  recordedAt DateTime @default(now()) @map("recorded_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([subjectUserId])
+  @@index([kind])
+  @@index([recordedAt])
+  @@map("consent_records")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  AUDIT, REGISTRES LOI 25
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Journal IMMUABLE de toutes les actions sensibles. Append-only.
+model AuditLog {
+  id         String         @id @default(uuid(7)) @db.Uuid
+  /// Acteur (peut être null pour des événements système).
+  actorId    String?        @map("actor_id") @db.Uuid
+  /// Identifiant de la cible (utilisateur, contenu, paiement…).
+  targetId   String?        @map("target_id") @db.Uuid
+  targetType String?        @map("target_type")
+  kind       AuditEventKind
+  /// Détail libre, payload anonymisable.
+  payload    Json           @default("{}")
+  ipAddress  String?        @map("ip_address") @db.Inet
+  userAgent  String?        @map("user_agent")
+  /// ID de requête HTTP (corrélation logs ↔ traces).
+  requestId  String?        @map("request_id")
+
+  recordedAt DateTime @default(now()) @map("recorded_at")
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([targetId])
+  @@index([kind])
+  @@index([recordedAt])
+  @@map("audit_logs")
+}
+
+/// Registre des incidents de sécurité (Loi 25, art. 3.5). Mutable
+/// par les admins le temps de l'investigation puis verrouillé.
+model IncidentRegister {
+  id            String           @id @default(uuid(7)) @db.Uuid
+  reference     String           @unique
+  occurredAt    DateTime         @map("occurred_at")
+  detectedAt    DateTime         @map("detected_at")
+  reportedAt    DateTime?        @map("reported_at")
+  severity      IncidentSeverity
+  summary       String
+  description   String           @db.Text
+  affectedCount Int              @default(0) @map("affected_count")
+  containedAt   DateTime?        @map("contained_at")
+  rootCause     String?          @map("root_cause") @db.Text
+  remediation   String?          @db.Text
+  closedAt      DateTime?        @map("closed_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([severity])
+  @@index([occurredAt])
+  @@map("incident_registers")
+}
+
+/// Demande Loi 25 d'accès / portabilité / effacement.
+/// Suppression : statut `AWAITING_GRACE_PERIOD` pendant 30 jours
+/// avant exécution effective (réversibilité).
+model DataRequest {
+  id                 String            @id @default(uuid(7)) @db.Uuid
+  userId             String            @map("user_id") @db.Uuid
+  kind               DataRequestKind
+  status             DataRequestStatus @default(REQUESTED)
+  /// Format demandé (JSON, PDF, ZIP).
+  format             String?
+  /// URL signée vers l'archive générée (durée de vie limitée).
+  artifactUrl        String?           @map("artifact_url")
+  artifactExpiresAt  DateTime?         @map("artifact_expires_at")
+  /// Date prévue de bascule du statut → COMPLETED (pour DELETION).
+  graceExpiresAt     DateTime?         @map("grace_expires_at")
+  /// Motif d'annulation si applicable.
+  cancellationReason String?           @map("cancellation_reason")
+  /// Détail libre (file count, total size, error message…).
+  metadata           Json              @default("{}")
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  completedAt DateTime? @map("completed_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([graceExpiresAt])
+  @@map("data_requests")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  ABONNEMENT ET PAIEMENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Abonnement actif d'un utilisateur. Une seule rangée active par
+/// `userId`. Plan Famille : couvre l'utilisateur principal et ses
+/// `ParentChildLink` vérifiés (jusqu'à 4 enfants).
+model Subscription {
+  id                   String             @id @default(uuid(7)) @db.Uuid
+  userId               String             @unique @map("user_id") @db.Uuid
+  planCode             PlanCode           @map("plan_code")
+  status               SubscriptionStatus @default(TRIALING)
+  /// Identifiants Stripe (ou autre PSP).
+  stripeCustomerId     String?            @unique @map("stripe_customer_id")
+  stripeSubscriptionId String?            @unique @map("stripe_subscription_id")
+  currentPeriodStart   DateTime?          @map("current_period_start")
+  currentPeriodEnd     DateTime?          @map("current_period_end")
+  cancelAt             DateTime?          @map("cancel_at")
+  trialEndsAt          DateTime?          @map("trial_ends_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments Payment[]
+
+  @@index([status])
+  @@index([planCode])
+  @@map("subscriptions")
+}
+
+/// Historique des transactions de paiement.
+model Payment {
+  id                  String        @id @default(uuid(7)) @db.Uuid
+  userId              String        @map("user_id") @db.Uuid
+  subscriptionId      String?       @map("subscription_id") @db.Uuid
+  /// Montant en cents (CAD).
+  amountCents         Int           @map("amount_cents")
+  currency            String        @default("CAD") @db.VarChar(3)
+  status              PaymentStatus @default(PENDING)
+  stripePaymentIntent String?       @unique @map("stripe_payment_intent")
+  receiptUrl          String?       @map("receipt_url")
+  /// Détail libre : carte 4 derniers chiffres, motif d'échec, etc.
+  metadata            Json          @default("{}")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  paidAt    DateTime? @map("paid_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("payments")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  TAXONOMIE PÉDAGOGIQUE
+//  Hiérarchie : Level → Subject → Skill → Course → Lesson → Activity
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Niveau scolaire (Primaire 3 → Secondaire 5).
+model Level {
+  id      String      @id @default(uuid(7)) @db.Uuid
+  code    GradeCode   @unique
+  cycle   SchoolCycle
+  /// Ordre d'affichage (1 = P3, 9 = S5).
+  ordinal Int
+  nameFr  String      @map("name_fr")
+  nameEn  String      @map("name_en")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  courses Course[]
+
+  @@index([cycle])
+  @@map("levels")
+}
+
+/// Matière (Math, Français, Anglais, etc.) — alignée Alloprof.
+model Subject {
+  id            String  @id @default(uuid(7)) @db.Uuid
+  /// Code court stable (utilisé dans les URLs et exports).
+  code          String  @unique @db.VarChar(32)
+  nameFr        String  @map("name_fr")
+  nameEn        String  @map("name_en")
+  descriptionFr String? @map("description_fr") @db.Text
+  descriptionEn String? @map("description_en") @db.Text
+  /// Couleur d'affichage (token Tailwind ou code hexa).
+  colorToken    String? @map("color_token")
+  iconName      String? @map("icon_name")
+  /// Ordre d'affichage dans la grille de catalogue.
+  ordinal       Int     @default(0)
+  isPublished   Boolean @default(false) @map("is_published")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  skills  Skill[]
+  courses Course[]
+
+  @@index([isPublished])
+  @@map("subjects")
+}
+
+/// Compétence (au sens Progression des Apprentissages MEQ). Permet de
+/// suivre la maîtrise indépendamment de la leçon qui la couvre.
+model Skill {
+  id            String      @id @default(uuid(7)) @db.Uuid
+  subjectId     String      @map("subject_id") @db.Uuid
+  /// Code MEQ ou interne stable.
+  code          String      @unique @db.VarChar(64)
+  nameFr        String      @map("name_fr")
+  nameEn        String      @map("name_en")
+  descriptionFr String?     @map("description_fr") @db.Text
+  descriptionEn String?     @map("description_en") @db.Text
+  /// Niveaux scolaires concernés (un même Skill peut couvrir P5+P6).
+  gradeCodes    GradeCode[] @map("grade_codes")
+  ordinal       Int         @default(0)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  subject     Subject           @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  lessonLinks LessonSkillLink[]
+  progress    Progress[]
+  badges      Badge[]
+
+  @@index([subjectId])
+  @@map("skills")
+}
+
+/// Cours : ensemble de leçons d'une matière pour un niveau.
+model Course {
+  id               String        @id @default(uuid(7)) @db.Uuid
+  subjectId        String        @map("subject_id") @db.Uuid
+  levelId          String        @map("level_id") @db.Uuid
+  slug             String        @unique
+  titleFr          String        @map("title_fr")
+  titleEn          String        @map("title_en")
+  descriptionFr    String?       @map("description_fr") @db.Text
+  descriptionEn    String?       @map("description_en") @db.Text
+  coverImageUrl    String?       @map("cover_image_url")
+  status           ContentStatus @default(DRAFT)
+  ordinal          Int           @default(0)
+  /// Estimation de la durée totale en minutes.
+  estimatedMinutes Int           @default(0) @map("estimated_minutes")
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  subject Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  level   Level    @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@index([subjectId, levelId])
+  @@index([status])
+  @@map("courses")
+}
+
+/// Leçon : unité atomique de contenu pédagogique. Bilingue, versionnée,
+/// liée à une ou plusieurs compétences via `LessonSkillLink`.
+model Lesson {
+  id               String        @id @default(uuid(7)) @db.Uuid
+  courseId         String        @map("course_id") @db.Uuid
+  slug             String        @unique
+  titleFr          String        @map("title_fr")
+  titleEn          String        @map("title_en")
+  /// Résumé court (carte de catalogue).
+  summaryFr        String?       @map("summary_fr")
+  summaryEn        String?       @map("summary_en")
+  /// Contenu rédigé (markdown ou JSON-AST). Stocké sous forme structurée.
+  bodyFr           Json          @default("{}") @map("body_fr")
+  bodyEn           Json          @default("{}") @map("body_en")
+  /// Objectifs pédagogiques (liste de strings bilingues).
+  objectivesFr     String[]      @default([]) @map("objectives_fr")
+  objectivesEn     String[]      @default([]) @map("objectives_en")
+  /// Mots-clés pour la recherche.
+  keywordsFr       String[]      @default([]) @map("keywords_fr")
+  keywordsEn       String[]      @default([]) @map("keywords_en")
+  status           ContentStatus @default(DRAFT)
+  ordinal          Int           @default(0)
+  estimatedMinutes Int           @default(0) @map("estimated_minutes")
+  /// Version actuelle publiée — pointe vers content_versions.
+  publishedVersion Int?          @map("published_version")
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  publishedAt DateTime? @map("published_at")
+  archivedAt  DateTime? @map("archived_at")
+
+  course     Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  skillLinks LessonSkillLink[]
+  activities Activity[]
+
+  @@index([courseId])
+  @@index([status])
+  @@map("lessons")
+}
+
+/// Pivot leçon ↔ compétence (M2M).
+model LessonSkillLink {
+  id       String @id @default(uuid(7)) @db.Uuid
+  lessonId String @map("lesson_id") @db.Uuid
+  skillId  String @map("skill_id") @db.Uuid
+  /// Poids relatif de la compétence dans la leçon (0..1, somme libre).
+  weight   Float  @default(1.0)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  skill  Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, skillId])
+  @@index([skillId])
+  @@map("lesson_skill_links")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  ACTIVITÉS, EXERCICES, QUIZ, QUESTIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Conteneur polymorphique : une `Activity` est soit un exercice, soit
+/// un quiz. Permet de partager `Attempt`, `Result`, `Progress`.
+model Activity {
+  id           String        @id @default(uuid(7)) @db.Uuid
+  lessonId     String        @map("lesson_id") @db.Uuid
+  kind         ActivityKind
+  /// Ordre d'apparition dans la leçon.
+  ordinal      Int           @default(0)
+  /// Note seuil pour valider l'activité (0..100, null = pas de seuil).
+  passingScore Int?          @map("passing_score")
+  status       ContentStatus @default(DRAFT)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  lesson   Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  exercise Exercise?
+  quiz     Quiz?
+  attempts Attempt[]
+
+  @@index([lessonId])
+  @@index([kind])
+  @@map("activities")
+}
+
+/// Exercice (pratique guidée, retour immédiat). Une `Activity` de kind
+/// `EXERCISE` est associée à exactement un `Exercise` (1-1).
+model Exercise {
+  id             String       @id @default(uuid(7)) @db.Uuid
+  activityId     String       @unique @map("activity_id") @db.Uuid
+  type           ExerciseType
+  difficulty     Difficulty   @default(MEDIUM)
+  titleFr        String       @map("title_fr")
+  titleEn        String       @map("title_en")
+  /// Consigne affichée à l'apprenant.
+  instructionsFr String       @map("instructions_fr") @db.Text
+  instructionsEn String       @map("instructions_en") @db.Text
+  /// Indice optionnel.
+  hintFr         String?      @map("hint_fr") @db.Text
+  hintEn         String?      @map("hint_en") @db.Text
+  /// Explication de la bonne réponse, affichée après tentative.
+  explanationFr  String?      @map("explanation_fr") @db.Text
+  explanationEn  String?      @map("explanation_en") @db.Text
+  /// Configuration spécifique au type (ex. : nombre de blanks pour
+  /// FILL_IN_THE_BLANK, pairs pour MATCHING, etc.).
+  config         Json         @default("{}")
+  /// Points accordés en cas de réussite.
+  points         Int          @default(10)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  activity  Activity   @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  questions Question[]
+
+  @@index([type])
+  @@map("exercises")
+}
+
+/// Quiz (évaluation notée). Contient n questions QCM et calcule un
+/// score à partir des réponses correctes.
+model Quiz {
+  id               String     @id @default(uuid(7)) @db.Uuid
+  activityId       String     @unique @map("activity_id") @db.Uuid
+  difficulty       Difficulty @default(MEDIUM)
+  titleFr          String     @map("title_fr")
+  titleEn          String     @map("title_en")
+  introductionFr   String?    @map("introduction_fr") @db.Text
+  introductionEn   String?    @map("introduction_en") @db.Text
+  /// Durée maximale en secondes (null = pas de limite).
+  timeLimitSeconds Int?       @map("time_limit_seconds")
+  /// Permettre le passage suivant sans avoir répondu.
+  allowSkip        Boolean    @default(false) @map("allow_skip")
+  /// Tirer aléatoirement N questions parmi le pool.
+  randomize        Boolean    @default(false)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  activity  Activity   @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  questions Question[]
+
+  @@map("quizzes")
+}
+
+/// Question : appartient soit à un `Exercise` (cas FILL_IN_THE_BLANK,
+/// MATCHING…), soit à un `Quiz` (QCM). Une seule des deux FK est non
+/// nulle (contrainte CHECK dans la migration).
+model Question {
+  id            String       @id @default(uuid(7)) @db.Uuid
+  exerciseId    String?      @map("exercise_id") @db.Uuid
+  quizId        String?      @map("quiz_id") @db.Uuid
+  ordinal       Int          @default(0)
+  promptFr      String       @map("prompt_fr") @db.Text
+  promptEn      String       @map("prompt_en") @db.Text
+  /// Type repris d'`ExerciseType` pour permettre les questions
+  /// hétérogènes au sein d'un quiz.
+  type          ExerciseType
+  difficulty    Difficulty   @default(MEDIUM)
+  /// Données spécifiques au type (ex. ordre attendu pour ORDERING).
+  data          Json         @default("{}")
+  /// Explication post-réponse.
+  explanationFr String?      @map("explanation_fr") @db.Text
+  explanationEn String?      @map("explanation_en") @db.Text
+  points        Int          @default(1)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  exercise       Exercise?       @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  quiz           Quiz?           @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers        Answer[]
+  attemptAnswers AttemptAnswer[]
+
+  @@index([exerciseId])
+  @@index([quizId])
+  @@map("questions")
+}
+
+/// Réponse / option d'une question. Pour QCM, plusieurs rangées avec
+/// `isCorrect` à true. Pour SHORT_ANSWER, on stocke les variantes
+/// acceptées (insensible à la casse, accents normalisés).
+model Answer {
+  id          String  @id @default(uuid(7)) @db.Uuid
+  questionId  String  @map("question_id") @db.Uuid
+  ordinal     Int     @default(0)
+  labelFr     String  @map("label_fr") @db.Text
+  labelEn     String  @map("label_en") @db.Text
+  isCorrect   Boolean @default(false) @map("is_correct")
+  /// Pour MATCHING : libellé de la cible appariée (côté droit).
+  pairValueFr String? @map("pair_value_fr") @db.Text
+  pairValueEn String? @map("pair_value_en") @db.Text
+  /// Feedback spécifique à cette option.
+  feedbackFr  String? @map("feedback_fr") @db.Text
+  feedbackEn  String? @map("feedback_en") @db.Text
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@map("answers")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  TENTATIVES, RÉSULTATS, PROGRESSION
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Tentative IMMUABLE d'un apprenant sur une activité. Horodatée,
+/// jamais écrasée. Une tentative agrège des `AttemptAnswer` détaillées.
+model Attempt {
+  id              String  @id @default(uuid(7)) @db.Uuid
+  userId          String  @map("user_id") @db.Uuid
+  activityId      String  @map("activity_id") @db.Uuid
+  /// Score normalisé (0..100).
+  score           Int
+  /// Score brut (somme des points obtenus).
+  rawScore        Int     @map("raw_score")
+  maxScore        Int     @map("max_score")
+  /// Durée totale passée (millisecondes).
+  durationMs      Int     @map("duration_ms")
+  /// True si l'apprenant a atteint le passingScore de l'activity.
+  passed          Boolean @default(false)
+  /// Snapshot de la version de l'activity au moment de la tentative.
+  activityVersion Int     @default(1) @map("activity_version")
+  /// Détail libre.
+  metadata        Json    @default("{}")
+
+  startedAt   DateTime @map("started_at")
+  submittedAt DateTime @default(now()) @map("submitted_at")
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity Activity        @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  answers  AttemptAnswer[]
+
+  @@index([userId, submittedAt])
+  @@index([activityId])
+  @@map("attempts")
+}
+
+/// Réponse détaillée d'une tentative, par question.
+model AttemptAnswer {
+  id           String  @id @default(uuid(7)) @db.Uuid
+  attemptId    String  @map("attempt_id") @db.Uuid
+  questionId   String  @map("question_id") @db.Uuid
+  /// Réponse de l'apprenant (string, array, JSON selon le type).
+  response     Json    @default("{}")
+  isCorrect    Boolean @default(false) @map("is_correct")
+  pointsEarned Int     @default(0) @map("points_earned")
+  /// Temps passé sur cette question (millisecondes).
+  durationMs   Int     @default(0) @map("duration_ms")
+
+  attempt  Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  @@unique([attemptId, questionId])
+  @@map("attempt_answers")
+}
+
+/// Maîtrise d'une compétence par un utilisateur (mise à jour à chaque
+/// tentative). `mastery` ∈ [0..1] estimé via une formule de moyenne
+/// glissante sur les dernières tentatives.
+model Progress {
+  id            String    @id @default(uuid(7)) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  skillId       String    @map("skill_id") @db.Uuid
+  mastery       Float     @default(0)
+  attemptsCount Int       @default(0) @map("attempts_count")
+  lastAttemptAt DateTime? @map("last_attempt_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId])
+  @@index([userId])
+  @@index([skillId])
+  @@map("progress")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  GAMIFICATION : BADGES, RÉCOMPENSES, SÉRIES
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Définition d'un badge déblocable.
+model Badge {
+  id            String    @id @default(uuid(7)) @db.Uuid
+  code          String    @unique @db.VarChar(64)
+  kind          BadgeKind
+  nameFr        String    @map("name_fr")
+  nameEn        String    @map("name_en")
+  descriptionFr String    @map("description_fr") @db.Text
+  descriptionEn String    @map("description_en") @db.Text
+  iconUrl       String?   @map("icon_url")
+  /// Compétence associée (optionnelle, badges de maîtrise).
+  skillId       String?   @map("skill_id") @db.Uuid
+  /// Critères d'obtention (sérialisé selon la règle).
+  criteria      Json      @default("{}")
+  /// Ordre d'affichage dans la galerie de badges.
+  ordinal       Int       @default(0)
+  isActive      Boolean   @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  skill   Skill?      @relation(fields: [skillId], references: [id], onDelete: SetNull)
+  unlocks UserBadge[]
+
+  @@index([kind])
+  @@map("badges")
+}
+
+/// Badge obtenu par un utilisateur (immutable côté métier).
+model UserBadge {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  badgeId   String   @map("badge_id") @db.Uuid
+  earnedAt  DateTime @default(now()) @map("earned_at")
+  /// Tentative ayant déclenché l'obtention (traçabilité).
+  attemptId String?  @map("attempt_id") @db.Uuid
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@map("user_badges")
+}
+
+/// Série quotidienne (streak) d'un utilisateur. Une seule rangée par
+/// utilisateur, mise à jour à chaque session.
+model Streak {
+  id           String    @id @default(uuid(7)) @db.Uuid
+  userId       String    @unique @map("user_id") @db.Uuid
+  current      Int       @default(0)
+  longest      Int       @default(0)
+  /// Date locale (Europe/Montréal) du dernier jour comptabilisé.
+  lastDayLocal DateTime? @map("last_day_local") @db.Date
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("streaks")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  COMMUNICATION : NOTIFICATIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Notification in-app destinée à un utilisateur. Les courriels
+/// transactionnels passent par Resend et ne sont pas dupliqués ici
+/// (sauf log d'envoi dans audit_logs).
+model Notification {
+  id      String           @id @default(uuid(7)) @db.Uuid
+  userId  String           @map("user_id") @db.Uuid
+  kind    NotificationKind
+  titleFr String           @map("title_fr")
+  titleEn String           @map("title_en")
+  bodyFr  String           @map("body_fr") @db.Text
+  bodyEn  String           @map("body_en") @db.Text
+  /// URL relative cible (CTA).
+  href    String?
+  payload Json             @default("{}")
+  readAt  DateTime?        @map("read_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@index([kind])
+  @@map("notifications")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  VERSIONNAGE DE CONTENU
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Snapshot historique d'un contenu pédagogique (Lesson, Exercise, Quiz,
+/// Question). Permet de retrouver la version exacte vue par
+/// l'apprenant lors d'une `Attempt` et d'auditer les modifications.
+model ContentVersion {
+  id              String          @id @default(uuid(7)) @db.Uuid
+  versionableKind VersionableKind @map("versionable_kind")
+  versionableId   String          @map("versionable_id") @db.Uuid
+  /// Numéro de version monotone par entité (1, 2, 3...).
+  version         Int
+  /// Snapshot complet sérialisé.
+  snapshot        Json
+  authorId        String?         @map("author_id") @db.Uuid
+  reviewerId      String?         @map("reviewer_id") @db.Uuid
+  /// Note de version (changelog par contenu).
+  changeNote      String?         @map("change_note") @db.Text
+  publishedAt     DateTime?       @map("published_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  author   User? @relation("ContentAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  reviewer User? @relation("ContentReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+
+  @@unique([versionableKind, versionableId, version])
+  @@index([versionableKind, versionableId])
+  @@map("content_versions")
+}

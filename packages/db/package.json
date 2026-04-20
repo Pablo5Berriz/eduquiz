@@ -7,22 +7,35 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./enums": "./src/enums.ts"
   },
   "scripts": {
-    "db:generate": "echo \"[@eduquiz/db] generate — configuration Prisma à venir (étape 0.3)\" && exit 0",
-    "db:migrate": "echo \"[@eduquiz/db] migrate — configuration Prisma à venir (étape 0.3)\" && exit 0",
-    "db:push": "echo \"[@eduquiz/db] push — configuration Prisma à venir (étape 0.3)\" && exit 0",
-    "db:seed": "echo \"[@eduquiz/db] seed — configuration Prisma à venir (étape 0.3)\" && exit 0",
-    "db:studio": "echo \"[@eduquiz/db] studio — configuration Prisma à venir (étape 0.3)\" && exit 0",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset --force",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "db:format": "prisma format",
+    "db:validate": "prisma validate",
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "clean": "rm -rf dist .turbo node_modules"
+    "clean": "rm -rf dist .turbo node_modules src/generated"
   },
-  "dependencies": {},
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  },
   "devDependencies": {
-    "@eduquiz/config": "workspace:*"
+    "@eduquiz/config": "workspace:*",
+    "prisma": "^5.22.0",
+    "tsx": "^4.19.2"
   }
 }
