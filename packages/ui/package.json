@@ -10,9 +10,14 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "lint": "echo \"[@eduquiz/ui] lint — configuration ESLint à venir (étape 0.2)\" && exit 0",
-    "test": "echo \"[@eduquiz/ui] test — configuration Vitest à venir (étape 0.2)\" && exit 0",
-    "typecheck": "echo \"[@eduquiz/ui] typecheck — tsconfig à venir (étape 0.2)\" && exit 0",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "clean": "rm -rf dist .turbo node_modules"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@eduquiz/config": "workspace:*"
   }
 }

@@ -12,5 +12,5 @@ Composants UI partagés entre `@eduquiz/web` et `@eduquiz/mobile`.
 
 ## État actuel
 
-Paquet scaffoldé (étape 0.1). Les premiers composants arriveront avec
-l'étape 0.4 (init shadcn/ui).
+Paquet scaffoldé (étape 0.1). Les premiers composants arriveront avec l'étape
+0.4 (init shadcn/ui).

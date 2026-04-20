@@ -1,8 +1,11 @@
 # Wireframes textuels — EduQuiz Public
 
-Les wireframes décrivent la structure, la hiérarchie visuelle et les interactions clés. Ils servent de base à la conception Figma, pas de spécification pixel-perfect.
+Les wireframes décrivent la structure, la hiérarchie visuelle et les
+interactions clés. Ils servent de base à la conception Figma, pas de
+spécification pixel-perfect.
 
 **Notation utilisée :**
+
 - `[BLOC]` = section visuelle
 - `→` = action / navigation
 - `(attr)` = propriété ou état
@@ -14,42 +17,59 @@ Les wireframes décrivent la structure, la hiérarchie visuelle et les interacti
 
 ### Écran 1 — Accueil / Landing
 
-Parfait. Je te livre les 6 fichiers, chacun dans un bloc de code séparé prêt à copier-coller. Pour chacun, ouvre le fichier dans VS Code, copie le contenu du bloc et colle-le tel quel.
+Parfait. Je te livre les 6 fichiers, chacun dans un bloc de code séparé prêt à
+copier-coller. Pour chacun, ouvre le fichier dans VS Code, copie le contenu du
+bloc et colle-le tel quel.
 
-Fichier 1 — docs/00-project-brief.md
-markdown# EduQuiz Public — Description détaillée du projet
+Fichier 1 — docs/00-project-brief.md markdown# EduQuiz Public — Description
+détaillée du projet
 
 ## 1. Vue d'ensemble
 
-EduQuiz Public est une plateforme éducative web et mobile destinée aux élèves du primaire et du secondaire au Québec, utilisable hors cadre scolaire. Elle permet aux apprenants de consolider leurs acquis via des leçons structurées, des exercices interactifs et des quiz, dans un environnement entièrement bilingue français/anglais.
+EduQuiz Public est une plateforme éducative web et mobile destinée aux élèves du
+primaire et du secondaire au Québec, utilisable hors cadre scolaire. Elle permet
+aux apprenants de consolider leurs acquis via des leçons structurées, des
+exercices interactifs et des quiz, dans un environnement entièrement bilingue
+français/anglais.
 
 La plateforme s'adresse à trois profils d'utilisateurs :
 
-- des apprenants adultes qui souhaitent réviser ou progresser de manière autonome;
+- des apprenants adultes qui souhaitent réviser ou progresser de manière
+  autonome;
 - des élèves mineurs, obligatoirement rattachés à un compte parent vérifié;
 - des parents qui supervisent les progrès de leurs enfants.
 
-L'architecture, bien que limitée au grand public dans cette première version, est conçue dès le départ pour accueillir ultérieurement une extension scolaire B2B sans refonte du socle technique ni du modèle de données.
+L'architecture, bien que limitée au grand public dans cette première version,
+est conçue dès le départ pour accueillir ultérieurement une extension scolaire
+B2B sans refonte du socle technique ni du modèle de données.
 
 ## 2. Objectifs produit
 
 La plateforme poursuit cinq objectifs :
 
-- **Structuration** : progression par niveau, matière, compétence, cours et leçon, alignée sur la Progression des Apprentissages du MEQ.
+- **Structuration** : progression par niveau, matière, compétence, cours et
+  leçon, alignée sur la Progression des Apprentissages du MEQ.
 - **Activité** : exercices interactifs et quiz à la fin de chaque leçon.
-- **Engagement** : système de points, badges, niveaux et objectifs hebdomadaires.
-- **Autonomie** : expérience d'apprentissage fluide, personnalisable, utilisable sans intervention extérieure.
-- **Confiance parentale** : mécanisme de consentement vérifiable et outils de supervision pour les parents d'enfants mineurs.
+- **Engagement** : système de points, badges, niveaux et objectifs
+  hebdomadaires.
+- **Autonomie** : expérience d'apprentissage fluide, personnalisable, utilisable
+  sans intervention extérieure.
+- **Confiance parentale** : mécanisme de consentement vérifiable et outils de
+  supervision pour les parents d'enfants mineurs.
 
 ## 3. Périmètre
 
 ### 3.1 Territoire
 
-La plateforme est limitée au Québec. Les contenus, la terminologie et la localisation linguistique sont alignés sur le contexte québécois. Le modèle de données est conçu pour permettre une extension canadienne ultérieure.
+La plateforme est limitée au Québec. Les contenus, la terminologie et la
+localisation linguistique sont alignés sur le contexte québécois. Le modèle de
+données est conçu pour permettre une extension canadienne ultérieure.
 
 ### 3.2 Langues
 
-L'ensemble de l'application est disponible nativement en français et en anglais : interface, navigation, notifications, contenus système, messages d'erreur, courriels transactionnels et contenus pédagogiques.
+L'ensemble de l'application est disponible nativement en français et en anglais
+: interface, navigation, notifications, contenus système, messages d'erreur,
+courriels transactionnels et contenus pédagogiques.
 
 ### 3.3 Public cible
 
@@ -57,7 +77,8 @@ L'ensemble de l'application est disponible nativement en français et en anglais
 - Apprenants adultes indépendants.
 - Parents superviseurs.
 
-Les rôles école (enseignant, admin école, super admin école) sont explicitement **hors périmètre** de cette première version.
+Les rôles école (enseignant, admin école, super admin école) sont explicitement
+**hors périmètre** de cette première version.
 
 ## 4. Parcours utilisateur
 
@@ -75,7 +96,8 @@ Les rôles école (enseignant, admin école, super admin école) sont explicitem
 1. Le parent crée d'abord son compte et génère un code de rattachement.
 2. Le mineur crée son compte et saisit le code.
 3. Le parent confirme le rattachement par courriel.
-4. Le mineur accède au catalogue avec les paramètres de supervision définis par le parent.
+4. Le mineur accède au catalogue avec les paramètres de supervision définis par
+   le parent.
 5. Toute activité est visible par le parent.
 
 ### 4.3 Parcours parent
@@ -83,7 +105,8 @@ Les rôles école (enseignant, admin école, super admin école) sont explicitem
 1. Création de compte avec vérification de courriel.
 2. Rattachement d'un ou plusieurs enfants mineurs via code à 6 chiffres.
 3. Consultation des progrès de chaque enfant.
-4. Gestion des paramètres de supervision, du consentement et de la confidentialité.
+4. Gestion des paramètres de supervision, du consentement et de la
+   confidentialité.
 5. Accès aux rapports hebdomadaires et mensuels.
 
 ## 5. Structure pédagogique
@@ -92,7 +115,10 @@ La hiérarchie de contenu est :
 
 **Niveau scolaire → Matière → Compétence → Cours → Leçon → Activité**
 
-L'entité **Compétence**, alignée sur la Progression des Apprentissages du MEQ, permet de suivre la maîtrise réelle d'une notion, indépendamment de la leçon qui la couvre. Une compétence peut être travaillée dans plusieurs leçons, et une leçon peut couvrir plusieurs compétences.
+L'entité **Compétence**, alignée sur la Progression des Apprentissages du MEQ,
+permet de suivre la maîtrise réelle d'une notion, indépendamment de la leçon qui
+la couvre. Une compétence peut être travaillée dans plusieurs leçons, et une
+leçon peut couvrir plusieurs compétences.
 
 Une activité est de type Exercice ou Quiz.
 
@@ -139,7 +165,8 @@ Toutes les matières sont localisées FR/EN.
 
 ### 7.3 Contenu de leçon
 
-Texte explicatif, images, audio, vidéo embarquée, exemples, résumé, objectifs pédagogiques, durée estimée, prérequis, mots-clés, compétences ciblées.
+Texte explicatif, images, audio, vidéo embarquée, exemples, résumé, objectifs
+pédagogiques, durée estimée, prérequis, mots-clés, compétences ciblées.
 
 ## 8. Exercices et quiz
 
@@ -156,15 +183,21 @@ Les exercices offrent un retour immédiat et peuvent être notés ou non.
 
 ### 8.2 Quiz
 
-Chaque leçon peut proposer un quiz associé. Le quiz contient des QCM, calcule un score, enregistre une tentative horodatée et alimente le système de récompenses.
+Chaque leçon peut proposer un quiz associé. Le quiz contient des QCM, calcule un
+score, enregistre une tentative horodatée et alimente le système de récompenses.
 
 ## 9. Modes de jeu
 
-**Mode solo uniquement** en Partie 1. L'utilisateur choisit niveau, matière, cours, leçon, puis lance les exercices ou le quiz. Les modes multi-joueurs sont reportés à la Partie 2.
+**Mode solo uniquement** en Partie 1. L'utilisateur choisit niveau, matière,
+cours, leçon, puis lance les exercices ou le quiz. Les modes multi-joueurs sont
+reportés à la Partie 2.
 
 ## 10. Système de points et récompenses
 
-Gamification incluant points par bonne réponse, bonus de rapidité et de série, badges de progression liés aux compétences, niveaux de joueur, trophées par matière, objectifs hebdomadaires et récompenses visuelles. Les récompenses encouragent l'apprentissage régulier, pas la compétition.
+Gamification incluant points par bonne réponse, bonus de rapidité et de série,
+badges de progression liés aux compétences, niveaux de joueur, trophées par
+matière, objectifs hebdomadaires et récompenses visuelles. Les récompenses
+encouragent l'apprentissage régulier, pas la compétition.
 
 ## 11. Consentement parental et mineurs
 
@@ -174,17 +207,22 @@ Mécanisme vérifiable et traçable :
 2. Un code unique à 6 chiffres est généré, valable 24 h.
 3. L'enfant saisit ce code; le rattachement passe à l'état `pending`.
 4. Le parent confirme via un lien reçu par courriel; l'état passe à `verified`.
-5. Chaque action est inscrite dans le journal `ConsentRecord` avec horodatage, IP, user-agent.
+5. Chaque action est inscrite dans le journal `ConsentRecord` avec horodatage,
+   IP, user-agent.
 
-**Contrôles parentaux** : consentement explicite, supervision de l'activité, historique accessible, droit à l'effacement et à l'export des données.
+**Contrôles parentaux** : consentement explicite, supervision de l'activité,
+historique accessible, droit à l'effacement et à l'export des données.
 
-**Conformité légale** : Loi 25 du Québec, LPRPDE fédérale, et COPPA pour usagers hors Canada. La Loi 25 impose la désignation d'un RPRP, la notification d'incident, et des politiques d'accès et de rectification accessibles.
+**Conformité légale** : Loi 25 du Québec, LPRPDE fédérale, et COPPA pour usagers
+hors Canada. La Loi 25 impose la désignation d'un RPRP, la notification
+d'incident, et des politiques d'accès et de rectification accessibles.
 
 ## 12. Sécurité et protection des données
 
 - Chaque requête vérifie rôle, identité et permissions réelles.
 - Row Level Security Postgres pour cloisonner les données famille par famille.
-- Journalisation immuable des connexions, consultations de résultats, actions sensibles et consentements.
+- Journalisation immuable des connexions, consultations de résultats, actions
+  sensibles et consentements.
 - Chiffrement au repos (pgcrypto) et en transit (TLS 1.3).
 - Sauvegardes quotidiennes automatiques avec externalisation.
 
@@ -199,7 +237,8 @@ Mécanisme vérifiable et traçable :
 
 ## 14. Écrans de la Partie 1
 
-Inventaire détaillé disponible dans `docs/05-screens-inventory.md`. Total : **122 écrans** regroupés en 14 zones fonctionnelles.
+Inventaire détaillé disponible dans `docs/05-screens-inventory.md`. Total :
+**122 écrans** regroupés en 14 zones fonctionnelles.
 
 ## 15. Stack technique
 
@@ -218,20 +257,26 @@ Détail complet dans `docs/02-stack-proxmox.md`. Résumé :
 
 ### 16.1 Rédactionnel
 
-- **Progression des Apprentissages du MEQ** : référentiel officiel public, source de vérité pour la structure.
-- **École ouverte** (MEQ + Université de Montréal) : contenus primaire et secondaire.
+- **Progression des Apprentissages du MEQ** : référentiel officiel public,
+  source de vérité pour la structure.
+- **École ouverte** (MEQ + Université de Montréal) : contenus primaire et
+  secondaire.
 - **Répertoires de révision publics d'Alloprof** : alignement terminologique.
-- **OER Commons**, **MERLOT**, **OpenStax** : ressources éducatives libres sous Creative Commons.
+- **OER Commons**, **MERLOT**, **OpenStax** : ressources éducatives libres sous
+  Creative Commons.
 
 ### 16.2 APIs gratuites
 
-- **Open Trivia Database** : API JSON gratuite sans clé, licence CC BY-SA 4.0, 4 000+ QCM.
-- **Free Dictionary API** : définitions et phonétique pour exercices de vocabulaire.
+- **Open Trivia Database** : API JSON gratuite sans clé, licence CC BY-SA 4.0, 4
+  000+ QCM.
+- **Free Dictionary API** : définitions et phonétique pour exercices de
+  vocabulaire.
 - **Numbers API** : faits mathématiques.
 
 ### 16.3 Génération assistée
 
-- **Anthropic Claude API** : génération d'exercices et de quiz à partir de plans de leçon, avec révision humaine systématique.
+- **Anthropic Claude API** : génération d'exercices et de quiz à partir de plans
+  de leçon, avec révision humaine systématique.
 
 ### 16.4 Médias
 
@@ -240,94 +285,116 @@ Détail complet dans `docs/02-stack-proxmox.md`. Résumé :
 
 ### 16.5 Gouvernance
 
-Chaque ressource est associée à sa source et sa licence dans un registre interne. Toute production IA est relue par un humain avant publication. L'alignement MEQ est vérifié leçon par leçon.
+Chaque ressource est associée à sa source et sa licence dans un registre
+interne. Toute production IA est relue par un humain avant publication.
+L'alignement MEQ est vérifié leçon par leçon.
 
 ## 17. Conformité légale (Partie 1)
 
-- **Loi 25 du Québec** : désignation d'un RPRP, registre des incidents, politique de confidentialité accessible, mécanismes d'accès, rectification et suppression opérationnels.
-- **LPRPDE** : consentement éclairé, finalité explicite, sécurité proportionnelle.
+- **Loi 25 du Québec** : désignation d'un RPRP, registre des incidents,
+  politique de confidentialité accessible, mécanismes d'accès, rectification et
+  suppression opérationnels.
+- **LPRPDE** : consentement éclairé, finalité explicite, sécurité
+  proportionnelle.
 - **COPPA** : applicable aux utilisateurs hors Canada de moins de 13 ans.
 - **Accessibilité** : cible WCAG 2.1 niveau AA.
 
-Un budget de 3 000 à 5 000 $ CAD est à prévoir pour consultation juridique et rédaction des politiques avant lancement public.
+Un budget de 3 000 à 5 000 $ CAD est à prévoir pour consultation juridique et
+rédaction des politiques avant lancement public.
 
 ## 18. Modèle économique
 
 - **Freemium** : accès à un sous-ensemble de leçons et d'exercices gratuitement.
 - **Plan Individuel** : accès complet pour un apprenant adulte.
-- **Plan Famille** : jusqu'à 4 enfants rattachés à un parent, accès complet pour tous.
+- **Plan Famille** : jusqu'à 4 enfants rattachés à un parent, accès complet pour
+  tous.
 
-La tarification exacte est à déterminer selon l'étude de marché. Les coûts d'infrastructure à faible volume sont maîtrisés grâce à l'hébergement Proxmox personnel, ce qui permet une marge brute confortable dès les premiers clients payants.
+La tarification exacte est à déterminer selon l'étude de marché. Les coûts
+d'infrastructure à faible volume sont maîtrisés grâce à l'hébergement Proxmox
+personnel, ce qui permet une marge brute confortable dès les premiers clients
+payants.
 
 ## 19. Conditions de succès du lancement
 
-- Un catalogue initial minimal viable sur 2 matières (Mathématiques et Français) et 2 niveaux (Secondaire 1 et 2), soit environ 60 leçons et 600 activités.
+- Un catalogue initial minimal viable sur 2 matières (Mathématiques et Français)
+  et 2 niveaux (Secondaire 1 et 2), soit environ 60 leçons et 600 activités.
 - Le mécanisme de consentement parental opérationnel et validé juridiquement.
 - Les politiques de confidentialité, de consentement et les CGU rédigées.
-- Les pages d'accès, rectification, suppression et export fonctionnelles (Loi 25).
+- Les pages d'accès, rectification, suppression et export fonctionnelles (Loi
+  25).
 - Une couverture d'accessibilité WCAG AA vérifiée sur les parcours critiques.
 - Un déploiement mobile passant la revue Apple et Google.
 
 ## 20. Extensibilité vers la Partie 2 (école)
 
-Le modèle de données et l'architecture sont conçus pour permettre l'ajout futur des rôles école (enseignant, admin école, super admin école) et des fonctionnalités associées (classes, assignations, sessions temps réel) sans refonte. La Partie 2 sera développée dans une itération ultérieure après validation du marché grand public.
+Le modèle de données et l'architecture sont conçus pour permettre l'ajout futur
+des rôles école (enseignant, admin école, super admin école) et des
+fonctionnalités associées (classes, assignations, sessions temps réel) sans
+refonte. La Partie 2 sera développée dans une itération ultérieure après
+validation du marché grand public.
 
-Fichier 2 — docs/01-architecture.md
-markdown# Architecture technique
+Fichier 2 — docs/01-architecture.md markdown# Architecture technique
 
 > **Statut** : à compléter par Cowork lors de la Phase 0.
 
 ## Livrables attendus en Phase 0
 
-1. Diagramme Mermaid de l'architecture système complète (Proxmox, containers, services, flux réseau).
+1. Diagramme Mermaid de l'architecture système complète (Proxmox, containers,
+   services, flux réseau).
 2. Description textuelle de chaque composant et de ses responsabilités.
 3. Flux d'authentification détaillé.
-4. Flux de requête type (ex : soumission d'un quiz, du clic utilisateur à la persistance en base).
+4. Flux de requête type (ex : soumission d'un quiz, du clic utilisateur à la
+   persistance en base).
 5. Flux de consentement parental avec séquence Mermaid.
 6. Plan de sauvegarde et de reprise.
 7. Liste des variables d'environnement requises (référence vers `.env.example`).
 
 ## Contenu à produire
 
-Cowork doit remplir ce document au fil du développement et le tenir à jour comme source unique de vérité architecturale.
+Cowork doit remplir ce document au fil du développement et le tenir à jour comme
+source unique de vérité architecturale.
 
-Fichier 3 — docs/02-stack-proxmox.md
-markdown# Stack technique et hébergement Proxmox
+Fichier 3 — docs/02-stack-proxmox.md markdown# Stack technique et hébergement
+Proxmox
 
 ## Correspondance cloud → self-hosted
 
-Le projet est hébergé sur un serveur Proxmox personnel. Tous les services cloud ont été remplacés par leurs équivalents self-hosted open source, à l'exception des services pour lesquels l'auto-hébergement pose plus de risques que de bénéfices (emails transactionnels notamment, à cause de la gestion de la réputation IP).
+Le projet est hébergé sur un serveur Proxmox personnel. Tous les services cloud
+ont été remplacés par leurs équivalents self-hosted open source, à l'exception
+des services pour lesquels l'auto-hébergement pose plus de risques que de
+bénéfices (emails transactionnels notamment, à cause de la gestion de la
+réputation IP).
 
-| Couche | Alternative cloud | Choix retenu (Proxmox) |
-|---|---|---|
-| Base de données | Supabase cloud | **PostgreSQL 16** dans LXC ou VM dédié |
-| Auth + API | Supabase Auth | **Auth.js v5 (NextAuth)** intégré à Next.js |
-| Stockage objet | Cloudflare R2 | **MinIO** (S3-compatible, open source) |
-| CDN et DNS | Cloudflare payant | **Cloudflare tier gratuit** en front (DNS + CDN + WAF) |
-| Hébergement web | Vercel | **Docker** + **Traefik v3** (reverse proxy + SSL Let's Encrypt auto) |
-| Edge functions | Vercel Edge | **Next.js API routes** et Server Actions |
-| Emails transactionnels | — | **Resend API** (tier gratuit 3000/mois) — trop risqué à self-hoster |
-| Monitoring erreurs | Sentry cloud | **Sentry self-hosted** OU **GlitchTip** (alternative légère) |
-| Analytics produit | PostHog cloud | **PostHog self-hosted** OU **Plausible CE** |
-| Logs centralisés | Logtail | **Grafana Loki** + **Grafana** |
-| Uptime | Better Stack | **Uptime Kuma** (open source, ultra léger) |
-| CI/CD | Vercel | **GitHub Actions** (gratuit) + runner self-hosted optionnel |
-| Sauvegardes DB | Auto cloud | **pgBackRest** + stockage externe Backblaze B2 |
-| Reverse proxy | Vercel edge | **Traefik v3** avec SSL automatique |
-| Orchestration | — | **Docker Compose** (Kubernetes non justifié à ce stade) |
+| Couche                 | Alternative cloud | Choix retenu (Proxmox)                                               |
+| ---------------------- | ----------------- | -------------------------------------------------------------------- |
+| Base de données        | Supabase cloud    | **PostgreSQL 16** dans LXC ou VM dédié                               |
+| Auth + API             | Supabase Auth     | **Auth.js v5 (NextAuth)** intégré à Next.js                          |
+| Stockage objet         | Cloudflare R2     | **MinIO** (S3-compatible, open source)                               |
+| CDN et DNS             | Cloudflare payant | **Cloudflare tier gratuit** en front (DNS + CDN + WAF)               |
+| Hébergement web        | Vercel            | **Docker** + **Traefik v3** (reverse proxy + SSL Let's Encrypt auto) |
+| Edge functions         | Vercel Edge       | **Next.js API routes** et Server Actions                             |
+| Emails transactionnels | —                 | **Resend API** (tier gratuit 3000/mois) — trop risqué à self-hoster  |
+| Monitoring erreurs     | Sentry cloud      | **Sentry self-hosted** OU **GlitchTip** (alternative légère)         |
+| Analytics produit      | PostHog cloud     | **PostHog self-hosted** OU **Plausible CE**                          |
+| Logs centralisés       | Logtail           | **Grafana Loki** + **Grafana**                                       |
+| Uptime                 | Better Stack      | **Uptime Kuma** (open source, ultra léger)                           |
+| CI/CD                  | Vercel            | **GitHub Actions** (gratuit) + runner self-hosted optionnel          |
+| Sauvegardes DB         | Auto cloud        | **pgBackRest** + stockage externe Backblaze B2                       |
+| Reverse proxy          | Vercel edge       | **Traefik v3** avec SSL automatique                                  |
+| Orchestration          | —                 | **Docker Compose** (Kubernetes non justifié à ce stade)              |
 
 ## Architecture Proxmox recommandée
 
 ### Découpage en LXC / VMs
 
-| Container | Rôle | Ressources estimées |
-|---|---|---|
-| `eduquiz-db` | PostgreSQL 16 principal | 4 vCPU, 8 Go RAM, 100 Go SSD |
-| `eduquiz-app` | Docker host (web, API, workers) | 6 vCPU, 12 Go RAM, 50 Go SSD |
-| `eduquiz-storage` | MinIO + Redis (cache, rate limit) | 2 vCPU, 4 Go RAM, 200 Go SSD |
-| `eduquiz-proxy` | Traefik + certificats | 1 vCPU, 1 Go RAM, 10 Go SSD |
-| `eduquiz-monitoring` | GlitchTip + Grafana + Loki + Uptime Kuma | 2 vCPU, 4 Go RAM, 50 Go SSD |
-| `eduquiz-backup` | Agent pgBackRest + rsync | 1 vCPU, 1 Go RAM, 500 Go HDD |
+| Container            | Rôle                                     | Ressources estimées          |
+| -------------------- | ---------------------------------------- | ---------------------------- |
+| `eduquiz-db`         | PostgreSQL 16 principal                  | 4 vCPU, 8 Go RAM, 100 Go SSD |
+| `eduquiz-app`        | Docker host (web, API, workers)          | 6 vCPU, 12 Go RAM, 50 Go SSD |
+| `eduquiz-storage`    | MinIO + Redis (cache, rate limit)        | 2 vCPU, 4 Go RAM, 200 Go SSD |
+| `eduquiz-proxy`      | Traefik + certificats                    | 1 vCPU, 1 Go RAM, 10 Go SSD  |
+| `eduquiz-monitoring` | GlitchTip + Grafana + Loki + Uptime Kuma | 2 vCPU, 4 Go RAM, 50 Go SSD  |
+| `eduquiz-backup`     | Agent pgBackRest + rsync                 | 1 vCPU, 1 Go RAM, 500 Go HDD |
 
 Les ressources peuvent être ajustées selon le serveur physique disponible.
 
@@ -356,6 +423,7 @@ eduquiz-proxy (Traefik) ──► services internes
 ### Cloudflare devant
 
 Cloudflare tier gratuit est obligatoire pour :
+
 - Masquer l'IP domestique réelle (proxy orange cloud).
 - Fournir le WAF de base.
 - Absorber les tentatives DDoS de base.
@@ -380,7 +448,8 @@ Cloudflare tier gratuit est obligatoire pour :
 ### Frontend web
 
 - **Next.js 14** App Router + React Server Components + Server Actions
-- **Tailwind CSS** + **shadcn/ui** (composants copiés dans le repo, pas dépendance npm)
+- **Tailwind CSS** + **shadcn/ui** (composants copiés dans le repo, pas
+  dépendance npm)
 - **TanStack Query** pour l'état serveur
 - **Zustand** pour l'état client
 - **React Hook Form** + **Zod** pour les formulaires
@@ -450,37 +519,42 @@ Cloudflare tier gratuit est obligatoire pour :
 ### Stratégie 3-2-1 adaptée
 
 - **Snapshots Proxmox quotidiens** sur le host (rétention 7 jours).
-- **Dumps PostgreSQL** via pgBackRest, chiffrés, externalisés vers **Backblaze B2** (environ 0,005 $/Go/mois) — rétention 30 jours.
-- **Dumps hebdomadaires complets** archivés vers un disque externe physique (rétention 12 mois).
+- **Dumps PostgreSQL** via pgBackRest, chiffrés, externalisés vers **Backblaze
+  B2** (environ 0,005 $/Go/mois) — rétention 30 jours.
+- **Dumps hebdomadaires complets** archivés vers un disque externe physique
+  (rétention 12 mois).
 
 Ne jamais avoir les backups uniquement sur le même hôte physique.
 
 ## Dépendances externes minimales
 
-| Service | Usage | Coût |
-|---|---|---|
-| Cloudflare | DNS, CDN, WAF, SSL edge | Gratuit |
-| Resend | Emails transactionnels | Gratuit jusqu'à 3000/mois |
-| Backblaze B2 | Stockage de sauvegardes externalisées | ~0,005 $/Go/mois |
-| Stripe | Paiements | 2,9 % + 0,30 $ par transaction |
-| Apple Developer | Publication iOS | 99 USD/an |
-| Google Play | Publication Android | 25 USD une fois |
-| Nom de domaine | .com ou .ca | ~15 à 20 $/an |
+| Service         | Usage                                 | Coût                           |
+| --------------- | ------------------------------------- | ------------------------------ |
+| Cloudflare      | DNS, CDN, WAF, SSL edge               | Gratuit                        |
+| Resend          | Emails transactionnels                | Gratuit jusqu'à 3000/mois      |
+| Backblaze B2    | Stockage de sauvegardes externalisées | ~0,005 $/Go/mois               |
+| Stripe          | Paiements                             | 2,9 % + 0,30 $ par transaction |
+| Apple Developer | Publication iOS                       | 99 USD/an                      |
+| Google Play     | Publication Android                   | 25 USD une fois                |
+| Nom de domaine  | .com ou .ca                           | ~15 à 20 $/an                  |
 
-**Coût récurrent mensuel estimé à faible volume** : moins de 20 $ CAD hors frais Stripe et hors électricité Proxmox.
+**Coût récurrent mensuel estimé à faible volume** : moins de 20 $ CAD hors frais
+Stripe et hors électricité Proxmox.
 
 ## Livrables Phase 0 pour cette section
 
 Cowork doit produire :
 
-1. Un `docker-compose.yml` de développement local incluant PostgreSQL, MinIO, Traefik, Redis.
+1. Un `docker-compose.yml` de développement local incluant PostgreSQL, MinIO,
+   Traefik, Redis.
 2. Un `docker-compose.prod.yml` pour le déploiement Proxmox.
 3. Un fichier `.env.example` documentant toutes les variables requises.
-4. Un guide `docs/infrastructure/proxmox-setup.md` expliquant la création des LXC, l'installation des services et la configuration Cloudflare.
+4. Un guide `docs/infrastructure/proxmox-setup.md` expliquant la création des
+   LXC, l'installation des services et la configuration Cloudflare.
 5. Les workflows GitHub Actions pour build et déploiement automatique.
 
-Fichier 4 — docs/05-screens-inventory.md
-markdown# Inventaire des écrans — EduQuiz Public (Partie 1)
+Fichier 4 — docs/05-screens-inventory.md markdown# Inventaire des écrans —
+EduQuiz Public (Partie 1)
 
 **Total : 122 écrans** regroupés en 14 zones fonctionnelles.
 
@@ -615,8 +689,8 @@ markdown# Inventaire des écrans — EduQuiz Public (Partie 1)
 
 98. Centre de notifications
 99. Aide et base de connaissances
-100. Soumettre une demande de support
-101. Confirmation d'envoi
+100.  Soumettre une demande de support
+101.  Confirmation d'envoi
 
 ## Zone 12 — Paiement et abonnement — 10 écrans
 
@@ -650,48 +724,59 @@ markdown# Inventaire des écrans — EduQuiz Public (Partie 1)
 
 ## Récapitulatif
 
-| Zone | Nombre d'écrans |
-|---|---|
-| 1. Publics | 14 |
-| 2. Auth et onboarding | 14 |
-| 3. Compte et paramètres | 10 |
-| 4. Navigation et contenu | 14 |
-| 5. Compétences MEQ | 4 |
-| 6. Exercices | 13 |
-| 7. Quiz | 7 |
-| 8. Suivi et progression | 6 |
-| 9. Gamification | 6 |
-| 10. Dashboard parent | 9 |
-| 11. Notifications et support | 4 |
-| 12. Paiement et abonnement | 10 |
-| 13. Écrans système | 6 |
-| 14. Modales transverses | 5 |
-| **Total** | **122** |
+| Zone                         | Nombre d'écrans |
+| ---------------------------- | --------------- |
+| 1. Publics                   | 14              |
+| 2. Auth et onboarding        | 14              |
+| 3. Compte et paramètres      | 10              |
+| 4. Navigation et contenu     | 14              |
+| 5. Compétences MEQ           | 4               |
+| 6. Exercices                 | 13              |
+| 7. Quiz                      | 7               |
+| 8. Suivi et progression      | 6               |
+| 9. Gamification              | 6               |
+| 10. Dashboard parent         | 9               |
+| 11. Notifications et support | 4               |
+| 12. Paiement et abonnement   | 10              |
+| 13. Écrans système           | 6               |
+| 14. Modales transverses      | 5               |
+| **Total**                    | **122**         |
 
 ## Principes transversaux applicables à tous les écrans
 
-**Responsive** : chaque écran a une version mobile (320-480px), tablette (768px), desktop (1024px+).
+**Responsive** : chaque écran a une version mobile (320-480px), tablette
+(768px), desktop (1024px+).
 
-**États obligatoires pour chaque écran** : vide (empty state avec CTA), chargement (skeleton screens), erreur (avec action de récupération), succès.
+**États obligatoires pour chaque écran** : vide (empty state avec CTA),
+chargement (skeleton screens), erreur (avec action de récupération), succès.
 
-**Hiérarchie typographique** : titre principal (H1, 32px), titres de section (H2, 24px), sous-titres (H3, 18px), corps (16px), secondaire (14px), métadonnées (12px).
+**Hiérarchie typographique** : titre principal (H1, 32px), titres de section
+(H2, 24px), sous-titres (H3, 18px), corps (16px), secondaire (14px), métadonnées
+(12px).
 
-**Système de couleurs** : primaire (action CTA), secondaire (actions alternatives), succès (vert), erreur (rouge), avertissement (jaune), info (bleu). Mode sombre obligatoire.
+**Système de couleurs** : primaire (action CTA), secondaire (actions
+alternatives), succès (vert), erreur (rouge), avertissement (jaune), info
+(bleu). Mode sombre obligatoire.
 
-**Accessibilité** : contraste AA minimum, focus visible au clavier, labels ARIA, navigation logique.
+**Accessibilité** : contraste AA minimum, focus visible au clavier, labels ARIA,
+navigation logique.
 
-**Bilinguisme** : tout texte a son pendant FR/EN, avec gestion des longueurs différentes.
+**Bilinguisme** : tout texte a son pendant FR/EN, avec gestion des longueurs
+différentes.
 
-**Feedback utilisateur** : toute action déclenche un feedback (toast, changement d'état, transition).
+**Feedback utilisateur** : toute action déclenche un feedback (toast, changement
+d'état, transition).
 
 Les wireframes textuels détaillés sont dans `docs/06-wireframes.md`.
 
-Fichier 5 — docs/06-wireframes.md
-markdown# Wireframes textuels — EduQuiz Public
+Fichier 5 — docs/06-wireframes.md markdown# Wireframes textuels — EduQuiz Public
 
-Les wireframes décrivent la structure, la hiérarchie visuelle et les interactions clés. Ils servent de base à la conception Figma, pas de spécification pixel-perfect.
+Les wireframes décrivent la structure, la hiérarchie visuelle et les
+interactions clés. Ils servent de base à la conception Figma, pas de
+spécification pixel-perfect.
 
 **Notation utilisée :**
+
 - `[BLOC]` = section visuelle
 - `→` = action / navigation
 - `(attr)` = propriété ou état
@@ -1256,6 +1341,7 @@ Structure commune :
 **Variations par type :**
 
 **QCM (écran 58)**
+
 ```
 Zone réponse :
   ○ Option A : x = 3
@@ -1265,18 +1351,21 @@ Zone réponse :
 ```
 
 **Vrai/Faux (écran 59)**
+
 ```
 Zone réponse :
   [  ✓ VRAI  ]    [  ✗ FAUX  ]    (2 gros boutons)
 ```
 
 **Texte à trous (écran 60)**
+
 ```
 Zone réponse :
   "Si 2x + 3 = 11, alors x = [___] "
 ```
 
 **Association (écran 61)**
+
 ```
 Zone réponse (2 colonnes avec lignes à tracer) :
   Colonne A              Colonne B
@@ -1287,6 +1376,7 @@ Zone réponse (2 colonnes avec lignes à tracer) :
 ```
 
 **Remise en ordre (écran 62)**
+
 ```
 Zone réponse (drag & drop) :
   Remets dans l'ordre les étapes :
@@ -1299,13 +1389,14 @@ Zone réponse (drag & drop) :
 ```
 
 **Réponse courte (écran 63)**
+
 ```
 Zone réponse :
   Calcule la valeur de x :
   2x - 4 = 10
-  
+
   x = [________]
-  
+
   (La tolérance accepte 7 et "7")
 ```
 
@@ -1778,16 +1869,28 @@ Après soumission :
 
 ## Principes transversaux de conception
 
-**Responsive** : tous les écrans ont une version mobile (320-480px), tablette (768px), desktop (1024px+). La sidebar devient un drawer sur mobile. Les grilles 4 colonnes passent à 2 puis 1.
+**Responsive** : tous les écrans ont une version mobile (320-480px), tablette
+(768px), desktop (1024px+). La sidebar devient un drawer sur mobile. Les grilles
+4 colonnes passent à 2 puis 1.
 
-**États obligatoires pour chaque écran** : vide (empty state avec CTA), chargement (skeleton screens, jamais de spinner seul), erreur (avec action de récupération), succès.
+**États obligatoires pour chaque écran** : vide (empty state avec CTA),
+chargement (skeleton screens, jamais de spinner seul), erreur (avec action de
+récupération), succès.
 
-**Hiérarchie typographique** : titre principal (H1, 32px), titres de section (H2, 24px), sous-titres (H3, 18px), corps (16px), secondaire (14px), métadonnées (12px). Respect strict.
+**Hiérarchie typographique** : titre principal (H1, 32px), titres de section
+(H2, 24px), sous-titres (H3, 18px), corps (16px), secondaire (14px), métadonnées
+(12px). Respect strict.
 
-**Système de couleurs** : primaire (action CTA), secondaire (actions alternatives), succès (vert), erreur (rouge), avertissement (jaune), info (bleu). Mode sombre obligatoire.
+**Système de couleurs** : primaire (action CTA), secondaire (actions
+alternatives), succès (vert), erreur (rouge), avertissement (jaune), info
+(bleu). Mode sombre obligatoire.
 
-**Accessibilité sur chaque écran** : contraste AA minimum, focus visible au clavier, labels ARIA, navigation logique.
+**Accessibilité sur chaque écran** : contraste AA minimum, focus visible au
+clavier, labels ARIA, navigation logique.
 
-**Bilinguisme** : tout texte doit avoir son pendant FR/EN, avec gestion des longueurs différentes (l'anglais est généralement 20% plus court que le français).
+**Bilinguisme** : tout texte doit avoir son pendant FR/EN, avec gestion des
+longueurs différentes (l'anglais est généralement 20% plus court que le
+français).
 
-**Feedback utilisateur** : toute action déclenche un feedback (toast, changement d'état, transition). Jamais de clic sans retour.
+**Feedback utilisateur** : toute action déclenche un feedback (toast, changement
+d'état, transition). Jamais de clic sans retour.

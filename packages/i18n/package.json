@@ -12,9 +12,14 @@
     "./en": "./src/locales/en.json"
   },
   "scripts": {
-    "lint": "echo \"[@eduquiz/i18n] lint — à configurer étape 0.2\" && exit 0",
-    "test": "echo \"[@eduquiz/i18n] test — à configurer étape 0.2\" && exit 0",
-    "typecheck": "echo \"[@eduquiz/i18n] typecheck — à configurer étape 0.2\" && exit 0",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "clean": "rm -rf dist .turbo node_modules"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@eduquiz/config": "workspace:*"
   }
 }

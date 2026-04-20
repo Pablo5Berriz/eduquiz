@@ -15,9 +15,14 @@
     "db:push": "echo \"[@eduquiz/db] push — configuration Prisma à venir (étape 0.3)\" && exit 0",
     "db:seed": "echo \"[@eduquiz/db] seed — configuration Prisma à venir (étape 0.3)\" && exit 0",
     "db:studio": "echo \"[@eduquiz/db] studio — configuration Prisma à venir (étape 0.3)\" && exit 0",
-    "lint": "echo \"[@eduquiz/db] lint — configuration ESLint à venir (étape 0.2)\" && exit 0",
-    "test": "echo \"[@eduquiz/db] test — configuration Vitest à venir (étape 0.2)\" && exit 0",
-    "typecheck": "echo \"[@eduquiz/db] typecheck — tsconfig à venir (étape 0.2)\" && exit 0",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "clean": "rm -rf dist .turbo node_modules"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@eduquiz/config": "workspace:*"
   }
 }

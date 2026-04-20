@@ -13,6 +13,7 @@ Components + Server Actions).
 
 ## État actuel
 
-Paquet scaffoldé (étape 0.1). La configuration Next.js, Tailwind,
-shadcn/ui, next-intl et Auth.js sera mise en place à l'étape 0.4 de la
-Phase 0.
+Paquet scaffoldé (étape 0.1) et câblé aux configs partagées `@eduquiz/config`
+(étape 0.2). La configuration Next.js complète (`next.config.ts`, app router,
+Tailwind, shadcn/ui, next-intl, Auth.js, ESLint, Vitest, tsconfig) sera mise en
+place à l'étape 0.4 de la Phase 0.

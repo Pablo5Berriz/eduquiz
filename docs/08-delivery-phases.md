@@ -2,19 +2,27 @@
 
 ## Principes du découpage
 
-Un lot est livrable quand il produit une valeur utilisable de bout en bout. Les dépendances suivent la règle : **données → authentification → contenu → interaction → suivi → administration**. Chaque lot dépend des précédents mais peut être enrichi après.
+Un lot est livrable quand il produit une valeur utilisable de bout en bout. Les
+dépendances suivent la règle : **données → authentification → contenu →
+interaction → suivi → administration**. Chaque lot dépend des précédents mais
+peut être enrichi après.
 
 ---
 
 ## Lot 0 — Fondations techniques
 
-**Contenu** : monorepo Turborepo, setup Next.js + Expo + Expo Router, PostgreSQL dans LXC Proxmox, schéma Prisma de base, i18n FR/EN câblé, design system Tailwind + shadcn/ui + NativeWind, CI/CD GitHub Actions + déploiement SSH Proxmox, Docker Compose dev et prod.
+**Contenu** : monorepo Turborepo, setup Next.js + Expo + Expo Router, PostgreSQL
+dans LXC Proxmox, schéma Prisma de base, i18n FR/EN câblé, design system
+Tailwind + shadcn/ui + NativeWind, CI/CD GitHub Actions + déploiement SSH
+Proxmox, Docker Compose dev et prod.
 
-**Écrans livrés** : 112 (splash mobile), 113 (premier lancement permissions), 114 (mise à jour disponible), 115 (modal cookies).
+**Écrans livrés** : 112 (splash mobile), 113 (premier lancement permissions),
+114 (mise à jour disponible), 115 (modal cookies).
 
 **Dépendances** : aucune.
 
-**Valeur livrée** : socle technique fonctionnel, pas encore de valeur utilisateur.
+**Valeur livrée** : socle technique fonctionnel, pas encore de valeur
+utilisateur.
 
 ---
 
@@ -26,31 +34,37 @@ Un lot est livrable quand il produit une valeur utilisable de bout en bout. Les 
 
 **Dépendances** : Lot 0.
 
-**Valeur livrée** : présence en ligne, capture d'intérêt, conformité légale affichée.
+**Valeur livrée** : présence en ligne, capture d'intérêt, conformité légale
+affichée.
 
 ---
 
 ## Lot 2 — Authentification compte libre adulte
 
-**Contenu** : inscription, connexion, mot de passe oublié, vérification courriel, paramètres compte de base.
+**Contenu** : inscription, connexion, mot de passe oublié, vérification
+courriel, paramètres compte de base.
 
 **Écrans livrés** : 15, 16, 17, 18, 19, 22, 23, 29, 30, 32, 33, 37, 38.
 
 **Dépendances** : Lot 0, Lot 1.
 
-**Valeur livrée** : un adulte peut créer un compte, se connecter, gérer ses infos. Pas encore de contenu.
+**Valeur livrée** : un adulte peut créer un compte, se connecter, gérer ses
+infos. Pas encore de contenu.
 
 ---
 
 ## Lot 3 — Catalogue et consommation de contenu (lecture seule)
 
-**Contenu** : navigation complète dans le catalogue, lecture de leçons, recherche.
+**Contenu** : navigation complète dans le catalogue, lecture de leçons,
+recherche.
 
 **Écrans livrés** : 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52.
 
-**Dépendances** : Lots 0, 2, et un catalogue initial peuplé (Math + Français Secondaire 1 au minimum).
+**Dépendances** : Lots 0, 2, et un catalogue initial peuplé (Math + Français
+Secondaire 1 au minimum).
 
-**Valeur livrée** : un utilisateur libre peut apprendre. Premier lot qui a une vraie valeur pédagogique.
+**Valeur livrée** : un utilisateur libre peut apprendre. Premier lot qui a une
+vraie valeur pédagogique.
 
 ---
 
@@ -74,7 +88,8 @@ Un lot est livrable quand il produit une valeur utilisable de bout en bout. Les 
 
 **Dépendances** : Lot 3 (catalogue), modèle `Attempt` en base.
 
-**Valeur livrée** : l'utilisateur peut pratiquer. Premier vrai moteur pédagogique actif.
+**Valeur livrée** : l'utilisateur peut pratiquer. Premier vrai moteur
+pédagogique actif.
 
 ---
 
@@ -86,7 +101,8 @@ Un lot est livrable quand il produit une valeur utilisable de bout en bout. Les 
 
 **Dépendances** : Lot 5 (même moteur d'activité, mais chronométré et global).
 
-**Valeur livrée** : évaluation complète post-leçon, boucle d'apprentissage fermée en solo.
+**Valeur livrée** : évaluation complète post-leçon, boucle d'apprentissage
+fermée en solo.
 
 ---
 
@@ -96,9 +112,11 @@ Un lot est livrable quand il produit une valeur utilisable de bout en bout. Les 
 
 **Écrans livrés** : 53, 54, 55, 56, 77, 78, 79, 80, 81, 82.
 
-**Dépendances** : Lot 5, Lot 6 (les Attempts doivent exister pour alimenter les stats).
+**Dépendances** : Lot 5, Lot 6 (les Attempts doivent exister pour alimenter les
+stats).
 
-**Valeur livrée** : l'élève voit ses progrès. Différenciateur fort vs un simple quiz générique.
+**Valeur livrée** : l'élève voit ses progrès. Différenciateur fort vs un simple
+quiz générique.
 
 ---
 
@@ -132,9 +150,11 @@ Un lot est livrable quand il produit une valeur utilisable de bout en bout. Les 
 
 **Écrans livrés** : 20, 21, 28, 89, 90, 91, 97, 120.
 
-**Dépendances** : Lot 2 (auth), Lot 9 (notifications courriel pour le code), validation juridique Loi 25.
+**Dépendances** : Lot 2 (auth), Lot 9 (notifications courriel pour le code),
+validation juridique Loi 25.
 
-**Valeur livrée** : ouverture légale du produit aux mineurs. Porte d'entrée vers le volume utilisateur.
+**Valeur livrée** : ouverture légale du produit aux mineurs. Porte d'entrée vers
+le volume utilisateur.
 
 ---
 
@@ -146,7 +166,8 @@ Un lot est livrable quand il produit une valeur utilisable de bout en bout. Les 
 
 **Dépendances** : Lot 7 (stats élève), Lot 10 (rattachement).
 
-**Valeur livrée** : argument de vente fort pour les parents, rétention familiale.
+**Valeur livrée** : argument de vente fort pour les parents, rétention
+familiale.
 
 ---
 
@@ -164,19 +185,22 @@ Un lot est livrable quand il produit une valeur utilisable de bout en bout. Les 
 
 ## Lot 13 — Admin contenu interne
 
-**Contenu** : back-office réservé à l'équipe pour gérer le catalogue (pas d'écran utilisateur final).
+**Contenu** : back-office réservé à l'équipe pour gérer le catalogue (pas
+d'écran utilisateur final).
 
 **Écrans livrés** : aucun (outil interne, accessible via URL protégée).
 
 **Dépendances** : Lots 3, 5, 6. Peut être livré en parallèle.
 
-**Valeur livrée** : autonomie pour enrichir la plateforme sans redéploiement. Critique pour alimenter le contenu.
+**Valeur livrée** : autonomie pour enrichir la plateforme sans redéploiement.
+Critique pour alimenter le contenu.
 
 ---
 
 ## Lot 14 — Opérations plateforme et Loi 25
 
-**Contenu** : outils RPRP, gestion des consentements, traitement des demandes d'accès et suppression.
+**Contenu** : outils RPRP, gestion des consentements, traitement des demandes
+d'accès et suppression.
 
 **Écrans livrés** : aucun côté utilisateur (outils internes).
 
@@ -188,9 +212,11 @@ Un lot est livrable quand il produit une valeur utilisable de bout en bout. Les 
 
 ## Lot 15 — Accessibilité et polish
 
-**Contenu** : accessibilité avancée, PWA, mode hors ligne minimal, améliorations transverses.
+**Contenu** : accessibilité avancée, PWA, mode hors ligne minimal, améliorations
+transverses.
 
-**Écrans livrés** : 116 (bannière PWA), 117 (hors ligne), améliorations sur tous les écrans existants.
+**Écrans livrés** : 116 (bannière PWA), 117 (hors ligne), améliorations sur tous
+les écrans existants.
 
 **Dépendances** : tous les lots précédents.
 
@@ -223,13 +249,13 @@ Lot 15 (Polish) dépend de tous
 
 ## Ordre d'exécution recommandé
 
-**Sprint 1 (V1.0 minimal — chemin critique)** :
-Lot 0 → Lot 1 → Lot 2 → Lot 13 (minimal, interne) → Lot 3 → Lot 5 → Lot 6 → Lot 7 (partiel) → Lot 10 → Lot 14.
+**Sprint 1 (V1.0 minimal — chemin critique)** : Lot 0 → Lot 1 → Lot 2 → Lot 13
+(minimal, interne) → Lot 3 → Lot 5 → Lot 6 → Lot 7 (partiel) → Lot 10 → Lot 14.
 
-**Sprint 2 (V1.5 compétitive)** :
-Lot 4 → Lot 8 → Lot 9 → Lot 11 → Lot 15 (accessibilité).
+**Sprint 2 (V1.5 compétitive)** : Lot 4 → Lot 8 → Lot 9 → Lot 11 → Lot 15
+(accessibilité).
 
-**Sprint 3 (V2 monétisation et polish)** :
-Lot 12 → Lot 15 (PWA, hors ligne).
+**Sprint 3 (V2 monétisation et polish)** : Lot 12 → Lot 15 (PWA, hors ligne).
 
-**Partie 2 (B2B école)** : développée dans une itération ultérieure, hors scope actuel.
+**Partie 2 (B2B école)** : développée dans une itération ultérieure, hors scope
+actuel.

@@ -4,14 +4,14 @@ Traductions FR/EN partagées pour l'ensemble du monorepo.
 
 ## Règles
 
-- **Locale par défaut : FR**. Fallback automatique FR si une clé est
-  manquante en EN.
+- **Locale par défaut : FR**. Fallback automatique FR si une clé est manquante
+  en EN.
 - Détection navigateur au premier accès, bascule manuelle persistée côté
   utilisateur (cookie web, préférence stockée mobile).
 - Clés structurées par domaine : `auth.login.title`, `lesson.start`, etc.
 - Courriels transactionnels bilingues selon la préférence utilisateur.
-- Contenus pédagogiques gérés séparément (colonnes `*Fr`/`*En` sur les
-  entités de contenu), **pas** via ce paquet.
+- Contenus pédagogiques gérés séparément (colonnes `*Fr`/`*En` sur les entités
+  de contenu), **pas** via ce paquet.
 
 ## Structure à venir
 

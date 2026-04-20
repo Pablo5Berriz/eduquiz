@@ -1,0 +1,31 @@
+# Builds et caches
+**/.next/
+**/.turbo/
+**/.expo/
+**/dist/
+**/build/
+**/coverage/
+**/node_modules/
+**/out/
+**/playwright-report/
+**/test-results/
+
+# Générés
+**/*.generated.*
+**/pnpm-lock.yaml
+**/package-lock.json
+**/yarn.lock
+
+# Migrations SQL Prisma (générées)
+packages/db/prisma/migrations/**/*.sql
+
+# Assets binaires gérés par .gitattributes
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.webp
+**/*.ico
+**/*.pdf
+**/*.woff
+**/*.woff2

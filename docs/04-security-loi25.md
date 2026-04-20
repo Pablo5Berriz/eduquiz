@@ -1,11 +1,13 @@
 # Sécurité et conformité Loi 25
 
 ## Obligations légales
+
 - Loi 25 du Québec (obligatoire)
 - LPRPDE fédérale
 - COPPA pour usagers hors Canada
 
 ## Exigences techniques
+
 - Consentement parental vérifiable (code 6 chiffres + double opt-in courriel)
 - Export des données en JSON et PDF
 - Suppression avec délai de grâce 30 jours
@@ -17,5 +19,6 @@
 - Headers sécurité stricts
 
 ## RPRP
-La plateforme doit désigner un responsable de la protection
-des renseignements personnels. Contact publié dans la politique.
+
+La plateforme doit désigner un responsable de la protection des renseignements
+personnels. Contact publié dans la politique.

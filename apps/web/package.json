@@ -6,9 +6,14 @@
   "scripts": {
     "dev": "echo \"[@eduquiz/web] dev — configuration Next.js à venir (étape 0.4)\" && exit 0",
     "build": "echo \"[@eduquiz/web] build — configuration Next.js à venir (étape 0.4)\" && exit 0",
-    "lint": "echo \"[@eduquiz/web] lint — configuration ESLint à venir (étape 0.2)\" && exit 0",
-    "test": "echo \"[@eduquiz/web] test — configuration Vitest à venir (étape 0.2)\" && exit 0",
+    "start": "echo \"[@eduquiz/web] start — configuration Next.js à venir (étape 0.4)\" && exit 0",
+    "lint": "echo \"[@eduquiz/web] lint — scaffold ESLint à venir (étape 0.4)\" && exit 0",
+    "test": "echo \"[@eduquiz/web] test — scaffold Vitest à venir (étape 0.4)\" && exit 0",
     "typecheck": "echo \"[@eduquiz/web] typecheck — tsconfig à venir (étape 0.4)\" && exit 0",
     "clean": "rm -rf .next .turbo node_modules"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@eduquiz/config": "workspace:*"
   }
 }

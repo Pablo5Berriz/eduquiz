@@ -1,9 +1,9 @@
 # @eduquiz/mobile
 
-Application mobile d'EduQuiz basée sur Expo SDK 50+ avec Expo Router.
-Cible iOS et Android, parcours apprenant et parent. Partage un maximum de
-code avec `@eduquiz/web` via les paquets partagés (`@eduquiz/ui`,
-`@eduquiz/types`, `@eduquiz/utils`, `@eduquiz/i18n`).
+Application mobile d'EduQuiz basée sur Expo SDK 50+ avec Expo Router. Cible iOS
+et Android, parcours apprenant et parent. Partage un maximum de code avec
+`@eduquiz/web` via les paquets partagés (`@eduquiz/ui`, `@eduquiz/types`,
+`@eduquiz/utils`, `@eduquiz/i18n`).
 
 ## Stack
 
@@ -16,5 +16,5 @@ code avec `@eduquiz/web` via les paquets partagés (`@eduquiz/ui`,
 
 ## État actuel
 
-Paquet scaffoldé (étape 0.1). Le projet Expo sera initialisé à
-l'étape 0.4 de la Phase 0.
+Paquet scaffoldé (étape 0.1). Le projet Expo sera initialisé à l'étape 0.4 de la
+Phase 0.

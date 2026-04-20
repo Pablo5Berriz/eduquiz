@@ -133,8 +133,8 @@
 
 98. Centre de notifications
 99. Aide et base de connaissances
-100. Soumettre une demande de support
-101. Confirmation d'envoi
+100.  Soumettre une demande de support
+101.  Confirmation d'envoi
 
 ## Zone 12 — Paiement et abonnement — 10 écrans
 
@@ -168,38 +168,47 @@
 
 ## Récapitulatif
 
-| Zone | Nombre d'écrans |
-|---|---|
-| 1. Publics | 14 |
-| 2. Auth et onboarding | 14 |
-| 3. Compte et paramètres | 10 |
-| 4. Navigation et contenu | 14 |
-| 5. Compétences MEQ | 4 |
-| 6. Exercices | 13 |
-| 7. Quiz | 7 |
-| 8. Suivi et progression | 6 |
-| 9. Gamification | 6 |
-| 10. Dashboard parent | 9 |
-| 11. Notifications et support | 4 |
-| 12. Paiement et abonnement | 10 |
-| 13. Écrans système | 6 |
-| 14. Modales transverses | 5 |
-| **Total** | **122** |
+| Zone                         | Nombre d'écrans |
+| ---------------------------- | --------------- |
+| 1. Publics                   | 14              |
+| 2. Auth et onboarding        | 14              |
+| 3. Compte et paramètres      | 10              |
+| 4. Navigation et contenu     | 14              |
+| 5. Compétences MEQ           | 4               |
+| 6. Exercices                 | 13              |
+| 7. Quiz                      | 7               |
+| 8. Suivi et progression      | 6               |
+| 9. Gamification              | 6               |
+| 10. Dashboard parent         | 9               |
+| 11. Notifications et support | 4               |
+| 12. Paiement et abonnement   | 10              |
+| 13. Écrans système           | 6               |
+| 14. Modales transverses      | 5               |
+| **Total**                    | **122**         |
 
 ## Principes transversaux applicables à tous les écrans
 
-**Responsive** : chaque écran a une version mobile (320-480px), tablette (768px), desktop (1024px+).
+**Responsive** : chaque écran a une version mobile (320-480px), tablette
+(768px), desktop (1024px+).
 
-**États obligatoires pour chaque écran** : vide (empty state avec CTA), chargement (skeleton screens), erreur (avec action de récupération), succès.
+**États obligatoires pour chaque écran** : vide (empty state avec CTA),
+chargement (skeleton screens), erreur (avec action de récupération), succès.
 
-**Hiérarchie typographique** : titre principal (H1, 32px), titres de section (H2, 24px), sous-titres (H3, 18px), corps (16px), secondaire (14px), métadonnées (12px).
+**Hiérarchie typographique** : titre principal (H1, 32px), titres de section
+(H2, 24px), sous-titres (H3, 18px), corps (16px), secondaire (14px), métadonnées
+(12px).
 
-**Système de couleurs** : primaire (action CTA), secondaire (actions alternatives), succès (vert), erreur (rouge), avertissement (jaune), info (bleu). Mode sombre obligatoire.
+**Système de couleurs** : primaire (action CTA), secondaire (actions
+alternatives), succès (vert), erreur (rouge), avertissement (jaune), info
+(bleu). Mode sombre obligatoire.
 
-**Accessibilité** : contraste AA minimum, focus visible au clavier, labels ARIA, navigation logique.
+**Accessibilité** : contraste AA minimum, focus visible au clavier, labels ARIA,
+navigation logique.
 
-**Bilinguisme** : tout texte a son pendant FR/EN, avec gestion des longueurs différentes.
+**Bilinguisme** : tout texte a son pendant FR/EN, avec gestion des longueurs
+différentes.
 
-**Feedback utilisateur** : toute action déclenche un feedback (toast, changement d'état, transition).
+**Feedback utilisateur** : toute action déclenche un feedback (toast, changement
+d'état, transition).
 
 Les wireframes textuels détaillés sont dans `docs/06-wireframes.md`.

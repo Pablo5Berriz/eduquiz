@@ -7,15 +7,14 @@ Types TypeScript partagés entre web, mobile et API.
 - Types de domaine métier (`User`, `ParentChildLink`, `Lesson`, `Quiz`,
   `Attempt`, ...) — dérivés autant que possible du client Prisma.
 - DTOs de Server Actions et Route Handlers.
-- Enums partagés (`UserRole`, `LinkStatus`, `ExerciseType`,
-  `ContentLocale`).
+- Enums partagés (`UserRole`, `LinkStatus`, `ExerciseType`, `ContentLocale`).
 - Schémas Zod partagés et types inférés.
 
 ## Règle
 
-Ce paquet ne contient **que** des types et des constantes pures. Aucun
-import runtime (pas de React, pas de Prisma client), pour permettre une
-consommation légère côté mobile.
+Ce paquet ne contient **que** des types et des constantes pures. Aucun import
+runtime (pas de React, pas de Prisma client), pour permettre une consommation
+légère côté mobile.
 
 ## État actuel
 
