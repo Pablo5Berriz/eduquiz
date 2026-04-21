@@ -1,0 +1,305 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Pile de production EduQuiz — cible : VM Debian 12 sur Proxmox.
+#
+#  Lancer depuis la racine du repo, avec `.env.prod` hydraté :
+#      docker compose --env-file .env.prod \
+#          -f infra/docker/docker-compose.prod.yml up -d
+#
+#  Principes :
+#    - Tous les secrets passent par `.env.prod` (jamais commité).
+#    - Volumes de données montés depuis un chemin LUKS sur l'hôte
+#      (cf. docs/infrastructure/proxmox-setup.md).
+#    - Seul Traefik expose des ports publics (80/443). Tout le reste est sur
+#      le réseau privé `eduquiz-internal`, inaccessible depuis l'hôte ou
+#      internet.
+#    - `web` attend que Postgres et Redis soient "healthy" avant de démarrer.
+#    - Un service `backup` dédié exécute des dumps Postgres + mirror MinIO.
+#
+#  Les images applicatives sont construites localement sur la VM depuis le
+#  repo cloné (`docker compose build web`). Aucune registry externe requise.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: eduquiz-prod
+
+# Réseaux :
+#  - `edge`         : réseau exposé, seul Traefik y publie des ports.
+#  - `eduquiz-internal` : réseau privé, services applicatifs et données.
+networks:
+  edge:
+    name: eduquiz-edge
+    driver: bridge
+  eduquiz-internal:
+    name: eduquiz-internal
+    driver: bridge
+    internal: false # laissé false pour permettre les sorties HTTPS (ACME, B2, OAuth)
+
+# Volumes nommés montés dans des chemins LUKS sur l'hôte (bind mount configuré
+# via `volumes.*.driver_opts`). Pour la V1 on reste sur des volumes Docker
+# standards et on laisse l'opérateur monter le device LUKS sous
+# /var/lib/eduquiz/data avant le `compose up`.
+volumes:
+  postgres-data:
+    name: eduquiz-postgres-prod
+  redis-data:
+    name: eduquiz-redis-prod
+  minio-data:
+    name: eduquiz-minio-prod
+  traefik-acme:
+    name: eduquiz-traefik-acme
+  backup-tmp:
+    name: eduquiz-backup-tmp
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────
+  #  Reverse proxy : seul service exposé sur internet.
+  # ─────────────────────────────────────────────────────────────────────────
+  traefik:
+    image: traefik:v3.2
+    container_name: eduquiz-traefik
+    restart: always
+    command:
+      # Déclaration des providers : ici, la configuration dynamique est
+      # construite via les labels Docker de chaque service.
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=eduquiz-edge"
+      # Points d'entrée HTTP (redirige vers HTTPS) et HTTPS.
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      # ACME (Let's Encrypt) via challenge TLS-ALPN-01. Pas besoin d'exposer
+      # le port 80 pour HTTP-01 — le TLS-ALPN-01 utilise uniquement 443.
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json"
+      # Logs d'accès (journalisés dans le container, lus via `docker logs`).
+      - "--accesslog=true"
+      - "--accesslog.format=json"
+      - "--log.level=INFO"
+      # Dashboard Traefik désactivé en prod (pas de surface d'attaque
+      # supplémentaire). Activable temporairement par l'opérateur pour
+      # debug via override.
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - traefik-acme:/acme
+      # Socket Docker en lecture seule : requis pour le provider Docker de
+      # Traefik. NE JAMAIS passer en lecture/écriture.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - edge
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ─────────────────────────────────────────────────────────────────────────
+  #  Application Next.js (apps/web, output standalone).
+  # ─────────────────────────────────────────────────────────────────────────
+  web:
+    build:
+      context: ../..
+      dockerfile: infra/docker/web.Dockerfile
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+        NEXT_PUBLIC_DEFAULT_LOCALE: ${NEXT_PUBLIC_DEFAULT_LOCALE:-fr-CA}
+        NEXT_PUBLIC_SUPPORTED_LOCALES: ${NEXT_PUBLIC_SUPPORTED_LOCALES:-fr-CA,en-CA}
+    image: eduquiz/web:prod
+    container_name: eduquiz-web
+    restart: always
+    environment:
+      NODE_ENV: production
+      # Base de données : passe par le pooler interne (service `postgres` du
+      # réseau privé). Les migrations sont lancées hors de ce container, via
+      # un one-shot `db-migrate` documenté dans proxmox-setup.md.
+      DATABASE_URL: ${DATABASE_URL}
+      DIRECT_URL: ${DIRECT_URL}
+      REDIS_URL: ${REDIS_URL}
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_URL: ${AUTH_URL}
+      AUTH_GOOGLE_ID: ${AUTH_GOOGLE_ID:-}
+      AUTH_GOOGLE_SECRET: ${AUTH_GOOGLE_SECRET:-}
+      AUTH_APPLE_ID: ${AUTH_APPLE_ID:-}
+      AUTH_APPLE_SECRET: ${AUTH_APPLE_SECRET:-}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
+      SMTP_SECURE: ${SMTP_SECURE:-true}
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_REGION: ${S3_REGION}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-true}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      STRIPE_PRICE_PREMIUM_MONTHLY: ${STRIPE_PRICE_PREMIUM_MONTHLY}
+      STRIPE_PRICE_FAMILY_MONTHLY: ${STRIPE_PRICE_FAMILY_MONTHLY}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
+      FEATURE_PARENT_DASHBOARD: ${FEATURE_PARENT_DASHBOARD:-true}
+      FEATURE_PUBLIC_CATALOG: ${FEATURE_PUBLIC_CATALOG:-true}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - edge
+      - eduquiz-internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=eduquiz-edge"
+      # Routeur principal : domaine + TLS Let's Encrypt.
+      - "traefik.http.routers.web.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.tls=true"
+      - "traefik.http.routers.web.tls.certresolver=letsencrypt"
+      - "traefik.http.services.web.loadbalancer.server.port=3000"
+      # Middlewares sécurité : HSTS, X-Frame-Options, Referrer-Policy, etc.
+      - "traefik.http.middlewares.security-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.security-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.security-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.security-headers.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.security-headers.headers.frameDeny=true"
+      - "traefik.http.middlewares.security-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.security-headers.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.security-headers.headers.referrerPolicy=strict-origin-when-cross-origin"
+      - "traefik.http.routers.web.middlewares=security-headers@docker"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  #  Base de données.
+  # ─────────────────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: eduquiz-postgres
+    restart: always
+    # PAS de mapping de port vers l'hôte : accès uniquement via le réseau
+    # privé `eduquiz-internal`. Si l'opérateur a besoin d'un accès SQL
+    # temporaire, passer par `docker exec` ou un override.
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      LANG: fr_CA.utf8
+      LC_ALL: fr_CA.utf8
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # Init script (pgcrypto + citext) partagé avec la stack dev.
+      - ./init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - eduquiz-internal
+
+  # ─────────────────────────────────────────────────────────────────────────
+  #  Redis : sessions Auth.js, rate limiting, cache applicatif.
+  # ─────────────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: eduquiz-redis
+    restart: always
+    command:
+      - "redis-server"
+      - "--appendonly"
+      - "yes"
+      - "--requirepass"
+      - "${REDIS_PASSWORD}"
+      - "--maxmemory"
+      - "512mb"
+      - "--maxmemory-policy"
+      - "allkeys-lru"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - eduquiz-internal
+
+  # ─────────────────────────────────────────────────────────────────────────
+  #  MinIO : stockage objet S3-compatible (avatars, pièces jointes).
+  # ─────────────────────────────────────────────────────────────────────────
+  minio:
+    image: minio/minio:latest
+    container_name: eduquiz-minio
+    restart: always
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      # Désactive l'UI web en prod sauf si explicitement demandé (la console
+      # est une surface d'attaque et l'admin se fait par `mc` CLI depuis
+      # l'hôte ou le container backup).
+      MINIO_BROWSER: ${MINIO_BROWSER:-off}
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - eduquiz-internal
+    # Exposé en interne uniquement : l'app Next.js l'appelle via S3_ENDPOINT
+    # = http://minio:9000. Si un bucket doit être public (assets statiques
+    # signés), Traefik peut router un sous-domaine dédié (non activé V1).
+
+  # ─────────────────────────────────────────────────────────────────────────
+  #  Backup : cron interne qui exécute pg-backup.sh et minio-replicate.sh.
+  #
+  #  Ce service tourne 24/7 (`cron -f`) et déclenche les dumps selon sa
+  #  crontab. Les artefacts sont poussés vers Backblaze B2 (off-site) et
+  #  l'historique local (7 derniers jours) est gardé dans backup-tmp.
+  # ─────────────────────────────────────────────────────────────────────────
+  backup:
+    build:
+      context: ./backup
+      dockerfile: Dockerfile
+    image: eduquiz/backup:prod
+    container_name: eduquiz-backup
+    restart: always
+    environment:
+      # Cibles internes.
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      # Destination off-site (Backblaze B2 compatible S3).
+      B2_ENDPOINT: ${B2_ENDPOINT}
+      B2_ACCESS_KEY: ${B2_ACCESS_KEY}
+      B2_SECRET_KEY: ${B2_SECRET_KEY}
+      B2_BUCKET_POSTGRES: ${B2_BUCKET_POSTGRES}
+      B2_BUCKET_MINIO: ${B2_BUCKET_MINIO}
+      # Clé de chiffrement symétrique (age) pour les dumps Postgres.
+      BACKUP_AGE_RECIPIENT: ${BACKUP_AGE_RECIPIENT}
+      # Rétention (jours) locale.
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
+    volumes:
+      - backup-tmp:/var/backups/eduquiz
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - eduquiz-internal

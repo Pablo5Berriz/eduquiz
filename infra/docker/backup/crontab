@@ -1,0 +1,17 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Crontab du service `backup` (timezone : America/Toronto, TZ env var).
+#
+#  Fréquences V1 (RPO cible : 24 h) :
+#    - pg-backup      : quotidien à 02:30 (après la plus grande plage d'idle).
+#    - minio-replicate: quotidien à 03:15 (après la fin du dump Postgres).
+#
+#  Les logs sont renvoyés vers stderr du container (visibles via
+#  `docker logs eduquiz-backup`).
+#
+#  NB : busybox crond exige que chaque ligne se termine par un saut de ligne
+#  et que la source de l'env soit un `. /etc/environment` explicite, car
+#  l'env du shell d'invocation n'est pas hérité.
+# ─────────────────────────────────────────────────────────────────────────────
+
+30 2 * * * . /etc/environment; /usr/local/bin/pg-backup      >> /proc/1/fd/2 2>&1
+15 3 * * * . /etc/environment; /usr/local/bin/minio-replicate >> /proc/1/fd/2 2>&1
