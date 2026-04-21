@@ -71,3 +71,53 @@ export function normalizeLocale(input: string | undefined | null): Locale {
   }
   return DEFAULT_LOCALE;
 }
+
+/**
+ * Type-guard de locale. Pratique pour valider un paramètre de route
+ * `[locale]` côté Next sans relancer la normalisation.
+ */
+export function isLocale(value: unknown): value is Locale {
+  return typeof value === 'string' && (SUPPORTED_LOCALES as readonly string[]).includes(value);
+}
+
+/**
+ * Variante interpolante de {@link t}. Remplace les placeholders de la
+ * forme `{name}` par les valeurs fournies. Les valeurs absentes sont
+ * laissées telles quelles afin d'être visibles en cas d'oubli.
+ *
+ * Exemple :
+ *   tf(messages, 'footer.rights', { year: 2026 }) // "© 2026 …"
+ */
+export function tf(
+  messages: Messages,
+  key: string,
+  values: Readonly<Record<string, string | number>> = {},
+): string {
+  const raw = t(messages, key);
+  if (raw === key) return raw;
+  return raw.replace(/\{(\w+)\}/g, (_match, name: string) => {
+    if (!Object.prototype.hasOwnProperty.call(values, name)) return `{${name}}`;
+    const v = values[name];
+    return String(v);
+  });
+}
+
+/**
+ * Détecte la meilleure locale supportée à partir d'un en-tête
+ * `Accept-Language` (RFC 9110). Stratégie naïve : on cherche la
+ * première étiquette commençant par `fr-` ou `fr`, puis `en-` ou `en`,
+ * en respectant l'ordre du client. Pas de gestion `q=` à ce stade —
+ * suffisant pour FR ↔ EN.
+ */
+export function detectLocaleFromAcceptLanguage(header: string | undefined | null): Locale {
+  if (!header) return DEFAULT_LOCALE;
+  const tags = header
+    .split(',')
+    .map((tag) => tag.split(';')[0]?.trim().toLowerCase())
+    .filter((tag): tag is string => Boolean(tag));
+  for (const tag of tags) {
+    if (tag.startsWith('fr')) return 'fr';
+    if (tag.startsWith('en')) return 'en';
+  }
+  return DEFAULT_LOCALE;
+}

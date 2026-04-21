@@ -11,13 +11,48 @@
     "fr": "French",
     "en": "English",
     "loading": "Loading…",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "skipToContent": "Skip to main content"
+  },
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "subjects": "Subjects",
+    "pricing": "Pricing",
+    "testimonials": "Testimonials",
+    "blog": "Blog",
+    "about": "About",
+    "contact": "Contact",
+    "faq": "FAQ",
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "footer": {
+    "tagline": "Learning in Quebec, in French and English.",
+    "product": "Product",
+    "resources": "Resources",
+    "company": "Company",
+    "legal": "Legal",
+    "privacy": "Privacy policy",
+    "terms": "Terms of service",
+    "cookies": "Cookie policy",
+    "accessibility": "Accessibility",
+    "loi25": "Quebec Law 25",
+    "rights": "© {year} Solutions Infos. All rights reserved.",
+    "madeIn": "Built in Quebec, hosted in Montreal.",
+    "localeLabel": "Switch language"
   },
   "home": {
     "heroTitle": "Learn at your pace. In French and English.",
     "heroSubtitle": "Exercises and quizzes aligned with the PFEQ, with parental oversight and progress reports.",
     "ctaPrimary": "Create an account",
     "ctaSecondary": "Explore the subjects"
+  },
+  "locale": {
+    "switchTo": "Switch to {locale}",
+    "currentLabel": "Current language: {locale}"
   },
   "health": {
     "ok": "All services are healthy",

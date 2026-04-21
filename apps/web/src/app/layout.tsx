@@ -1,37 +1,22 @@
-import { DEFAULT_LOCALE, getMessages, t } from '@eduquiz/i18n';
+import { DEFAULT_LOCALE } from '@eduquiz/i18n';
 
 import './globals.css';
 
-import type { Metadata, Viewport } from 'next';
 import type { JSX, ReactNode } from 'react';
 
-const messages = getMessages(DEFAULT_LOCALE);
-
-export const metadata: Metadata = {
-  title: {
-    default: t(messages, 'common.appName'),
-    template: `%s — ${t(messages, 'common.appName')}`,
-  },
-  description: t(messages, 'common.tagline'),
-  applicationName: t(messages, 'common.appName'),
-  formatDetection: {
-    telephone: false,
-  },
-};
-
-export const viewport: Viewport = {
-  themeColor: '#2563eb',
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 5,
-};
-
 /**
- * Layout racine de l'application.
+ * Layout racine ultra-minimal.
  *
- * La locale est pour l'instant figée à FR (défaut EduQuiz). Le câblage
- * dynamique (cookie `NEXT_LOCALE` + middleware de détection) viendra
- * avec les écrans du parcours apprenant, à l'étape 1.x.
+ * Next App Router exige la présence de `<html>` et `<body>` dans le
+ * layout racine. On applique la locale par défaut (`fr`) sur `<html>`
+ * pour satisfaire l'accessibilité (jsx-a11y/html-has-lang) ; le vrai
+ * layout bilingue qui porte la `metadata` et réaffirme la locale côté
+ * contenu vit dans `app/[locale]/layout.tsx`.
+ *
+ * Le middleware garantit que toutes les requêtes passent par un
+ * segment `[locale]` ; ce layout racine n'est jamais seul à rendre
+ * une page. Il sert de rempart pour les rares cas où Next rendrait une
+ * page sans `[locale]` (not-found global, erreur globale).
  */
 export default function RootLayout({ children }: { readonly children: ReactNode }): JSX.Element {
   return (

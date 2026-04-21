@@ -11,13 +11,48 @@
     "fr": "Français",
     "en": "Anglais",
     "loading": "Chargement…",
-    "error": "Une erreur est survenue"
+    "error": "Une erreur est survenue",
+    "skipToContent": "Aller au contenu principal"
+  },
+  "nav": {
+    "home": "Accueil",
+    "features": "Fonctionnalités",
+    "subjects": "Matières",
+    "pricing": "Tarifs",
+    "testimonials": "Témoignages",
+    "blog": "Blogue",
+    "about": "À propos",
+    "contact": "Contact",
+    "faq": "FAQ",
+    "signIn": "Se connecter",
+    "signUp": "Créer un compte",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu"
+  },
+  "footer": {
+    "tagline": "Apprendre au Québec, en français et en anglais.",
+    "product": "Produit",
+    "resources": "Ressources",
+    "company": "Entreprise",
+    "legal": "Mentions légales",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "cookies": "Politique de cookies",
+    "accessibility": "Accessibilité",
+    "loi25": "Loi 25 du Québec",
+    "rights": "© {year} Solutions Infos. Tous droits réservés.",
+    "madeIn": "Conçu au Québec, hébergé à Montréal.",
+    "localeLabel": "Changer de langue"
   },
   "home": {
     "heroTitle": "Apprends à ton rythme. En français et en anglais.",
     "heroSubtitle": "Un parcours d'exercices et de quiz alignés sur le PFEQ, avec suivi parental et rapports de progression.",
     "ctaPrimary": "Créer un compte",
     "ctaSecondary": "Découvrir les matières"
+  },
+  "locale": {
+    "switchTo": "Basculer en {locale}",
+    "currentLabel": "Langue courante : {locale}"
   },
   "health": {
     "ok": "Tous les services répondent",

@@ -1,8 +1,18 @@
 /**
  * Point d'entrée du paquet @eduquiz/ui.
  *
- * Les composants partagés (boutons, formulaires, cartes, etc.) seront
- * ajoutés à partir de l'étape 0.4 avec le setup shadcn/ui pour le web et
- * NativeWind pour le mobile.
+ * Expose les composants de design system partagés entre web (Next.js
+ * App Router + Tailwind) et mobile (Expo + NativeWind, à venir). Les
+ * variants sont typés via `tailwind-variants` pour garantir une API
+ * uniforme.
  */
-export {};
+export { Button } from './components/Button';
+export type { ButtonProps, ButtonVariants } from './components/Button';
+
+export { Container } from './components/Container';
+export type { ContainerProps, ContainerVariants } from './components/Container';
+
+export { Logo } from './components/Logo';
+export type { LogoProps } from './components/Logo';
+
+export { cn } from './utils/cn';
