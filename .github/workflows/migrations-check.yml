@@ -1,0 +1,94 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Migrations check — EduQuiz
+#
+#  Déclenché uniquement quand une PR touche `packages/db/prisma/**` (schéma ou
+#  migrations). Applique les migrations en ordre sur un Postgres vide puis
+#  exécute `prisma migrate diff` pour détecter un schéma non cohérent
+#  (par ex. une migration ajoutée à la main sans update du schema.prisma,
+#  ou l'inverse).
+#
+#  But : intercepter les dérives avant merge. Ce workflow est OBLIGATOIRE en
+#  required check dès qu'il est déclenché (cf. rules de protection de branche
+#  côté GitHub, à configurer via l'interface).
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Migrations check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "packages/db/prisma/**"
+      - ".github/workflows/migrations-check.yml"
+
+concurrency:
+  group: migrations-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Verify migrations
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: eduquiz
+          POSTGRES_PASSWORD: eduquiz
+          POSTGRES_DB: eduquiz
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U eduquiz -d eduquiz"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=20
+    env:
+      DATABASE_URL: postgresql://eduquiz:eduquiz@localhost:5432/eduquiz?schema=public
+      DIRECT_URL: postgresql://eduquiz:eduquiz@localhost:5432/eduquiz?schema=public
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "9.12.3"
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Active les extensions requises avant les migrations (même script que
+      # l'init Docker, joué manuellement en CI).
+      - name: Enable required Postgres extensions
+        run: |
+          PGPASSWORD=eduquiz psql \
+            -h localhost -U eduquiz -d eduquiz \
+            -f infra/docker/init/01-extensions.sql
+
+      - name: Apply migrations in order
+        run: pnpm --filter @eduquiz/db run db:migrate:deploy
+
+      # `migrate diff` compare le schéma DÉCLARATIF (schema.prisma) au schéma
+      # EFFECTIF (DB telle que laissée par les migrations). Un diff non vide
+      # signifie qu'une migration manque, ou qu'un `prisma db push` a été
+      # utilisé au lieu de `migrate dev`.
+      - name: Detect schema drift (schema.prisma vs applied migrations)
+        run: |
+          diff=$(pnpm --silent --filter @eduquiz/db exec prisma migrate diff \
+            --from-url "$DATABASE_URL" \
+            --to-schema-datamodel packages/db/prisma/schema.prisma \
+            --script)
+          if [[ -n "$diff" ]]; then
+            echo "::error::Le schema.prisma diverge de l'état des migrations. Exécutez 'pnpm --filter @eduquiz/db run db:migrate' pour générer la migration manquante."
+            echo "$diff"
+            exit 1
+          fi
+          echo "Schéma Prisma et migrations cohérents."

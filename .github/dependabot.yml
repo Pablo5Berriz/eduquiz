@@ -1,0 +1,189 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Dependabot — EduQuiz
+#
+#  Stratégie V1 :
+#    - Balayage HEBDOMADAIRE (lundi matin, UTC). On évite le bruit quotidien ;
+#      une review groupée une fois par semaine suffit pour le niveau de
+#      maturité du projet.
+#    - Groupement par paquet + type de bump (patch/minor/major) pour limiter
+#      le nombre de PRs.
+#    - Bumps MAJEURS désactivés automatiquement : trop risqué sans validation
+#      manuelle (breaking changes possibles). L'opérateur met à jour les
+#      majors à la main lors d'une fenêtre dédiée.
+#    - Scan séparé pour : npm (racine + workspaces), docker (3 Dockerfiles),
+#      github-actions (workflows).
+#
+#  Référence : https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: 2
+updates:
+  # ── npm / pnpm : racine ────────────────────────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/Toronto"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "area/root"]
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    groups:
+      root-patch:
+        patterns: ["*"]
+        update-types: ["patch"]
+      root-minor:
+        patterns: ["*"]
+        update-types: ["minor"]
+    ignore:
+      # Majors à l'écart : on les gère manuellement.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # ── npm : apps/web ─────────────────────────────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/apps/web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/Toronto"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "area/web"]
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      web-patch:
+        patterns: ["*"]
+        update-types: ["patch"]
+      web-minor:
+        patterns: ["*"]
+        update-types: ["minor"]
+    ignore:
+      # Next.js et React : on les suit avec beaucoup d'attention, pas
+      # d'auto-bump même minor (typecheck parfois cassé par un minor).
+      - dependency-name: "next"
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # ── npm : apps/mobile ──────────────────────────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/apps/mobile"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/Toronto"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "area/mobile"]
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      mobile-patch:
+        patterns: ["*"]
+        update-types: ["patch"]
+    ignore:
+      # Expo et React Native : uniquement des patches automatisés. Tout
+      # minor/major exige validation manuelle (New Architecture, native
+      # modules, EAS Build config).
+      - dependency-name: "expo"
+      - dependency-name: "expo-*"
+      - dependency-name: "react-native"
+      - dependency-name: "react-native-*"
+      - dependency-name: "*"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+
+  # ── npm : packages/* (groupé, c'est du code partagé, peu de deps) ──────
+  - package-ecosystem: "npm"
+    directory: "/packages/db"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels: ["dependencies", "area/db"]
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    ignore:
+      # Prisma : migrations sensibles, bump toujours manuel.
+      - dependency-name: "prisma"
+      - dependency-name: "@prisma/client"
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "npm"
+    directory: "/packages/ui"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels: ["dependencies", "area/ui"]
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "npm"
+    directory: "/packages/config"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels: ["dependencies", "area/config"]
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # ── Docker ─────────────────────────────────────────────────────────────
+  #  Dependabot surveille `FROM image:tag` dans les Dockerfiles.
+  - package-ecosystem: "docker"
+    directory: "/infra/docker"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/Toronto"
+    labels: ["dependencies", "area/docker"]
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "docker"
+    directory: "/infra/docker/backup"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels: ["dependencies", "area/docker"]
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # ── GitHub Actions ─────────────────────────────────────────────────────
+  #  Balaie toutes les `uses:` dans .github/workflows/.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/Toronto"
+    labels: ["dependencies", "area/ci"]
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      actions:
+        patterns: ["*"]

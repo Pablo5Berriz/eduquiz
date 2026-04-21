@@ -1,0 +1,283 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  CI principal — EduQuiz
+#
+#  Déclenché sur :
+#    - push  → main (valide que main reste vert à tout moment)
+#    - pull_request (n'importe quelle branche vers main)
+#
+#  Jobs en parallèle (aucune dépendance entre eux sauf `build-web` qui a besoin
+#  d'un service Postgres pour `prisma generate` + compilation) :
+#    - lint       : pnpm lint (turbo, cache)
+#    - typecheck  : pnpm typecheck
+#    - format     : pnpm format:check (Prettier)
+#    - test       : pnpm test (Vitest — no-op tant qu'aucun test n'existe)
+#    - build-web  : pnpm --filter @eduquiz/web build
+#    - build-docker-web : docker buildx build --load (valide le Dockerfile)
+#
+#  Cache pnpm store : clé basée sur pnpm-lock.yaml. Turbo a son propre cache
+#  via actions/cache sur .turbo/.
+#
+#  Concurrency : une seule exécution par PR (les pushes plus anciens sont
+#  annulés automatiquement pour économiser les minutes GitHub Actions).
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Permissions minimales par défaut. Les jobs qui en ont besoin les élargissent
+# explicitement.
+permissions:
+  contents: read
+
+env:
+  # Épinglé sur la version du packageManager de package.json. Update coordonné.
+  PNPM_VERSION: "9.12.3"
+  NODE_VERSION: "22"
+  # Désactive la télémétrie Turborepo et Next.js en CI.
+  TURBO_TELEMETRY_DISABLED: 1
+  NEXT_TELEMETRY_DISABLED: 1
+
+jobs:
+  # ── Lint ─────────────────────────────────────────────────────────────────
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+  # ── Typecheck ────────────────────────────────────────────────────────────
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # prisma generate crée src/generated/client/, nécessaire pour que les
+      # imports `@prisma/client` typent correctement dans le reste du monorepo.
+      - name: Prisma generate
+        run: pnpm --filter @eduquiz/db run db:generate
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+  # ── Format (Prettier) ────────────────────────────────────────────────────
+  format:
+    name: Format check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Prettier check
+        run: pnpm format:check
+
+  # ── Tests Vitest ─────────────────────────────────────────────────────────
+  #  No-op tant qu'aucun test n'existe : turbo exit 0 si la tâche est absente.
+  test:
+    name: Test (Vitest)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Prisma generate
+        run: pnpm --filter @eduquiz/db run db:generate
+
+      - name: Test
+        run: pnpm test
+
+  # ── Build applicatif (Next.js) ───────────────────────────────────────────
+  #  `next build` appelle Prisma engines à la compilation (RSC qui lisent la
+  #  base au moment du rendu statique). On lui donne un Postgres jetable pour
+  #  que `SELECT 1` du /api/health ne casse pas le build static.
+  build-web:
+    name: Build web
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: eduquiz
+          POSTGRES_PASSWORD: eduquiz
+          POSTGRES_DB: eduquiz
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U eduquiz -d eduquiz"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=20
+    env:
+      DATABASE_URL: postgresql://eduquiz:eduquiz@localhost:5432/eduquiz?schema=public
+      DIRECT_URL: postgresql://eduquiz:eduquiz@localhost:5432/eduquiz?schema=public
+      # Secret factice : utilisé uniquement pour que les modules Auth.js
+      # s'initialisent sans lever en build. Pas de valeur sensible ici.
+      AUTH_SECRET: ci-build-only-not-a-real-secret
+      AUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_DEFAULT_LOCALE: fr-CA
+      NEXT_PUBLIC_SUPPORTED_LOCALES: fr-CA,en-CA
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Prisma generate
+        run: pnpm --filter @eduquiz/db run db:generate
+
+      - name: Apply migrations
+        run: pnpm --filter @eduquiz/db run db:migrate:deploy
+
+      - name: Build
+        run: pnpm --filter @eduquiz/web run build
+
+  # ── Build image Docker (validation Dockerfile, pas de push) ──────────────
+  build-docker-web:
+    name: Build docker web image
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Cache layers Docker partagé entre exécutions GHA.
+      - name: Build image (validation uniquement)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/docker/web.Dockerfile
+          push: false
+          load: true
+          tags: eduquiz/web:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_APP_URL=http://localhost:3000
+            NEXT_PUBLIC_DEFAULT_LOCALE=fr-CA
+            NEXT_PUBLIC_SUPPORTED_LOCALES=fr-CA,en-CA
+
+      # Sanity : l'image démarre-t-elle au moins ? On coupe dès que le
+      # healthcheck est OK (ou au bout de 30 s).
+      - name: Smoke test (start + healthcheck)
+        run: |
+          set -euo pipefail
+          docker network create ci-net
+          docker run -d --name pg --network ci-net \
+            -e POSTGRES_USER=eduquiz \
+            -e POSTGRES_PASSWORD=eduquiz \
+            -e POSTGRES_DB=eduquiz \
+            postgres:16-alpine
+          for i in $(seq 1 20); do
+            if docker exec pg pg_isready -U eduquiz -d eduquiz >/dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+          docker run -d --name web --network ci-net \
+            -e DATABASE_URL=postgresql://eduquiz:eduquiz@pg:5432/eduquiz?schema=public \
+            -e DIRECT_URL=postgresql://eduquiz:eduquiz@pg:5432/eduquiz?schema=public \
+            -e AUTH_SECRET=ci-smoke-not-a-real-secret \
+            -e AUTH_URL=http://localhost:3000 \
+            -p 3000:3000 \
+            eduquiz/web:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:3000/api/health >/dev/null 2>&1; then
+              echo "Healthcheck OK"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Healthcheck failed after 60s"
+          docker logs web
+          exit 1
+
+  # ── Agrégateur : passe si tous les jobs précédents passent ───────────────
+  #  Utilisable comme required status check unique côté protection de branche.
+  ci:
+    name: CI
+    needs: [lint, typecheck, format, test, build-web, build-docker-web]
+    runs-on: ubuntu-24.04
+    if: always()
+    steps:
+      - name: Vérifier que tous les jobs requis ont réussi
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" ]] \
+              || [[ "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "Au moins un job a échoué ou été annulé"
+            exit 1
+          fi
+          echo "Tous les jobs CI sont passés"

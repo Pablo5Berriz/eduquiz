@@ -1,5 +1,7 @@
 # EduQuiz
 
+[![CI](https://github.com/Pablo5Berriz/eduquiz/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Pablo5Berriz/eduquiz/actions/workflows/ci.yml)
+
 Plateforme éducative bilingue FR/EN pour élèves québécois du Primaire 3 à la
 Secondaire 5. Mode libre uniquement (B2C).
 

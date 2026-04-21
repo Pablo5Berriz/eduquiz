@@ -1,0 +1,14 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  CODEOWNERS — EduQuiz
+#
+#  Règle par défaut : Paul est owner de tout. Quand l'équipe s'élargira
+#  (phase 1+), ajouter des règles spécifiques par domaine :
+#
+#     /packages/db/                @pablo5berriz @data-owner
+#     /docs/04-security-loi25.md   @pablo5berriz @rprp-owner
+#     /.github/workflows/          @pablo5berriz @devops-owner
+#
+#  Référence : https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# ─────────────────────────────────────────────────────────────────────────────
+
+*       @Pablo5Berriz
