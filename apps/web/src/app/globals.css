@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Variables CSS globales EduQuiz.
+ *
+ * Elles doublent les tokens déclarés dans `@eduquiz/config/tailwind` afin
+ * d'être utilisables côté CSS vanilla (courriels transactionnels, inline
+ * styles, composants tiers non Tailwind).
+ */
+:root {
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fafc;
+  --color-text: #0f172a;
+  --color-text-muted: #475569;
+  --color-border: #e2e8f0;
+
+  --radius-lg: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-surface: #0b1220;
+    --color-surface-muted: #111827;
+    --color-text: #f8fafc;
+    --color-text-muted: #94a3b8;
+    --color-border: #1f2937;
+  }
+}
+
+html,
+body {
+  height: 100%;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Focus visible universel, conforme WCAG 2.1 AA. */
+*:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+}

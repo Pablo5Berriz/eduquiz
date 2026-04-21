@@ -3,17 +3,33 @@
   "version": "0.0.0",
   "private": true,
   "description": "Application web Next.js 14 d'EduQuiz (vitrine publique, app apprenant, dashboard parent, admin interne).",
+  "type": "module",
   "scripts": {
-    "dev": "echo \"[@eduquiz/web] dev — configuration Next.js à venir (étape 0.4)\" && exit 0",
-    "build": "echo \"[@eduquiz/web] build — configuration Next.js à venir (étape 0.4)\" && exit 0",
-    "start": "echo \"[@eduquiz/web] start — configuration Next.js à venir (étape 0.4)\" && exit 0",
-    "lint": "echo \"[@eduquiz/web] lint — scaffold ESLint à venir (étape 0.4)\" && exit 0",
-    "test": "echo \"[@eduquiz/web] test — scaffold Vitest à venir (étape 0.4)\" && exit 0",
-    "typecheck": "echo \"[@eduquiz/web] typecheck — tsconfig à venir (étape 0.4)\" && exit 0",
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "eslint . --max-warnings=0",
+    "test": "echo \"[@eduquiz/web] test — Playwright + Vitest à venir (étape 1.x)\" && exit 0",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "clean": "rm -rf .next .turbo node_modules"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@eduquiz/db": "workspace:*",
+    "@eduquiz/i18n": "workspace:*",
+    "@eduquiz/ui": "workspace:*",
+    "@eduquiz/utils": "workspace:*",
+    "next": "^14.2.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
   "devDependencies": {
-    "@eduquiz/config": "workspace:*"
+    "@eduquiz/config": "workspace:*",
+    "@types/node": "^22.10.5",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.20",
+    "eslint-config-next": "^14.2.18",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17"
   }
 }

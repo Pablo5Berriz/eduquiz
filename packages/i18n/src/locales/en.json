@@ -3,5 +3,24 @@
     "locale": "en",
     "name": "English",
     "default": false
+  },
+  "common": {
+    "appName": "EduQuiz",
+    "tagline": "Bilingual learning for Quebec students, from Grade 3 to Secondary 5.",
+    "language": "Language",
+    "fr": "French",
+    "en": "English",
+    "loading": "Loading…",
+    "error": "Something went wrong"
+  },
+  "home": {
+    "heroTitle": "Learn at your pace. In French and English.",
+    "heroSubtitle": "Exercises and quizzes aligned with the PFEQ, with parental oversight and progress reports.",
+    "ctaPrimary": "Create an account",
+    "ctaSecondary": "Explore the subjects"
+  },
+  "health": {
+    "ok": "All services are healthy",
+    "degraded": "One or more services are unavailable"
   }
 }

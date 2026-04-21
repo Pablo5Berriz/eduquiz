@@ -3,6 +3,7 @@
   "extends": "@eduquiz/config/tsconfig-expo",
   "compilerOptions": {
     "baseUrl": ".",
+    "rootDir": ".",
     "paths": {
       "@/*": ["./src/*"]
     }

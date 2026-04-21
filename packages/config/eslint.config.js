@@ -242,6 +242,26 @@ export const nextjs = [
 ];
 
 /**
+ * Préset Expo Router : autorise les default exports pour les écrans et
+ * layouts placés sous `src/app/` (convention file-based routing).
+ *
+ * @type {import('eslint').Linter.Config[]}
+ */
+export const expo = [
+  {
+    files: [
+      '**/src/app/**/*.{ts,tsx}',
+      '**/app.config.{ts,js,mjs}',
+      '**/babel.config.{ts,js,mjs}',
+      '**/metro.config.{ts,js,mjs}',
+    ],
+    rules: {
+      'import/no-default-export': 'off',
+    },
+  },
+];
+
+/**
  * Préset Node : globals Node, no-console désactivé pour scripts CLI.
  *
  * @type {import('eslint').Linter.Config[]}

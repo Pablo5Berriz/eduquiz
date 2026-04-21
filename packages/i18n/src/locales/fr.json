@@ -3,5 +3,24 @@
     "locale": "fr",
     "name": "Français",
     "default": true
+  },
+  "common": {
+    "appName": "EduQuiz",
+    "tagline": "L'apprentissage bilingue pour les élèves du Québec, de la Primaire 3 au Secondaire 5.",
+    "language": "Langue",
+    "fr": "Français",
+    "en": "Anglais",
+    "loading": "Chargement…",
+    "error": "Une erreur est survenue"
+  },
+  "home": {
+    "heroTitle": "Apprends à ton rythme. En français et en anglais.",
+    "heroSubtitle": "Un parcours d'exercices et de quiz alignés sur le PFEQ, avec suivi parental et rapports de progression.",
+    "ctaPrimary": "Créer un compte",
+    "ctaSecondary": "Découvrir les matières"
+  },
+  "health": {
+    "ok": "Tous les services répondent",
+    "degraded": "Un ou plusieurs services sont indisponibles"
   }
 }

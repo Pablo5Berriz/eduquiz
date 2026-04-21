@@ -1,0 +1,133 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Pile de services pour le développement local d'EduQuiz.
+#
+#  Lancer depuis la racine du repo :
+#      docker compose -f infra/docker/docker-compose.dev.yml up -d
+#      # ou : make dev
+#
+#  Services :
+#    - postgres (base principale + pgcrypto/citext)
+#    - redis    (sessions NextAuth, rate-limit, cache)
+#    - mailhog  (SMTP local + UI http://localhost:8025)
+#    - minio    (S3-compatible local, UI http://localhost:9001)
+#
+#  Les credentials par défaut sont VOLONTAIREMENT triviaux (usage strictement
+#  local). La prod est configurée ailleurs (étape 0.5, Proxmox + volumes
+#  chiffrés + secrets par variables d'environnement).
+#
+#  Les variables d'environnement sont lues dans `.env` à la racine (voir
+#  `.env.example`). Seules les variables nécessaires aux services sont
+#  référencées ici ; la majorité des variables applicatives (AUTH_SECRET,
+#  STRIPE_*, etc.) n'est consommée que par les apps Next.js / Expo.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: eduquiz-dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: eduquiz-postgres-dev
+    restart: unless-stopped
+    ports:
+      # Exposé sur l'hôte pour que Prisma Studio / migrations / psql
+      # puissent s'y connecter depuis l'extérieur des containers.
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-eduquiz}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-eduquiz}
+      POSTGRES_DB: ${POSTGRES_DB:-eduquiz}
+      # Locale FR + UTF-8 pour que les tris sur noms/prénoms soient corrects
+      # et cohérents avec la prod.
+      LANG: fr_CA.utf8
+      LC_ALL: fr_CA.utf8
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # Script d'init exécuté au premier démarrage uniquement (voir README).
+      - ./init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-eduquiz} -d ${POSTGRES_DB:-eduquiz}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks:
+      - eduquiz-dev
+
+  redis:
+    image: redis:7-alpine
+    container_name: eduquiz-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    # AOF activé pour que les sessions dev survivent à un restart.
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--maxmemory",
+        "128mb",
+        "--maxmemory-policy",
+        "allkeys-lru",
+      ]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - eduquiz-dev
+
+  mailhog:
+    # Serveur SMTP factice pour capturer les magic links Auth.js et les
+    # courriels de notification, sans jamais envoyer à internet.
+    image: mailhog/mailhog:latest
+    container_name: eduquiz-mailhog-dev
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # UI web
+    networks:
+      - eduquiz-dev
+
+  minio:
+    # Stockage objet compatible S3 pour uploads locaux (avatars, pièces
+    # jointes, etc.). En prod on utilisera le S3 géré du fournisseur
+    # d'infrastructure ou un cluster MinIO dédié.
+    image: minio/minio:latest
+    container_name: eduquiz-minio-dev
+    restart: unless-stopped
+    ports:
+      - "9000:9000" # API S3
+      - "9001:9001" # Console web
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-eduquiz}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-eduquiz-minio-dev}
+    command: ["server", "/data", "--console-address", ":9001"]
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - eduquiz-dev
+
+volumes:
+  postgres-data:
+    name: eduquiz-postgres-dev
+  redis-data:
+    name: eduquiz-redis-dev
+  minio-data:
+    name: eduquiz-minio-dev
+
+networks:
+  eduquiz-dev:
+    name: eduquiz-dev
+    driver: bridge
