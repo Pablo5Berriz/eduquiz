@@ -14,9 +14,34 @@ import { t, type Messages } from '@eduquiz/i18n';
 export const SUBJECT_KEYS = [
   'mathematiques',
   'francais',
-  'sciences',
-  'histoire',
+  'anglais',
+  'sciencesTechnologie',
+  'histoireQuebecCanada',
+  'geographie',
+  'educationFinanciere',
+  'educationPhysiqueSante',
+  'cultureCitoyenneteQuebecoise',
+  'mondeContemporain',
 ] as const;
+
+/**
+ * Niveaux pédagogiques utilisés pour la section « Ce que tu apprends,
+ * niveau par niveau » sur la page détail. L'ordre est l'ordre de lecture.
+ */
+export const LEVEL_KEYS = ['p3p4', 'p5p6', 's1', 's2', 's3', 's4', 's5'] as const;
+
+export type LevelKey = (typeof LEVEL_KEYS)[number];
+
+/** Mapping clé niveau → clé i18n (`subjects.detail.level<KEY>`). */
+export const LEVEL_LABEL_KEY: Record<LevelKey, string> = {
+  p3p4: 'subjects.detail.levelP3P4',
+  p5p6: 'subjects.detail.levelP5P6',
+  s1: 'subjects.detail.levelS1',
+  s2: 'subjects.detail.levelS2',
+  s3: 'subjects.detail.levelS3',
+  s4: 'subjects.detail.levelS4',
+  s5: 'subjects.detail.levelS5',
+};
 
 export type SubjectKey = (typeof SUBJECT_KEYS)[number];
 

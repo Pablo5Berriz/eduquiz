@@ -2,9 +2,9 @@ import { getMessages, t, tList } from '@eduquiz/i18n';
 import { Button, Card, Container, SectionHeading, cn } from '@eduquiz/ui';
 import Link from 'next/link';
 
+import { SUBJECT_KEYS, getSubjectSlug } from '../../lib/catalog/subjects';
 import { resolveLocaleParam, type LocaleRouteParams } from '../../lib/i18n/locale';
 
-import type { Messages } from '@eduquiz/i18n';
 import type { JSX } from 'react';
 
 /**
@@ -38,23 +38,6 @@ const STEP_ITEMS = [
   { titleKey: 'home.howItWorks.step2Title', descKey: 'home.howItWorks.step2Description' },
   { titleKey: 'home.howItWorks.step3Title', descKey: 'home.howItWorks.step3Description' },
 ] as const;
-
-const SUBJECT_KEYS = [
-  'mathematiques',
-  'francais',
-  'sciences',
-  'histoire',
-] as const;
-
-function getSubjectCopy(
-  messages: Messages,
-  key: (typeof SUBJECT_KEYS)[number],
-): { title: string; description: string } {
-  return {
-    title: t(messages, `subjects.list.${key}.title`),
-    description: t(messages, `subjects.list.${key}.shortDescription`),
-  };
-}
 
 export default function LocalizedHomePage({
   params,
@@ -181,24 +164,38 @@ export default function LocalizedHomePage({
             className="mx-auto max-w-3xl"
           />
 
-          <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {SUBJECT_KEYS.map((key) => {
-              const subject = getSubjectCopy(messages, key);
-              const slug = t(messages, `subjects.list.${key}.slug`);
+              const slug = getSubjectSlug(messages, key);
+              const title = t(messages, `subjects.list.${key}.title`);
+              const levels = t(messages, `subjects.list.${key}.levels`);
+              const image = t(messages, `subjects.list.${key}.image`);
+              const imageAlt = `${t(messages, 'subjects.detail.imageAlt')} — ${title}`;
               return (
-                <Card as="li" key={key} variant="muted" padding="md">
+                <li
+                  key={key}
+                  className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-colors hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
+                >
                   <Link
                     href={`/${locale}/matieres/${slug}`}
-                    className="flex h-full flex-col gap-2 focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500"
+                    className="flex h-full flex-col focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500"
                   >
-                    <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                      {subject.title}
-                    </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-300">
-                      {subject.description}
-                    </p>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={image}
+                      alt={imageAlt}
+                      className="h-28 w-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <div className="flex h-full flex-col gap-1 p-4">
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        {title}
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{levels}</p>
+                    </div>
                   </Link>
-                </Card>
+                </li>
               );
             })}
           </ul>

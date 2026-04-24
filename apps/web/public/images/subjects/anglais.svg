@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Anglais">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4c1d95"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <pattern id="p" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M10 10h60v60h-60z" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="600" fill="url(#g)"/>
+  <rect width="1200" height="600" fill="url(#p)"/>
+  <g fill="#ffffff" opacity="0.2">
+    <path d="M120 140 h220 a24 24 0 0 1 24 24 v120 a24 24 0 0 1 -24 24 h-140 l-80 60 v-60 h-0 a0 0 0 0 1 0 0 v-144 a24 24 0 0 1 24 -24 z"/>
+    <path d="M860 340 h220 a24 24 0 0 1 24 24 v100 a24 24 0 0 1 -24 24 h-160 l-60 50 v-50 a24 24 0 0 1 0 0 v-124 a24 24 0 0 1 0 -24 z" transform="translate(-24 0)"/>
+  </g>
+  <g fill="#ffffff" text-anchor="middle" font-family="'Inter', 'Helvetica Neue', sans-serif">
+    <text x="600" y="300" font-size="72" font-weight="700" letter-spacing="8">ENGLISH</text>
+    <text x="600" y="360" font-size="26" opacity="0.85" letter-spacing="4">SPEAK · READ · WRITE</text>
+  </g>
+</svg>

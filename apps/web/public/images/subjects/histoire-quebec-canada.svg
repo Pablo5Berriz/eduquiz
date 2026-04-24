@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Histoire du Québec et du Canada">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7f1d1d"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <pattern id="p" width="120" height="120" patternUnits="userSpaceOnUse">
+      <path d="M60 20 L72 52 H106 L78 72 L90 104 L60 84 L30 104 L42 72 L14 52 H48 Z" fill="#ffffff" fill-opacity="0.06"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="600" fill="url(#g)"/>
+  <rect width="1200" height="600" fill="url(#p)"/>
+  <g fill="#ffffff" opacity="0.22">
+    <path d="M140 450 L170 390 L200 450 Z M120 490 L220 490 M170 490 L170 540"/>
+    <path d="M1000 160 L1030 100 L1060 160 Z M980 200 L1080 200 M1030 200 L1030 250" stroke="#ffffff" stroke-width="4"/>
+  </g>
+  <g fill="#ffffff" text-anchor="middle" font-family="'Inter', 'Helvetica Neue', sans-serif">
+    <text x="600" y="300" font-size="68" font-weight="700" letter-spacing="5">HISTOIRE DU QUÉBEC</text>
+    <text x="600" y="360" font-size="26" opacity="0.9" letter-spacing="4">NOS ORIGINES · NOS LUTTES · NOTRE AVENIR</text>
+  </g>
+</svg>

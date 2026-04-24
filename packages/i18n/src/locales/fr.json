@@ -75,9 +75,9 @@
     },
     "subjects": {
       "kicker": "Matières",
-      "title": "Des parcours par matière, alignés sur les programmes",
-      "description": "Mathématiques, français, sciences et histoire — avec progression continue du primaire au secondaire.",
-      "cta": "Explorer les matières"
+      "title": "Dix matières du primaire au secondaire",
+      "description": "Couvre l'ensemble du programme québécois : langues, sciences, sciences humaines, éducation financière, EPS, culture et citoyenneté.",
+      "cta": "Voir toutes les matières"
     },
     "howItWorks": {
       "kicker": "Comment ça marche",
@@ -143,14 +143,15 @@
   },
   "subjects": {
     "heroKicker": "Matières",
-    "heroTitle": "Des parcours conçus pour le programme du Québec",
-    "heroSubtitle": "Quatre matières essentielles, du primaire au secondaire, avec une progression continue et des objectifs clairs.",
+    "heroTitle": "Dix matières conçues pour le programme du Québec",
+    "heroSubtitle": "Du primaire au secondaire, une progression continue et des objectifs clairs pour chaque année.",
     "list": {
       "mathematiques": {
         "slug": "mathematiques",
         "title": "Mathématiques",
         "shortDescription": "Arithmétique, algèbre, géométrie, statistiques — avec raisonnement progressif.",
         "levels": "Primaire 3 – Secondaire 5",
+        "image": "/images/subjects/mathematiques.svg",
         "topics": [
           "Nombres et opérations",
           "Géométrie et mesure",
@@ -162,13 +163,65 @@
           "Utiliser un raisonnement mathématique",
           "Communiquer à l'aide du langage mathématique"
         ],
-        "longDescription": "Un parcours complet qui suit la progression des programmes québécois. Chaque notion est introduite par un exemple concret, puis pratiquée avec des exercices progressifs, avant d'être consolidée par des problèmes ouverts."
+        "longDescription": "Un parcours complet qui suit la progression des programmes québécois. Chaque notion est introduite par un exemple concret, puis pratiquée avec des exercices progressifs, avant d'être consolidée par des problèmes ouverts.",
+        "byLevel": {
+          "p3p4": [
+            "Lire, écrire et comparer les nombres jusqu'à 100 000",
+            "Maîtriser additions et soustractions avec retenues",
+            "Découvrir les fractions simples et les nombres décimaux",
+            "Mesurer longueurs, aires et capacités en unités standard",
+            "Reconnaître et classer les figures planes usuelles"
+          ],
+          "p5p6": [
+            "Comparer des fractions et les convertir en décimaux",
+            "Multiplier et diviser avec de grands nombres",
+            "Calculer des pourcentages et travailler les proportions",
+            "Construire des figures géométriques avec instruments",
+            "Lire et interpréter diagrammes à bandes et à ligne"
+          ],
+          "s1": [
+            "Opérer sur les nombres rationnels positifs et négatifs",
+            "Résoudre des situations de proportionnalité",
+            "Introduire le langage algébrique (variables, expressions)",
+            "Calculer aires et volumes des solides usuels",
+            "Interpréter des tableaux statistiques"
+          ],
+          "s2": [
+            "Résoudre des équations du 1er degré à une variable",
+            "Manipuler les exposants et la notation scientifique",
+            "Appliquer le théorème de Pythagore",
+            "Travailler avec des probabilités simples",
+            "Analyser des diagrammes à ligne brisée"
+          ],
+          "s3": [
+            "Résoudre des systèmes d'équations linéaires à deux variables",
+            "Étudier la fonction affine et la fonction en escalier",
+            "Utiliser la trigonométrie dans des contextes concrets",
+            "Calculer les équations de droite et de cercle",
+            "Analyser variance et écart moyen"
+          ],
+          "s4": [
+            "Étudier la fonction quadratique et la fonction exponentielle",
+            "Résoudre des problèmes d'optimisation",
+            "Appliquer la géométrie analytique (distances, milieux)",
+            "Travailler avec des probabilités conditionnelles",
+            "Modéliser des situations à l'aide de fonctions"
+          ],
+          "s5": [
+            "Maîtriser la fonction logarithmique et les identités trigonométriques",
+            "Travailler avec les vecteurs (selon la séquence)",
+            "Résoudre des problèmes d'optimisation linéaire",
+            "Analyser des distributions statistiques",
+            "Préparer l'épreuve unique ministérielle"
+          ]
+        }
       },
       "francais": {
         "slug": "francais",
         "title": "Français",
         "shortDescription": "Lecture, écriture, grammaire et communication orale.",
         "levels": "Primaire 3 – Secondaire 5",
+        "image": "/images/subjects/francais.svg",
         "topics": [
           "Lecture et compréhension",
           "Écriture et rédaction",
@@ -180,13 +233,135 @@
           "Écrire des textes variés",
           "Communiquer oralement selon des modalités variées"
         ],
-        "longDescription": "Une approche qui mise sur la compréhension fine avant la mémorisation de règles. Les exercices varient les genres (récit, informatif, argumentatif) et la correction explique systématiquement le pourquoi plutôt que de se limiter au verdict."
+        "longDescription": "Une approche qui mise sur la compréhension fine avant la mémorisation de règles. Les exercices varient les genres (récit, informatif, argumentatif) et la correction explique systématiquement le pourquoi plutôt que de se limiter au verdict.",
+        "byLevel": {
+          "p3p4": [
+            "Lire à voix haute et silencieusement des textes courts",
+            "Enrichir son vocabulaire par la lecture quotidienne",
+            "Écrire des phrases complètes et ponctuées",
+            "Maîtriser les accords simples (nom/adjectif)",
+            "Conjuguer les verbes usuels au présent, passé composé et futur"
+          ],
+          "p5p6": [
+            "Lire des romans jeunesse et en dégager l'idée principale",
+            "Rédiger un texte narratif structuré",
+            "Maîtriser les accords du verbe avec le sujet",
+            "Identifier les classes de mots dans une phrase",
+            "Préparer et livrer un exposé oral devant la classe"
+          ],
+          "s1": [
+            "Lire et analyser différents genres narratifs",
+            "Rédiger un texte explicatif clair et structuré",
+            "Utiliser la phrase complexe (subordonnées)",
+            "Maîtriser la conjugaison aux temps composés",
+            "Participer à une discussion argumentée"
+          ],
+          "s2": [
+            "Étudier des œuvres du patrimoine francophone",
+            "Produire un texte descriptif riche en procédés stylistiques",
+            "Réviser et améliorer un texte à l'aide de critères",
+            "Identifier les figures de style courantes",
+            "Préparer une communication orale avec support visuel"
+          ],
+          "s3": [
+            "Analyser des textes argumentatifs et en identifier la thèse",
+            "Rédiger un texte d'opinion appuyé sur des arguments",
+            "Maîtriser la syntaxe complexe et la ponctuation avancée",
+            "Étudier un roman d'auteur québécois ou francophone",
+            "Animer un débat structuré à plusieurs intervenants"
+          ],
+          "s4": [
+            "Analyser la structure narrative d'un roman complet",
+            "Rédiger un texte argumentatif développé",
+            "Approfondir la grammaire du texte (cohérence, reprise)",
+            "Étudier la poésie et les registres de langue",
+            "Préparer une critique littéraire orale ou écrite"
+          ],
+          "s5": [
+            "Produire une dissertation critique sur une œuvre",
+            "Étudier deux œuvres longues en vue de l'épreuve uniforme",
+            "Maîtriser la grammaire nouvelle et la révision linguistique",
+            "Analyser des textes littéraires du 20ᵉ et 21ᵉ siècle",
+            "Préparer l'épreuve unique de français écriture"
+          ]
+        }
       },
-      "sciences": {
-        "slug": "sciences",
-        "title": "Sciences",
-        "shortDescription": "Sciences de la nature et technologie, du cycle 2 au secondaire.",
+      "anglais": {
+        "slug": "anglais",
+        "title": "Anglais",
+        "shortDescription": "Communication orale, lecture et écriture en langue seconde.",
+        "levels": "Primaire 3 – Secondaire 5",
+        "image": "/images/subjects/anglais.svg",
+        "topics": [
+          "Interactions orales",
+          "Lecture et textes",
+          "Production écrite",
+          "Culture anglophone"
+        ],
+        "skills": [
+          "Interagir oralement en anglais",
+          "Comprendre des textes lus ou entendus",
+          "Écrire des textes variés en anglais"
+        ],
+        "longDescription": "Un parcours centré sur la communication réelle plutôt que sur la mémorisation. Les activités alternent compréhension orale (podcasts, vidéos), lecture graduée, écriture guidée puis libre, avec des mises en situation concrètes.",
+        "byLevel": {
+          "p3p4": [
+            "Reconnaître le vocabulaire familier (famille, école, couleurs)",
+            "Participer à des interactions orales simples",
+            "Lire à voix haute de courts textes illustrés",
+            "Écrire des mots et phrases avec modèle",
+            "Chanter et réciter des comptines en anglais"
+          ],
+          "p5p6": [
+            "Comprendre des messages courts sur des sujets familiers",
+            "Répondre à des questions ouvertes à l'oral et à l'écrit",
+            "Lire des histoires adaptées à l'âge",
+            "Produire un court texte personnel avec soutien",
+            "Découvrir la culture anglophone via chansons et films"
+          ],
+          "s1": [
+            "Interagir dans des situations courantes",
+            "Lire et comprendre des textes narratifs courts",
+            "Produire un texte écrit de quelques paragraphes",
+            "Développer un vocabulaire thématique varié",
+            "Écouter et résumer des contenus audio courts"
+          ],
+          "s2": [
+            "Comprendre des textes médiatiques (articles, publicités)",
+            "Argumenter simplement à l'oral et à l'écrit",
+            "Maîtriser les temps présent, passé et futur",
+            "Utiliser dictionnaires bilingue et unilingue",
+            "Participer à une discussion en petit groupe"
+          ],
+          "s3": [
+            "Lire des nouvelles littéraires et en discuter",
+            "Produire un texte écrit structuré (500 mots et plus)",
+            "Approfondir la grammaire (conditionnel, voix passive)",
+            "Analyser une œuvre audiovisuelle",
+            "Réaliser un projet de communication multimédia"
+          ],
+          "s4": [
+            "Étudier des short stories",
+            "Rédiger un texte argumentatif développé",
+            "Maîtriser les temps composés et structures complexes",
+            "Présenter un exposé oral de 5 à 10 minutes",
+            "Analyser les références culturelles anglophones"
+          ],
+          "s5": [
+            "Analyser œuvres littéraires et essais",
+            "Produire un essai argumentatif ou descriptif développé",
+            "Animer une table ronde ou un débat en anglais",
+            "Maîtriser les registres de langue (formel, informel, académique)",
+            "Explorer les cultures du monde anglophone contemporain"
+          ]
+        }
+      },
+      "sciencesTechnologie": {
+        "slug": "sciences-technologie",
+        "title": "Sciences et technologie",
+        "shortDescription": "Sciences de la nature et technologie, du 2ᵉ cycle primaire au secondaire.",
         "levels": "Primaire 5 – Secondaire 5",
+        "image": "/images/subjects/sciences-technologie.svg",
         "topics": [
           "Univers matériel",
           "Univers vivant",
@@ -198,25 +373,345 @@
           "Mettre à profit des outils, objets et procédés",
           "Communiquer à l'aide des langages scientifiques"
         ],
-        "longDescription": "Une matière où l'expérimentation guide la compréhension. Les activités partent d'une question concrète, proposent une démarche d'investigation, puis invitent à généraliser les résultats. Les concepts sont reliés au quotidien."
+        "longDescription": "Une matière où l'expérimentation guide la compréhension. Les activités partent d'une question concrète, proposent une démarche d'investigation, puis invitent à généraliser les résultats. Les concepts sont reliés au quotidien.",
+        "byLevel": {
+          "p5p6": [
+            "Observer et classifier les êtres vivants",
+            "Comprendre le cycle de l'eau et les états de la matière",
+            "Expérimenter avec lumière, son et chaleur",
+            "Étudier le système solaire et la Terre",
+            "Mesurer et utiliser des instruments simples"
+          ],
+          "s1": [
+            "Distinguer matière et énergie (masse, volume, densité)",
+            "Étudier la cellule et la classification du vivant",
+            "Observer les phénomènes géologiques",
+            "Construire un objet technique simple",
+            "Rédiger un compte-rendu d'expérience"
+          ],
+          "s2": [
+            "Étudier la composition de l'atome et les molécules",
+            "Comprendre les systèmes du corps humain",
+            "Analyser les écosystèmes et les relations alimentaires",
+            "Concevoir un mécanisme avec engrenages",
+            "Maîtriser un protocole expérimental"
+          ],
+          "s3": [
+            "Étudier l'électricité statique et dynamique",
+            "Comprendre la génétique et la reproduction",
+            "Analyser les changements climatiques",
+            "Distinguer acides, bases et sels",
+            "Réaliser un projet technologique complet"
+          ],
+          "s4": [
+            "Approfondir la chimie (réactions, stœchiométrie)",
+            "Étudier l'écologie et l'évolution",
+            "Maîtriser la mécanique (forces, mouvement)",
+            "Explorer les transformations énergétiques",
+            "Préparer l'épreuve ministérielle STE ou SE"
+          ],
+          "s5": [
+            "Approfondir la physique (optique, électromagnétisme)",
+            "Étudier la chimie organique et des solutions",
+            "Analyser les biotechnologies",
+            "Mener un projet de recherche autonome",
+            "Relier les sciences aux enjeux de société"
+          ]
+        }
       },
-      "histoire": {
-        "slug": "histoire-geographie",
-        "title": "Histoire et géographie",
-        "shortDescription": "Histoire du Québec, du Canada et du monde, géographie et éducation à la citoyenneté.",
-        "levels": "Primaire 3 – Secondaire 5",
+      "histoireQuebecCanada": {
+        "slug": "histoire-quebec-canada",
+        "title": "Histoire du Québec et du Canada",
+        "shortDescription": "Des premières sociétés à nos jours, avec un regard québécois.",
+        "levels": "Primaire 3 – Secondaire 4",
+        "image": "/images/subjects/histoire-quebec-canada.svg",
         "topics": [
           "Premières sociétés",
-          "Histoire du Québec et du Canada",
-          "Histoire du monde",
-          "Géographie et citoyenneté"
+          "Nouvelle-France",
+          "Régime britannique",
+          "Québec moderne"
         ],
         "skills": [
           "Interroger les réalités sociales dans une perspective historique",
           "Interpréter les réalités sociales à l'aide de la méthode historique",
           "Construire sa conscience citoyenne à l'aide de l'histoire"
         ],
-        "longDescription": "Un parcours qui privilégie la lecture de sources et la mise en relation des événements. Les exercices travaillent la chronologie, l'analyse de documents et l'écriture historique, sans tomber dans la seule mémorisation de dates."
+        "longDescription": "Un parcours qui privilégie la lecture de sources et la mise en relation des événements. Les exercices travaillent la chronologie, l'analyse de documents et l'écriture historique, sans tomber dans la seule mémorisation de dates.",
+        "byLevel": {
+          "p3p4": [
+            "Découvrir les sociétés iroquoiennes et algonquiennes vers 1500",
+            "Comparer le mode de vie des Inuits et des Micmacs",
+            "Situer les sociétés sur une ligne du temps",
+            "Étudier l'organisation du territoire et des communautés",
+            "Lire une carte historique et en dégager l'information"
+          ],
+          "p5p6": [
+            "Étudier la société canadienne vers 1820 et 1905",
+            "Comprendre l'industrialisation et l'immigration",
+            "Découvrir la société québécoise du 20ᵉ siècle",
+            "Comparer une société démocratique et non démocratique",
+            "Utiliser des sources primaires adaptées à l'âge"
+          ],
+          "s3": [
+            "Étudier les premiers occupants du territoire québécois",
+            "Analyser l'émergence d'une société coloniale en Nouvelle-France",
+            "Comprendre les changements politiques de 1760 à 1840",
+            "Interpréter cartes, gravures et textes d'époque",
+            "Maîtriser la méthode historique (faits, interprétations, sources)"
+          ],
+          "s4": [
+            "Étudier la formation du régime fédéral canadien (1840-1896)",
+            "Analyser les nationalismes et le modernisme (1896-1945)",
+            "Comprendre la Révolution tranquille et ses suites",
+            "Relier les enjeux contemporains aux racines historiques",
+            "Préparer l'épreuve unique d'histoire du Québec et du Canada"
+          ]
+        }
+      },
+      "geographie": {
+        "slug": "geographie",
+        "title": "Géographie",
+        "shortDescription": "Territoires, paysages et enjeux contemporains.",
+        "levels": "Primaire 3 – Secondaire 2",
+        "image": "/images/subjects/geographie.svg",
+        "topics": [
+          "Lecture de cartes",
+          "Territoires humains",
+          "Enjeux environnementaux",
+          "Régions du monde"
+        ],
+        "skills": [
+          "Lire l'organisation d'un territoire",
+          "Interpréter un enjeu territorial",
+          "Construire sa conscience citoyenne à l'échelle planétaire"
+        ],
+        "longDescription": "Un parcours qui développe la capacité à situer, comparer et analyser les territoires. Les exercices travaillent la lecture de cartes, l'interprétation de photos aériennes et l'analyse des enjeux humains et environnementaux, avec un accent sur le Québec et le Canada.",
+        "byLevel": {
+          "p3p4": [
+            "Lire une carte et utiliser ses éléments (légende, échelle, orientation)",
+            "Distinguer paysage urbain et paysage rural",
+            "Situer le Québec et ses régions administratives",
+            "Décrire des activités économiques du territoire",
+            "Comparer des lieux à partir de photographies"
+          ],
+          "p5p6": [
+            "Situer provinces et territoires du Canada",
+            "Étudier des régions du monde (Amazonie, Arctique)",
+            "Analyser les relations entre climat et paysage",
+            "Utiliser des outils géographiques numériques",
+            "Comprendre les mouvements de population"
+          ],
+          "s1": [
+            "Comparer les territoires urbain, rural et régional du Québec",
+            "Analyser le territoire autochtone et ses enjeux",
+            "Étudier des métropoles et leurs défis",
+            "Interpréter des cartes thématiques complexes",
+            "Formuler un enjeu territorial avec une question géographique"
+          ],
+          "s2": [
+            "Étudier le territoire forestier, énergétique et touristique",
+            "Analyser l'impact humain sur les milieux naturels",
+            "Comparer deux territoires sur des enjeux semblables",
+            "Produire un dossier géographique illustré",
+            "Préparer la suite du cursus d'univers social"
+          ]
+        }
+      },
+      "educationFinanciere": {
+        "slug": "education-financiere",
+        "title": "Éducation financière",
+        "shortDescription": "Budget, consommation, fiscalité et projets de vie.",
+        "levels": "Secondaire 5",
+        "image": "/images/subjects/education-financiere.svg",
+        "topics": [
+          "Consommation",
+          "Travail et revenu",
+          "Épargne et crédit",
+          "Fiscalité et projets"
+        ],
+        "skills": [
+          "Prendre position sur un enjeu financier",
+          "Analyser un choix de consommation",
+          "Évaluer les conséquences d'une décision financière"
+        ],
+        "longDescription": "Un cours obligatoire au secondaire 5 qui prépare à la vie adulte. Les modules abordent concrètement comment louer un logement, négocier un salaire, lire une feuille de paie, comparer des offres de crédit, ouvrir un REER ou un CELI, et remplir une déclaration de revenus simple.",
+        "byLevel": {
+          "s5": [
+            "Élaborer un budget personnel réaliste (revenus, dépenses, imprévus)",
+            "Comparer des offres de crédit et de prêt étudiant",
+            "Comprendre la feuille de paie et la déclaration de revenus",
+            "Analyser un projet de vie (études, logement, auto) sur le plan financier",
+            "Distinguer épargne, placement et produits financiers (REER, CELI)"
+          ]
+        }
+      },
+      "educationPhysiqueSante": {
+        "slug": "education-physique-sante",
+        "title": "Éducation physique et à la santé",
+        "shortDescription": "Activités physiques variées, condition physique et habitudes de vie.",
+        "levels": "Primaire 3 – Secondaire 5",
+        "image": "/images/subjects/education-physique-sante.svg",
+        "topics": [
+          "Activités individuelles",
+          "Activités collectives",
+          "Saines habitudes de vie",
+          "Santé mentale et sociale"
+        ],
+        "skills": [
+          "Agir dans divers contextes de pratique",
+          "Interagir dans divers contextes de pratique",
+          "Adopter un mode de vie sain et actif"
+        ],
+        "longDescription": "Un parcours qui mise sur la pratique régulière et la compréhension de son corps. Les séances théoriques complètent les cours pratiques : anatomie du mouvement, planification d'un entraînement, nutrition sportive, prévention des blessures, bien-être mental.",
+        "byLevel": {
+          "p3p4": [
+            "Explorer des activités physiques variées",
+            "Coopérer dans des jeux collectifs",
+            "Identifier de saines habitudes alimentaires",
+            "Reconnaître les effets de l'exercice sur le corps",
+            "Respecter les règles de sécurité"
+          ],
+          "p5p6": [
+            "Participer à des sports d'équipe",
+            "Évaluer sa propre condition physique",
+            "Planifier des collations équilibrées",
+            "Comprendre l'importance du sommeil et de l'hydratation",
+            "Développer l'esprit sportif et le respect de l'adversaire"
+          ],
+          "s1": [
+            "Pratiquer des activités individuelles (course, gymnastique)",
+            "Analyser un mouvement sur le plan biomécanique simple",
+            "Élaborer un programme d'entraînement de base",
+            "Comprendre la pyramide alimentaire canadienne",
+            "Discuter de l'image corporelle et des médias"
+          ],
+          "s2": [
+            "Approfondir les sports collectifs et leur tactique",
+            "Mesurer sa progression (force, endurance, souplesse)",
+            "Identifier les signes de surentraînement",
+            "Planifier ses repas selon un besoin énergétique",
+            "Aborder la santé mentale et la gestion du stress"
+          ],
+          "s3": [
+            "Choisir des activités physiques adaptées à ses objectifs",
+            "Concevoir un cycle d'entraînement de quatre semaines",
+            "Analyser une étiquette nutritionnelle",
+            "Discuter des dépendances (alcool, écrans, substances)",
+            "Comprendre le consentement et les relations saines"
+          ],
+          "s4": [
+            "Mener un projet d'entraînement autonome",
+            "Expliquer les adaptations physiologiques à l'exercice",
+            "Discuter des troubles alimentaires et de leurs signaux",
+            "Préparer un événement sportif scolaire",
+            "Aborder la prévention du dopage et de la triche"
+          ],
+          "s5": [
+            "Élaborer un plan d'activité physique à long terme",
+            "Comprendre les bases de la physiologie du sport",
+            "Intégrer la santé mentale dans son mode de vie",
+            "Évaluer l'offre sportive et communautaire autour de soi",
+            "Devenir un citoyen physiquement actif et responsable"
+          ]
+        }
+      },
+      "cultureCitoyenneteQuebecoise": {
+        "slug": "culture-citoyennete-quebecoise",
+        "title": "Culture et citoyenneté québécoise",
+        "shortDescription": "Identité, diversité, démocratie et culture au Québec.",
+        "levels": "Primaire 3 – Secondaire 5",
+        "image": "/images/subjects/culture-citoyennete-quebecoise.svg",
+        "topics": [
+          "Citoyenneté démocratique",
+          "Identité et diversité",
+          "Culture québécoise",
+          "Éthique et société"
+        ],
+        "skills": [
+          "Délibérer sur des enjeux éthiques et culturels",
+          "Dialoguer dans une société pluraliste",
+          "Exercer son jugement critique"
+        ],
+        "longDescription": "Un cours qui remplace Éthique et culture religieuse depuis 2023-2024. Il aborde la culture québécoise, la participation démocratique, l'éthique appliquée et le vivre-ensemble, sans enseignement confessionnel. Les discussions s'appuient sur des cas concrets et des situations de classe.",
+        "byLevel": {
+          "p3p4": [
+            "Découvrir les règles de vie à l'école et à la maison",
+            "Reconnaître les différences et les points communs entre élèves",
+            "Comprendre les rôles et responsabilités de chacun",
+            "Identifier des émotions et des façons de les exprimer",
+            "Participer aux décisions collectives en classe"
+          ],
+          "p5p6": [
+            "Comprendre les symboles et institutions du Québec",
+            "Discuter de ses appartenances culturelles",
+            "Reconnaître les formes de discrimination et y réagir",
+            "Aborder les relations entre peuples autochtones et État",
+            "Exercer un rôle citoyen concret à l'école"
+          ],
+          "s1": [
+            "Explorer la culture québécoise contemporaine",
+            "Comprendre les droits et libertés fondamentales",
+            "Discuter d'enjeux de vie en société",
+            "Analyser l'influence des groupes sur les choix individuels",
+            "Participer à une délibération en classe"
+          ],
+          "s2": [
+            "Étudier le fonctionnement de la démocratie québécoise",
+            "Comprendre le rôle des médias dans l'opinion publique",
+            "Distinguer fait, opinion et argument",
+            "Analyser des situations d'inégalité ou d'exclusion",
+            "Pratiquer le dialogue respectueux sur des sujets sensibles"
+          ],
+          "s3": [
+            "Étudier la laïcité et le rôle de la religion dans la société",
+            "Approfondir l'éthique (consentement, responsabilité, justice)",
+            "Analyser la culture autochtone et francophone hors Québec",
+            "Discuter des enjeux du numérique (vie privée, désinformation)",
+            "Construire une position argumentée sur un enjeu de société"
+          ],
+          "s4": [
+            "Analyser des enjeux sociaux contemporains (immigration, pauvreté)",
+            "Comprendre les mouvements sociaux et leur rôle",
+            "Étudier les tensions entre droits individuels et collectifs",
+            "Explorer la littérature et le cinéma québécois",
+            "Participer à un projet d'engagement communautaire"
+          ],
+          "s5": [
+            "Approfondir l'éthique appliquée (bioéthique, environnement, travail)",
+            "Analyser la participation citoyenne dans une démocratie",
+            "Explorer la culture québécoise dans ses dimensions artistiques",
+            "Construire une argumentation écrite et orale structurée",
+            "Préparer son rôle de citoyen adulte"
+          ]
+        }
+      },
+      "mondeContemporain": {
+        "slug": "monde-contemporain",
+        "title": "Monde contemporain",
+        "shortDescription": "Enjeux mondiaux de population, richesse, pouvoir et environnement.",
+        "levels": "Secondaire 5",
+        "image": "/images/subjects/monde-contemporain.svg",
+        "topics": [
+          "Population et peuplement",
+          "Environnement",
+          "Richesse",
+          "Pouvoir et tensions"
+        ],
+        "skills": [
+          "Interpréter un problème du monde contemporain",
+          "Prendre position sur un enjeu du monde contemporain",
+          "Exercer son jugement éclairé"
+        ],
+        "longDescription": "Un cours obligatoire au secondaire 5 qui décode l'actualité internationale. Chaque thème est abordé à partir d'études de cas récentes (transitions démographiques, changements climatiques, inégalités de richesse, conflits armés), avec lecture critique de sources médiatiques et positionnement argumenté.",
+        "byLevel": {
+          "s5": [
+            "Analyser les transitions démographiques (migrations, vieillissement)",
+            "Comprendre les enjeux environnementaux globaux",
+            "Étudier les inégalités de richesse entre pays",
+            "Analyser des conflits armés et interventions internationales",
+            "Construire une argumentation sur un enjeu mondial actuel"
+          ]
+        }
       }
     },
     "detail": {
@@ -225,7 +720,17 @@
       "topicsLabel": "Domaines abordés",
       "skillsLabel": "Compétences développées",
       "ctaPrimary": "Commencer cette matière",
-      "ctaSecondary": "Voir les autres matières"
+      "ctaSecondary": "Voir les autres matières",
+      "imageAlt": "Illustration de la matière",
+      "byLevelTitle": "Ce que tu apprends, niveau par niveau",
+      "byLevelDescription": "Un aperçu concret de ce qui est travaillé à chaque année où cette matière figure au programme.",
+      "levelP3P4": "Primaire 3-4",
+      "levelP5P6": "Primaire 5-6",
+      "levelS1": "Secondaire 1",
+      "levelS2": "Secondaire 2",
+      "levelS3": "Secondaire 3",
+      "levelS4": "Secondaire 4",
+      "levelS5": "Secondaire 5"
     },
     "notFoundTitle": "Matière introuvable",
     "notFoundDescription": "Cette matière n'existe pas ou n'est pas encore publiée.",

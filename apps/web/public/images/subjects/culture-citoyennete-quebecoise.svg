@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Culture et citoyenneté québécoise">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#312e81"/>
+      <stop offset="1" stop-color="#818cf8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="600" fill="url(#g)"/>
+  <g fill="#ffffff" opacity="0.25">
+    <circle cx="160" cy="170" r="30"/>
+    <path d="M120 230 q40 -30 80 0 v70 h-80 z"/>
+    <circle cx="240" cy="190" r="26"/>
+    <path d="M210 240 q30 -24 60 0 v60 h-60 z"/>
+    <circle cx="1000" cy="420" r="30"/>
+    <path d="M960 480 q40 -30 80 0 v70 h-80 z"/>
+    <circle cx="1080" cy="440" r="26"/>
+    <path d="M1050 490 q30 -24 60 0 v60 h-60 z"/>
+  </g>
+  <g fill="#ffffff" text-anchor="middle" font-family="'Inter', 'Helvetica Neue', sans-serif">
+    <text x="600" y="300" font-size="58" font-weight="700" letter-spacing="4">CULTURE ET CITOYENNETÉ</text>
+    <text x="600" y="360" font-size="26" opacity="0.9" letter-spacing="4">DIALOGUE · DÉMOCRATIE · DIVERSITÉ</text>
+  </g>
+</svg>

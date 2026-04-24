@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Éducation physique et à la santé">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c2d12"/>
+      <stop offset="1" stop-color="#fb923c"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="600" fill="url(#g)"/>
+  <g fill="none" stroke="#ffffff" stroke-opacity="0.28" stroke-width="6" stroke-linecap="round">
+    <path d="M140 460 Q200 380 240 420 Q280 460 320 380 Q360 300 420 360"/>
+    <path d="M780 220 Q840 180 880 220 Q920 260 960 200 Q1000 140 1060 180"/>
+  </g>
+  <g fill="#ffffff" opacity="0.3">
+    <circle cx="200" cy="200" r="28"/>
+    <rect x="186" y="228" width="28" height="64" rx="8"/>
+    <rect x="160" y="292" width="22" height="58" rx="6"/>
+    <rect x="218" y="292" width="22" height="58" rx="6"/>
+  </g>
+  <g fill="#ffffff" text-anchor="middle" font-family="'Inter', 'Helvetica Neue', sans-serif">
+    <text x="600" y="300" font-size="60" font-weight="700" letter-spacing="5">ÉDUCATION PHYSIQUE &amp; SANTÉ</text>
+    <text x="600" y="360" font-size="26" opacity="0.9" letter-spacing="4">BOUGER · BIEN-ÊTRE · HABITUDES</text>
+  </g>
+</svg>

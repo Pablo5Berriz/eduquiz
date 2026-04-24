@@ -75,9 +75,9 @@
     },
     "subjects": {
       "kicker": "Subjects",
-      "title": "Subject pathways aligned with the curriculum",
-      "description": "Mathematics, French, sciences and history — with continuous progression from primary to secondary.",
-      "cta": "Explore subjects"
+      "title": "Ten subjects from primary to secondary",
+      "description": "Covers the entire Quebec curriculum: languages, sciences, humanities, financial education, physical education, culture and citizenship.",
+      "cta": "See all subjects"
     },
     "howItWorks": {
       "kicker": "How it works",
@@ -143,14 +143,15 @@
   },
   "subjects": {
     "heroKicker": "Subjects",
-    "heroTitle": "Pathways designed for the Quebec curriculum",
-    "heroSubtitle": "Four core subjects, from primary to secondary, with continuous progression and clear objectives.",
+    "heroTitle": "Ten subjects designed for the Quebec curriculum",
+    "heroSubtitle": "From primary to secondary, continuous progression and clear objectives for every year.",
     "list": {
       "mathematiques": {
         "slug": "mathematiques",
         "title": "Mathematics",
         "shortDescription": "Arithmetic, algebra, geometry, statistics — with progressive reasoning.",
         "levels": "Grade 3 – Secondary 5",
+        "image": "/images/subjects/mathematiques.svg",
         "topics": [
           "Numbers and operations",
           "Geometry and measurement",
@@ -162,13 +163,65 @@
           "Using mathematical reasoning",
           "Communicating using mathematical language"
         ],
-        "longDescription": "A complete pathway that follows the Quebec program's progression. Each concept is introduced with a concrete example, then practiced through progressive exercises, before being consolidated with open-ended problems."
+        "longDescription": "A complete pathway that follows the Quebec program's progression. Each concept is introduced with a concrete example, then practiced through progressive exercises, before being consolidated with open-ended problems.",
+        "byLevel": {
+          "p3p4": [
+            "Read, write and compare numbers up to 100,000",
+            "Master addition and subtraction with regrouping",
+            "Discover simple fractions and decimal numbers",
+            "Measure lengths, areas and capacities in standard units",
+            "Recognize and classify common plane figures"
+          ],
+          "p5p6": [
+            "Compare fractions and convert them to decimals",
+            "Multiply and divide with large numbers",
+            "Calculate percentages and work with proportions",
+            "Construct geometric figures with instruments",
+            "Read and interpret bar and line charts"
+          ],
+          "s1": [
+            "Operate on positive and negative rational numbers",
+            "Solve proportionality problems",
+            "Introduce algebraic language (variables, expressions)",
+            "Calculate areas and volumes of common solids",
+            "Interpret statistical tables"
+          ],
+          "s2": [
+            "Solve first-degree equations with one variable",
+            "Manipulate exponents and scientific notation",
+            "Apply the Pythagorean theorem",
+            "Work with simple probabilities",
+            "Analyze line graphs"
+          ],
+          "s3": [
+            "Solve systems of two linear equations in two variables",
+            "Study affine and step functions",
+            "Use trigonometry in concrete contexts",
+            "Calculate equations of lines and circles",
+            "Analyze variance and mean deviation"
+          ],
+          "s4": [
+            "Study quadratic and exponential functions",
+            "Solve optimization problems",
+            "Apply analytic geometry (distances, midpoints)",
+            "Work with conditional probabilities",
+            "Model situations using functions"
+          ],
+          "s5": [
+            "Master the logarithmic function and trigonometric identities",
+            "Work with vectors (depending on the sequence)",
+            "Solve linear optimization problems",
+            "Analyze statistical distributions",
+            "Prepare for the ministerial uniform exam"
+          ]
+        }
       },
       "francais": {
         "slug": "francais",
         "title": "French",
         "shortDescription": "Reading, writing, grammar and oral communication.",
         "levels": "Grade 3 – Secondary 5",
+        "image": "/images/subjects/francais.svg",
         "topics": [
           "Reading and comprehension",
           "Writing and composition",
@@ -180,16 +233,138 @@
           "Write varied texts",
           "Communicate orally through varied modalities"
         ],
-        "longDescription": "An approach that favors fine-grained comprehension over rote memorization of rules. Exercises span genres (narrative, informative, argumentative) and feedback consistently explains the why rather than only the verdict."
+        "longDescription": "An approach that favors fine-grained comprehension over rote memorization of rules. Exercises span genres (narrative, informative, argumentative) and feedback consistently explains the why rather than only the verdict.",
+        "byLevel": {
+          "p3p4": [
+            "Read short texts aloud and silently",
+            "Enrich vocabulary through daily reading",
+            "Write complete, properly punctuated sentences",
+            "Master simple agreements (noun/adjective)",
+            "Conjugate common verbs in present, passé composé and future"
+          ],
+          "p5p6": [
+            "Read youth novels and identify the main idea",
+            "Write a structured narrative text",
+            "Master subject-verb agreement",
+            "Identify word classes in a sentence",
+            "Prepare and deliver an oral presentation to the class"
+          ],
+          "s1": [
+            "Read and analyze different narrative genres",
+            "Write a clear, structured explanatory text",
+            "Use complex sentences (subordinate clauses)",
+            "Master conjugation in compound tenses",
+            "Participate in an argued discussion"
+          ],
+          "s2": [
+            "Study works from the French-speaking literary heritage",
+            "Produce a descriptive text rich in stylistic devices",
+            "Revise and improve a text based on criteria",
+            "Identify common figures of speech",
+            "Prepare an oral communication with visual support"
+          ],
+          "s3": [
+            "Analyze argumentative texts and identify their thesis",
+            "Write an opinion text supported by arguments",
+            "Master complex syntax and advanced punctuation",
+            "Study a novel by a Quebec or francophone author",
+            "Moderate a structured debate with several participants"
+          ],
+          "s4": [
+            "Analyze the narrative structure of a complete novel",
+            "Write a developed argumentative text",
+            "Deepen text grammar (coherence, anaphora)",
+            "Study poetry and language registers",
+            "Prepare an oral or written literary critique"
+          ],
+          "s5": [
+            "Produce a critical essay on a literary work",
+            "Study two long works for the uniform exam",
+            "Master renewed grammar and linguistic revision",
+            "Analyze 20th- and 21st-century literary texts",
+            "Prepare for the French writing uniform exam"
+          ]
+        }
       },
-      "sciences": {
-        "slug": "sciences",
-        "title": "Sciences",
-        "shortDescription": "Natural sciences and technology, from Cycle 2 through secondary.",
-        "levels": "Grade 5 – Secondary 5",
+      "anglais": {
+        "slug": "anglais",
+        "title": "English",
+        "shortDescription": "Oral communication, reading and writing in second language.",
+        "levels": "Grade 3 – Secondary 5",
+        "image": "/images/subjects/anglais.svg",
         "topics": [
-          "Material universe",
-          "Living universe",
+          "Oral interactions",
+          "Reading and texts",
+          "Written production",
+          "Anglophone culture"
+        ],
+        "skills": [
+          "Interact orally in English",
+          "Reinvest understanding of texts read or heard",
+          "Write varied texts in English"
+        ],
+        "longDescription": "A pathway centered on real communication rather than memorization. Activities alternate between listening comprehension (podcasts, videos), graded reading, guided and free writing, with concrete real-life scenarios.",
+        "byLevel": {
+          "p3p4": [
+            "Recognize familiar vocabulary (family, school, colors)",
+            "Participate in simple oral interactions",
+            "Read aloud short illustrated texts",
+            "Write words and sentences with a model",
+            "Sing and recite rhymes in English"
+          ],
+          "p5p6": [
+            "Understand short messages on familiar topics",
+            "Answer open-ended questions orally and in writing",
+            "Read age-appropriate stories",
+            "Produce a short personal text with support",
+            "Discover anglophone culture through songs and films"
+          ],
+          "s1": [
+            "Interact in common situations",
+            "Read and understand short narrative texts",
+            "Produce a written text of several paragraphs",
+            "Develop varied thematic vocabulary",
+            "Listen to and summarize short audio content"
+          ],
+          "s2": [
+            "Understand media texts (articles, advertisements)",
+            "Argue simply orally and in writing",
+            "Master present, past and future tenses",
+            "Use bilingual and monolingual dictionaries",
+            "Participate in a small-group discussion"
+          ],
+          "s3": [
+            "Read literary short stories and discuss them",
+            "Produce a structured written text (500+ words)",
+            "Deepen grammar (conditional, passive voice)",
+            "Analyze an audiovisual work",
+            "Carry out a multimedia communication project"
+          ],
+          "s4": [
+            "Study short stories",
+            "Write a developed argumentative text",
+            "Master compound tenses and complex structures",
+            "Give a 5–10 minute oral presentation",
+            "Analyze anglophone cultural references"
+          ],
+          "s5": [
+            "Analyze literary works and essays",
+            "Produce a developed argumentative or descriptive essay",
+            "Moderate a panel discussion or debate in English",
+            "Master language registers (formal, informal, academic)",
+            "Explore the cultures of the contemporary anglophone world"
+          ]
+        }
+      },
+      "sciencesTechnologie": {
+        "slug": "sciences-technologie",
+        "title": "Science and technology",
+        "shortDescription": "Natural sciences and technology, from Cycle 2 of primary through secondary.",
+        "levels": "Grade 5 – Secondary 5",
+        "image": "/images/subjects/sciences-technologie.svg",
+        "topics": [
+          "Material world",
+          "Living world",
           "Earth and space",
           "Technology"
         ],
@@ -198,25 +373,345 @@
           "Make use of tools, objects and processes",
           "Communicate using scientific language"
         ],
-        "longDescription": "A subject where hands-on investigation drives understanding. Activities start from a concrete question, propose an investigation, then invite generalization. Concepts are consistently tied back to everyday life."
+        "longDescription": "A subject where hands-on investigation drives understanding. Activities start from a concrete question, propose an investigation, then invite generalization. Concepts are consistently tied back to everyday life.",
+        "byLevel": {
+          "p5p6": [
+            "Observe and classify living things",
+            "Understand the water cycle and states of matter",
+            "Experiment with light, sound and heat",
+            "Study the solar system and Earth",
+            "Measure and use simple instruments"
+          ],
+          "s1": [
+            "Distinguish matter and energy (mass, volume, density)",
+            "Study the cell and classification of living things",
+            "Observe geological phenomena",
+            "Build a simple technical object",
+            "Write an experiment report"
+          ],
+          "s2": [
+            "Study atomic composition and molecules",
+            "Understand human body systems",
+            "Analyze ecosystems and food chains",
+            "Design a mechanism with gears",
+            "Master an experimental protocol"
+          ],
+          "s3": [
+            "Study static and dynamic electricity",
+            "Understand genetics and reproduction",
+            "Analyze climate change",
+            "Distinguish acids, bases and salts",
+            "Carry out a complete technological project"
+          ],
+          "s4": [
+            "Deepen chemistry (reactions, stoichiometry)",
+            "Study ecology and evolution",
+            "Master mechanics (forces, motion)",
+            "Explore energy transformations",
+            "Prepare for the STE or SE ministerial exam"
+          ],
+          "s5": [
+            "Deepen physics (optics, electromagnetism)",
+            "Study organic chemistry and solutions",
+            "Analyze biotechnology",
+            "Carry out an autonomous research project",
+            "Connect science to societal issues"
+          ]
+        }
       },
-      "histoire": {
-        "slug": "histoire-geographie",
-        "title": "History and geography",
-        "shortDescription": "History of Quebec, Canada and the world, geography and citizenship.",
-        "levels": "Grade 3 – Secondary 5",
+      "histoireQuebecCanada": {
+        "slug": "histoire-quebec-canada",
+        "title": "History of Quebec and Canada",
+        "shortDescription": "From early societies to the present day, with a Quebec perspective.",
+        "levels": "Grade 3 – Secondary 4",
+        "image": "/images/subjects/histoire-quebec-canada.svg",
         "topics": [
           "Early societies",
-          "History of Quebec and Canada",
-          "World history",
-          "Geography and citizenship"
+          "New France",
+          "British regime",
+          "Modern Quebec"
         ],
         "skills": [
           "Examine social realities from a historical perspective",
           "Interpret social realities using the historical method",
-          "Build a citizen awareness through history"
+          "Build citizen awareness through history"
         ],
-        "longDescription": "A pathway that emphasizes reading of sources and connecting events. Exercises work on chronology, document analysis and historical writing, without falling into date-only memorization."
+        "longDescription": "A pathway that emphasizes reading of sources and connecting events. Exercises work on chronology, document analysis and historical writing, without falling into date-only memorization.",
+        "byLevel": {
+          "p3p4": [
+            "Discover Iroquoian and Algonquian societies around 1500",
+            "Compare the ways of life of the Inuit and the Mi'kmaq",
+            "Place societies on a timeline",
+            "Study the organization of territory and communities",
+            "Read a historical map and extract information"
+          ],
+          "p5p6": [
+            "Study Canadian society around 1820 and 1905",
+            "Understand industrialization and immigration",
+            "Discover 20th-century Quebec society",
+            "Compare a democratic and a non-democratic society",
+            "Use age-appropriate primary sources"
+          ],
+          "s3": [
+            "Study the first occupants of Quebec territory",
+            "Analyze the emergence of a colonial society in New France",
+            "Understand political changes from 1760 to 1840",
+            "Interpret maps, engravings and period texts",
+            "Master the historical method (facts, interpretations, sources)"
+          ],
+          "s4": [
+            "Study the formation of the Canadian federal regime (1840–1896)",
+            "Analyze nationalisms and modernism (1896–1945)",
+            "Understand the Quiet Revolution and its aftermath",
+            "Connect contemporary issues to their historical roots",
+            "Prepare for the uniform history of Quebec and Canada exam"
+          ]
+        }
+      },
+      "geographie": {
+        "slug": "geographie",
+        "title": "Geography",
+        "shortDescription": "Territories, landscapes and contemporary issues.",
+        "levels": "Grade 3 – Secondary 2",
+        "image": "/images/subjects/geographie.svg",
+        "topics": [
+          "Map reading",
+          "Human territories",
+          "Environmental issues",
+          "Regions of the world"
+        ],
+        "skills": [
+          "Read the organization of a territory",
+          "Interpret a territorial issue",
+          "Build citizen awareness on a planetary scale"
+        ],
+        "longDescription": "A pathway that develops the ability to locate, compare and analyze territories. Exercises work on map reading, aerial-photo interpretation, and human and environmental issues, with a focus on Quebec and Canada.",
+        "byLevel": {
+          "p3p4": [
+            "Read a map and use its elements (legend, scale, orientation)",
+            "Distinguish urban and rural landscapes",
+            "Locate Quebec and its administrative regions",
+            "Describe economic activities of the territory",
+            "Compare places using photographs"
+          ],
+          "p5p6": [
+            "Locate Canadian provinces and territories",
+            "Study regions of the world (Amazon, Arctic)",
+            "Analyze relationships between climate and landscape",
+            "Use digital geographic tools",
+            "Understand population movements"
+          ],
+          "s1": [
+            "Compare urban, rural and regional territories of Quebec",
+            "Analyze Indigenous territory and its issues",
+            "Study metropolises and their challenges",
+            "Interpret complex thematic maps",
+            "Formulate a territorial issue with a geographic question"
+          ],
+          "s2": [
+            "Study forest, energy and tourism territories",
+            "Analyze human impact on natural environments",
+            "Compare two territories on similar issues",
+            "Produce an illustrated geographic dossier",
+            "Prepare for the rest of the social universe curriculum"
+          ]
+        }
+      },
+      "educationFinanciere": {
+        "slug": "education-financiere",
+        "title": "Financial education",
+        "shortDescription": "Budget, consumption, taxation and life projects.",
+        "levels": "Secondary 5",
+        "image": "/images/subjects/education-financiere.svg",
+        "topics": [
+          "Consumption",
+          "Work and income",
+          "Savings and credit",
+          "Taxation and projects"
+        ],
+        "skills": [
+          "Take a position on a financial issue",
+          "Analyze a consumption choice",
+          "Evaluate the consequences of a financial decision"
+        ],
+        "longDescription": "A mandatory Secondary 5 course that prepares students for adult life. Modules concretely address renting an apartment, negotiating a salary, reading a pay slip, comparing credit offers, opening an RRSP or TFSA, and filing a simple tax return.",
+        "byLevel": {
+          "s5": [
+            "Build a realistic personal budget (income, expenses, unexpected items)",
+            "Compare credit and student loan offers",
+            "Understand the pay slip and the tax return",
+            "Analyze a life project (studies, housing, car) financially",
+            "Distinguish savings, investment and financial products (RRSP, TFSA)"
+          ]
+        }
+      },
+      "educationPhysiqueSante": {
+        "slug": "education-physique-sante",
+        "title": "Physical education and health",
+        "shortDescription": "Varied physical activities, fitness and healthy habits.",
+        "levels": "Grade 3 – Secondary 5",
+        "image": "/images/subjects/education-physique-sante.svg",
+        "topics": [
+          "Individual activities",
+          "Team activities",
+          "Healthy lifestyle habits",
+          "Mental and social health"
+        ],
+        "skills": [
+          "Perform movement skills in different physical activity settings",
+          "Interact with others in different physical activity settings",
+          "Adopt a healthy, active lifestyle"
+        ],
+        "longDescription": "A pathway that focuses on regular practice and understanding your body. Theoretical sessions complement the practical classes: movement anatomy, training planning, sports nutrition, injury prevention, mental well-being.",
+        "byLevel": {
+          "p3p4": [
+            "Explore varied physical activities",
+            "Cooperate in team games",
+            "Identify healthy eating habits",
+            "Recognize the effects of exercise on the body",
+            "Respect safety rules"
+          ],
+          "p5p6": [
+            "Participate in team sports",
+            "Evaluate your own physical condition",
+            "Plan balanced snacks",
+            "Understand the importance of sleep and hydration",
+            "Develop sportsmanship and respect for opponents"
+          ],
+          "s1": [
+            "Practice individual activities (running, gymnastics)",
+            "Analyze a movement at a basic biomechanical level",
+            "Design a basic training program",
+            "Understand Canada's Food Guide",
+            "Discuss body image and media"
+          ],
+          "s2": [
+            "Deepen team sports and their tactics",
+            "Measure your progression (strength, endurance, flexibility)",
+            "Identify signs of overtraining",
+            "Plan meals according to energy needs",
+            "Address mental health and stress management"
+          ],
+          "s3": [
+            "Choose physical activities suited to your goals",
+            "Design a four-week training cycle",
+            "Analyze a nutrition label",
+            "Discuss dependencies (alcohol, screens, substances)",
+            "Understand consent and healthy relationships"
+          ],
+          "s4": [
+            "Lead an autonomous training project",
+            "Explain physiological adaptations to exercise",
+            "Discuss eating disorders and their warning signs",
+            "Prepare a school sports event",
+            "Address doping and cheating prevention"
+          ],
+          "s5": [
+            "Develop a long-term physical activity plan",
+            "Understand the basics of sport physiology",
+            "Integrate mental health into your lifestyle",
+            "Evaluate the sports and community offering around you",
+            "Become a physically active and responsible citizen"
+          ]
+        }
+      },
+      "cultureCitoyenneteQuebecoise": {
+        "slug": "culture-citoyennete-quebecoise",
+        "title": "Quebec culture and citizenship",
+        "shortDescription": "Identity, diversity, democracy and culture in Quebec.",
+        "levels": "Grade 3 – Secondary 5",
+        "image": "/images/subjects/culture-citoyennete-quebecoise.svg",
+        "topics": [
+          "Democratic citizenship",
+          "Identity and diversity",
+          "Quebec culture",
+          "Ethics and society"
+        ],
+        "skills": [
+          "Deliberate on ethical and cultural issues",
+          "Engage in dialogue in a pluralistic society",
+          "Exercise critical judgment"
+        ],
+        "longDescription": "A course that replaced Ethics and Religious Culture as of 2023–2024. It addresses Quebec culture, democratic participation, applied ethics and living together, without religious instruction. Discussions rely on concrete cases and classroom scenarios.",
+        "byLevel": {
+          "p3p4": [
+            "Discover rules of life at school and at home",
+            "Recognize differences and similarities between students",
+            "Understand everyone's roles and responsibilities",
+            "Identify emotions and ways to express them",
+            "Participate in collective classroom decisions"
+          ],
+          "p5p6": [
+            "Understand Quebec's symbols and institutions",
+            "Discuss your cultural affiliations",
+            "Recognize forms of discrimination and respond to them",
+            "Address relations between Indigenous peoples and the State",
+            "Exercise a concrete citizen role at school"
+          ],
+          "s1": [
+            "Explore contemporary Quebec culture",
+            "Understand fundamental rights and freedoms",
+            "Discuss societal issues",
+            "Analyze the influence of groups on individual choices",
+            "Participate in a classroom deliberation"
+          ],
+          "s2": [
+            "Study how Quebec democracy works",
+            "Understand the role of media in public opinion",
+            "Distinguish fact, opinion and argument",
+            "Analyze situations of inequality or exclusion",
+            "Practice respectful dialogue on sensitive topics"
+          ],
+          "s3": [
+            "Study secularism and the role of religion in society",
+            "Deepen ethics (consent, responsibility, justice)",
+            "Analyze Indigenous culture and francophone communities outside Quebec",
+            "Discuss digital issues (privacy, disinformation)",
+            "Build an argued position on a societal issue"
+          ],
+          "s4": [
+            "Analyze contemporary social issues (immigration, poverty)",
+            "Understand social movements and their role",
+            "Study tensions between individual and collective rights",
+            "Explore Quebec literature and cinema",
+            "Participate in a community engagement project"
+          ],
+          "s5": [
+            "Deepen applied ethics (bioethics, environment, work)",
+            "Analyze citizen participation in a democracy",
+            "Explore Quebec culture in its artistic dimensions",
+            "Build a structured written and oral argument",
+            "Prepare for your role as an adult citizen"
+          ]
+        }
+      },
+      "mondeContemporain": {
+        "slug": "monde-contemporain",
+        "title": "Contemporary world",
+        "shortDescription": "Global issues of population, wealth, power and environment.",
+        "levels": "Secondary 5",
+        "image": "/images/subjects/monde-contemporain.svg",
+        "topics": [
+          "Population and settlement",
+          "Environment",
+          "Wealth",
+          "Power and tensions"
+        ],
+        "skills": [
+          "Interpret a contemporary world problem",
+          "Take a position on a contemporary world issue",
+          "Exercise informed judgment"
+        ],
+        "longDescription": "A mandatory Secondary 5 course that decodes international current events. Each topic is addressed through recent case studies (demographic transitions, climate change, wealth inequality, armed conflicts), with critical reading of media sources and argued positioning.",
+        "byLevel": {
+          "s5": [
+            "Analyze demographic transitions (migration, aging)",
+            "Understand global environmental issues",
+            "Study wealth inequality between countries",
+            "Analyze armed conflicts and international interventions",
+            "Build an argument on a current global issue"
+          ]
+        }
       }
     },
     "detail": {
@@ -225,7 +720,17 @@
       "topicsLabel": "Topics covered",
       "skillsLabel": "Skills developed",
       "ctaPrimary": "Start this subject",
-      "ctaSecondary": "See other subjects"
+      "ctaSecondary": "See other subjects",
+      "imageAlt": "Subject illustration",
+      "byLevelTitle": "What you learn, level by level",
+      "byLevelDescription": "A concrete overview of what is covered for each year in which this subject is on the program.",
+      "levelP3P4": "Grade 3-4",
+      "levelP5P6": "Grade 5-6",
+      "levelS1": "Secondary 1",
+      "levelS2": "Secondary 2",
+      "levelS3": "Secondary 3",
+      "levelS4": "Secondary 4",
+      "levelS5": "Secondary 5"
     },
     "notFoundTitle": "Subject not found",
     "notFoundDescription": "This subject does not exist or has not been published yet.",

@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 
 import { PageHero } from '../../../../components/layout/PageHero';
 import {
+  LEVEL_KEYS,
+  LEVEL_LABEL_KEY,
   SUBJECT_KEYS,
   getSubjectSlug,
   resolveSubjectKeyFromSlug,
@@ -15,14 +17,20 @@ import type { Metadata } from 'next';
 import type { JSX } from 'react';
 
 /**
- * Page « Matière » détail — écrans 4 à 7 (une page par matière).
+ * Page « Matière » détail (écrans 4 à 13 — une page par matière).
  *
  * Route dynamique `/[locale]/matieres/[subject]`. Le slug est validé
- * contre la liste `SUBJECT_KEYS` ; un slug inconnu déclenche `notFound()`
- * et renvoie vers le `not-found.tsx` global de Next.
+ * contre la liste `SUBJECT_KEYS` ; un slug inconnu déclenche `notFound()`.
  *
- * `generateStaticParams` pré-rend les quatre combinaisons locale × slug
- * pour que le SSG produise 2 × 4 = 8 pages statiques.
+ * Contenu :
+ *   - Hero avec kicker + titre + description courte + CTA
+ *   - Illustration de matière (SVG placeholder le temps que les photos
+ *     libres de droits soient téléchargées par le script dédié)
+ *   - Description longue + carte latérale (niveaux, domaines, compétences)
+ *   - Section « Ce que tu apprends, niveau par niveau » avec uniquement
+ *     les niveaux où la matière figure officiellement au programme
+ *
+ * `generateStaticParams` pré-rend les 10 matières × 2 locales = 20 pages.
  */
 
 interface SubjectRouteParams {
@@ -50,6 +58,7 @@ export function generateMetadata({ params }: { params: SubjectRouteParams }): Me
   }
   const title = t(messages, `subjects.list.${subjectKey}.title`);
   const description = t(messages, `subjects.list.${subjectKey}.shortDescription`);
+  const image = t(messages, `subjects.list.${subjectKey}.image`);
   return {
     title,
     description,
@@ -59,6 +68,11 @@ export function generateMetadata({ params }: { params: SubjectRouteParams }): Me
         fr: `/fr/matieres/${params.subject}`,
         en: `/en/matieres/${params.subject}`,
       },
+    },
+    openGraph: {
+      title,
+      description,
+      images: [image],
     },
   };
 }
@@ -81,6 +95,12 @@ export default function SubjectDetailPage({
   const longDescription = t(messages, `subjects.list.${subjectKey}.longDescription`);
   const topics = tList(messages, `subjects.list.${subjectKey}.topics`);
   const skills = tList(messages, `subjects.list.${subjectKey}.skills`);
+  const image = t(messages, `subjects.list.${subjectKey}.image`);
+  const imageAlt = `${t(messages, 'subjects.detail.imageAlt')} — ${title}`;
+
+  const availableLevels = LEVEL_KEYS.filter(
+    (level) => tList(messages, `subjects.list.${subjectKey}.byLevel.${level}`).length > 0,
+  );
 
   return (
     <>
@@ -104,7 +124,22 @@ export default function SubjectDetailPage({
         }
       />
 
-      <Container width="lg" className="py-16">
+      <Container width="lg" className="py-12">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          {/* Image d'illustration. Les placeholders SVG sont remplacés
+              par des photos libres de droits via scripts/download-subject-images.mjs. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={image}
+            alt={imageAlt}
+            className="h-56 w-full object-cover sm:h-72 md:h-96"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+      </Container>
+
+      <Container width="lg" className="pb-16">
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <SectionHeading title={t(messages, 'common.appName')} kicker="" as="h2" />
@@ -162,8 +197,48 @@ export default function SubjectDetailPage({
             </dl>
           </Card>
         </div>
+      </Container>
 
-        <p className="mt-12">
+      {availableLevels.length > 0 ? (
+        <section
+          aria-label={t(messages, 'subjects.detail.byLevelTitle')}
+          className="border-t border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/40"
+        >
+          <Container width="lg" className="py-16">
+            <SectionHeading
+              kicker=""
+              title={t(messages, 'subjects.detail.byLevelTitle')}
+              description={t(messages, 'subjects.detail.byLevelDescription')}
+            />
+            <div className="mt-10 grid gap-6 md:grid-cols-2">
+              {availableLevels.map((level) => {
+                const items = tList(messages, `subjects.list.${subjectKey}.byLevel.${level}`);
+                return (
+                  <Card key={level} variant="surface" padding="md">
+                    <h3 className="text-base font-semibold text-brand-700 dark:text-brand-300">
+                      {t(messages, LEVEL_LABEL_KEY[level])}
+                    </h3>
+                    <ul className="mt-3 flex flex-col gap-2 text-sm text-slate-700 dark:text-slate-200">
+                      {items.map((item) => (
+                        <li key={item} className="flex items-start gap-2">
+                          <span
+                            aria-hidden="true"
+                            className="mt-1.5 inline-block h-1 w-1 shrink-0 rounded-full bg-brand-500"
+                          />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                );
+              })}
+            </div>
+          </Container>
+        </section>
+      ) : null}
+
+      <Container width="lg" className="py-12">
+        <p>
           <Link
             href={`/${locale}/matieres`}
             className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500 dark:text-brand-300 dark:hover:text-brand-200"

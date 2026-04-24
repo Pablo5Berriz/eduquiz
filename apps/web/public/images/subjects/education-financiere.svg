@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Éducation financière">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14532d"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="600" fill="url(#g)"/>
+  <g opacity="0.22">
+    <circle cx="180" cy="180" r="90" fill="none" stroke="#ffffff" stroke-width="6"/>
+    <text x="180" y="215" font-size="110" font-family="'Inter', sans-serif" font-weight="700" fill="#ffffff" text-anchor="middle">$</text>
+    <circle cx="1020" cy="440" r="90" fill="none" stroke="#ffffff" stroke-width="6"/>
+    <text x="1020" y="475" font-size="110" font-family="'Inter', sans-serif" font-weight="700" fill="#ffffff" text-anchor="middle">%</text>
+  </g>
+  <g fill="#ffffff" text-anchor="middle" font-family="'Inter', 'Helvetica Neue', sans-serif">
+    <text x="600" y="300" font-size="66" font-weight="700" letter-spacing="5">ÉDUCATION FINANCIÈRE</text>
+    <text x="600" y="360" font-size="26" opacity="0.9" letter-spacing="4">BUDGÉTER · ÉPARGNER · DÉCIDER</text>
+  </g>
+</svg>
