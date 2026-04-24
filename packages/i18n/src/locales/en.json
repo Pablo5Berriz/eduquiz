@@ -12,7 +12,9 @@
     "en": "English",
     "loading": "Loading…",
     "error": "Something went wrong",
-    "skipToContent": "Skip to main content"
+    "skipToContent": "Skip to main content",
+    "backHome": "Back to home",
+    "readMore": "Learn more"
   },
   "nav": {
     "home": "Home",
@@ -45,10 +47,406 @@
     "localeLabel": "Switch language"
   },
   "home": {
+    "heroKicker": "Grade 3 to Secondary 5",
     "heroTitle": "Learn at your pace. In French and English.",
-    "heroSubtitle": "Exercises and quizzes aligned with the PFEQ, with parental oversight and progress reports.",
-    "ctaPrimary": "Create an account",
-    "ctaSecondary": "Explore the subjects"
+    "heroSubtitle": "Exercises and quizzes aligned with the PFEQ, with personalized follow-up and clear progress reports.",
+    "ctaPrimary": "Create a free account",
+    "ctaSecondary": "Explore the subjects",
+    "trust": {
+      "title": "Built with and for Quebec families",
+      "items": [
+        "PFEQ-aligned",
+        "Hosted in Montreal",
+        "Law 25 compliant",
+        "Bilingual FR + EN"
+      ]
+    },
+    "features": {
+      "kicker": "Features",
+      "title": "Everything you need to make progress, nothing superfluous",
+      "description": "Quizzes that adapt to the learner's level, subject-by-subject tracking, and reports that are easy to read.",
+      "item1Title": "Adaptive quiz",
+      "item1Description": "Questions adjust to the learner's actual level and evolve as they make progress.",
+      "item2Title": "Subject pathways",
+      "item2Description": "Each subject is broken down by program domain, with explicit objectives and worked examples.",
+      "item3Title": "Progress tracking",
+      "item3Description": "A clear dashboard showing what is mastered, what needs work, and when to review.",
+      "cta": "See all features"
+    },
+    "subjects": {
+      "kicker": "Subjects",
+      "title": "Subject pathways aligned with the curriculum",
+      "description": "Mathematics, French, sciences and history — with continuous progression from primary to secondary.",
+      "cta": "Explore subjects"
+    },
+    "howItWorks": {
+      "kicker": "How it works",
+      "title": "Three steps to get started",
+      "step1Title": "Create your account",
+      "step1Description": "In less than two minutes. No credit card required.",
+      "step2Title": "Pick your subjects",
+      "step2Description": "A short placement quiz assigns the right starting level.",
+      "step3Title": "Learn at your pace",
+      "step3Description": "Fifteen minutes a day is enough to see the difference."
+    },
+    "pricingTeaser": {
+      "kicker": "Simple pricing",
+      "title": "A generous free plan and affordable family plans",
+      "description": "Start with no commitment. Upgrade to a family plan only when it actually helps.",
+      "cta": "See pricing"
+    },
+    "finalCta": {
+      "title": "Ready to get started?",
+      "description": "Create a free account in two minutes and try the pathway of your choice.",
+      "ctaPrimary": "Create a free account",
+      "ctaSecondary": "Talk to someone"
+    }
+  },
+  "features": {
+    "heroKicker": "Features",
+    "heroTitle": "A learning tool, not a headache",
+    "heroSubtitle": "EduQuiz brings together what actually helps students learn: adaptive exercises, structured pathways, honest tracking, and strict privacy.",
+    "pillars": {
+      "quizTitle": "Adaptive quiz",
+      "quizDescription": "Every session adjusts difficulty based on the learner's answers. No more redoing what's already mastered, no more drowning in what's out of reach.",
+      "quizBullets": [
+        "Smart question selection based on recent answers",
+        "Detailed explanations after each question, with follow-up resources",
+        "Spaced-repetition mode to anchor what has been learned"
+      ],
+      "pathwayTitle": "Subject pathways",
+      "pathwayDescription": "Each subject is structured around PFEQ domains. Objectives are explicit and progress is visible.",
+      "pathwayBullets": [
+        "Faithful mapping to Quebec primary and secondary programs",
+        "Pedagogical objectives displayed before each chapter",
+        "Worked examples tied to practice exercises"
+      ],
+      "progressTitle": "Progress tracking",
+      "progressDescription": "A dashboard that prioritizes clarity: what is mastered, what still needs work, and a concrete next action.",
+      "progressBullets": [
+        "Indicators per domain and competency, not just an overall grade",
+        "Weekly email report (can be disabled)",
+        "PDF export to share with a teacher"
+      ],
+      "privacyTitle": "Security and privacy",
+      "privacyDescription": "Data stays in Montreal, compliant with Quebec Law 25. No ads, no reselling, no third-party tracking.",
+      "privacyBullets": [
+        "Encryption at rest and in transit",
+        "Access, export and deletion available at any time",
+        "No advertising trackers on any application page"
+      ]
+    },
+    "finalCtaTitle": "Ready to see the pathways in action?",
+    "finalCtaDescription": "Create your account in two minutes and start with the subject that interests you most.",
+    "finalCtaPrimary": "Create a free account",
+    "finalCtaSecondary": "See pricing"
+  },
+  "subjects": {
+    "heroKicker": "Subjects",
+    "heroTitle": "Pathways designed for the Quebec curriculum",
+    "heroSubtitle": "Four core subjects, from primary to secondary, with continuous progression and clear objectives.",
+    "list": {
+      "mathematiques": {
+        "slug": "mathematiques",
+        "title": "Mathematics",
+        "shortDescription": "Arithmetic, algebra, geometry, statistics — with progressive reasoning.",
+        "levels": "Grade 3 – Secondary 5",
+        "topics": [
+          "Numbers and operations",
+          "Geometry and measurement",
+          "Algebra and functions",
+          "Statistics and probability"
+        ],
+        "skills": [
+          "Solving a problem situation",
+          "Using mathematical reasoning",
+          "Communicating using mathematical language"
+        ],
+        "longDescription": "A complete pathway that follows the Quebec program's progression. Each concept is introduced with a concrete example, then practiced through progressive exercises, before being consolidated with open-ended problems."
+      },
+      "francais": {
+        "slug": "francais",
+        "title": "French",
+        "shortDescription": "Reading, writing, grammar and oral communication.",
+        "levels": "Grade 3 – Secondary 5",
+        "topics": [
+          "Reading and comprehension",
+          "Writing and composition",
+          "Grammar and spelling",
+          "Oral communication"
+        ],
+        "skills": [
+          "Read and appreciate varied texts",
+          "Write varied texts",
+          "Communicate orally through varied modalities"
+        ],
+        "longDescription": "An approach that favors fine-grained comprehension over rote memorization of rules. Exercises span genres (narrative, informative, argumentative) and feedback consistently explains the why rather than only the verdict."
+      },
+      "sciences": {
+        "slug": "sciences",
+        "title": "Sciences",
+        "shortDescription": "Natural sciences and technology, from Cycle 2 through secondary.",
+        "levels": "Grade 5 – Secondary 5",
+        "topics": [
+          "Material universe",
+          "Living universe",
+          "Earth and space",
+          "Technology"
+        ],
+        "skills": [
+          "Explore the world of science and technology",
+          "Make use of tools, objects and processes",
+          "Communicate using scientific language"
+        ],
+        "longDescription": "A subject where hands-on investigation drives understanding. Activities start from a concrete question, propose an investigation, then invite generalization. Concepts are consistently tied back to everyday life."
+      },
+      "histoire": {
+        "slug": "histoire-geographie",
+        "title": "History and geography",
+        "shortDescription": "History of Quebec, Canada and the world, geography and citizenship.",
+        "levels": "Grade 3 – Secondary 5",
+        "topics": [
+          "Early societies",
+          "History of Quebec and Canada",
+          "World history",
+          "Geography and citizenship"
+        ],
+        "skills": [
+          "Examine social realities from a historical perspective",
+          "Interpret social realities using the historical method",
+          "Build a citizen awareness through history"
+        ],
+        "longDescription": "A pathway that emphasizes reading of sources and connecting events. Exercises work on chronology, document analysis and historical writing, without falling into date-only memorization."
+      }
+    },
+    "detail": {
+      "backToList": "All subjects",
+      "levelsLabel": "Levels",
+      "topicsLabel": "Topics covered",
+      "skillsLabel": "Skills developed",
+      "ctaPrimary": "Start this subject",
+      "ctaSecondary": "See other subjects"
+    },
+    "notFoundTitle": "Subject not found",
+    "notFoundDescription": "This subject does not exist or has not been published yet.",
+    "notFoundCta": "Back to list"
+  },
+  "pricing": {
+    "heroKicker": "Pricing",
+    "heroTitle": "One free plan. Two family plans.",
+    "heroSubtitle": "Start without a credit card. You can switch or cancel at any time from your account.",
+    "note": "Prices in Canadian dollars. Applicable taxes extra. No minimum commitment.",
+    "plans": {
+      "discoveryName": "Discovery",
+      "discoveryPrice": "$0",
+      "discoveryPeriod": "/ month",
+      "discoveryDescription": "To try EduQuiz with no commitment.",
+      "discoveryCta": "Create an account",
+      "discoveryBullets": [
+        "Access to two subjects of your choice",
+        "Up to 30 exercises per day",
+        "Basic progress tracking",
+        "No credit card required"
+      ],
+      "familyName": "Family",
+      "familyPrice": "$9.99",
+      "familyPeriod": "/ month",
+      "familyBadge": "Most popular",
+      "familyDescription": "For one learner who wants access to every subject.",
+      "familyCta": "Choose this plan",
+      "familyBullets": [
+        "Access to every subject",
+        "Unlimited exercises",
+        "Detailed weekly reports",
+        "PDF export of reports",
+        "Email support within 48 h"
+      ],
+      "familyPlusName": "Family+",
+      "familyPlusPrice": "$19.99",
+      "familyPlusPeriod": "/ month",
+      "familyPlusDescription": "For the whole family, up to 4 learners.",
+      "familyPlusCta": "Choose this plan",
+      "familyPlusBullets": [
+        "Everything in Family, included",
+        "Up to 4 learner profiles",
+        "Consolidated family dashboard",
+        "Individual reports per learner",
+        "Priority support within 24 h"
+      ]
+    },
+    "faqTitle": "Pricing FAQ",
+    "faqLinkLabel": "See the full FAQ",
+    "faq": {
+      "q1": "Can I cancel at any time?",
+      "a1": "Yes. The subscription can be cancelled in two clicks from your account area. No minimum commitment.",
+      "q2": "Is there a free trial of the Family plan?",
+      "a2": "The Discovery plan is permanently free and covers two subjects. It lets you judge the quality of the service before moving to Family.",
+      "q3": "How does billing work?",
+      "a3": "Monthly charge by credit card or Interac. Invoices are available in your account. Applicable taxes (GST + QST) extra."
+    }
+  },
+  "about": {
+    "heroKicker": "About",
+    "heroTitle": "Building a learning tool Quebec families can adopt without compromise",
+    "heroSubtitle": "EduQuiz is a Quebec initiative, bilingual from day one, with Law 25 treated as a starting constraint rather than an afterthought.",
+    "missionTitle": "Our mission",
+    "missionDescription": "Make adaptive learning accessible to Quebec primary and secondary students, in both official languages, with no ads, no data reselling, and no compromise on pedagogical quality.",
+    "valuesTitle": "Our values",
+    "value1Title": "Pedagogy first",
+    "value1Description": "Product decisions are guided by teachers and education specialists, not only by engagement metrics.",
+    "value2Title": "Non-negotiable privacy",
+    "value2Description": "Data stays in Quebec, is never sold, and can be exported or deleted at any time. Law 25 is our floor, not our ceiling.",
+    "value3Title": "Authentic bilingualism",
+    "value3Description": "Every exercise, interface and email is produced by native speakers in both languages. No disguised machine translation.",
+    "teamTitle": "The team",
+    "teamDescription": "A small Quebec team: educators, engineers, designers. Based in Montreal, hosted in Quebec, partnered with several local schools.",
+    "ctaTitle": "Want to chat?",
+    "ctaDescription": "We answer every email and meet with partner schools on request.",
+    "ctaPrimary": "Contact us",
+    "ctaSecondary": "See the features"
+  },
+  "contact": {
+    "heroKicker": "Contact",
+    "heroTitle": "Got a question? We're here.",
+    "heroSubtitle": "We respond within 48 business hours. For privacy requests (Law 25), use the dedicated category or write directly to the address listed below.",
+    "form": {
+      "nameLabel": "Full name",
+      "namePlaceholder": "First Last",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.ca",
+      "topicLabel": "Subject",
+      "topicOptionGeneral": "General question",
+      "topicOptionSupport": "Technical support",
+      "topicOptionBilling": "Billing",
+      "topicOptionPrivacy": "Privacy (Law 25)",
+      "topicOptionOther": "Other",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Describe your question in a few lines…",
+      "submitLabel": "Send message",
+      "sendingLabel": "Sending…",
+      "successTitle": "Message sent",
+      "successDescription": "We'll respond within 48 business hours. Check your spam folder if you don't see anything arrive.",
+      "errorGeneric": "Sending failed. Please try again shortly.",
+      "errorEmail": "Invalid email address.",
+      "errorRequired": "This field is required.",
+      "errorMessageTooShort": "The message must contain at least 10 characters."
+    },
+    "altTitle": "Other ways to reach us",
+    "altEmailLabel": "General email",
+    "altEmailValue": "hello@solutions-infos.quebec",
+    "altPrivacyLabel": "Privacy (Law 25)",
+    "altPrivacyValue": "privacy@solutions-infos.quebec",
+    "altHoursLabel": "Response hours",
+    "altHoursValue": "Mon–Fri, 9 AM to 5 PM (UTC−5)"
+  },
+  "faq": {
+    "heroKicker": "FAQ",
+    "heroTitle": "The questions that come up most often",
+    "heroSubtitle": "If you can't find your answer here, write to us — we respond to everything.",
+    "items": {
+      "q1": "What ages is EduQuiz designed for?",
+      "a1": "EduQuiz covers Grade 3 through Secondary 5, with fine level adjustment within each subject. Younger learners may also benefit from specific domains.",
+      "q2": "Is the tool aligned with the PFEQ?",
+      "a2": "Yes. Pathways follow the Quebec school's training program. Objectives displayed before each chapter map to the corresponding disciplinary competencies.",
+      "q3": "Is my data really protected?",
+      "a3": "Data is hosted in Quebec, encrypted, never resold, and you can access, export or delete it at any time. See the Privacy page for details.",
+      "q4": "Do I have to pay to start?",
+      "a4": "No. The Discovery plan is permanently free and covers two subjects of your choice. You only move to a paid plan if you want to.",
+      "q5": "Is there a mobile app?",
+      "a5": "The iOS and Android app arrives in Phase 2. The current web site is fully responsive and usable on phones.",
+      "q6": "Can I create an account for my whole family?",
+      "a6": "Yes. The Family+ plan supports up to 4 learner profiles under a single parent account, with individual reports and a consolidated dashboard."
+    },
+    "ctaTitle": "Another question?",
+    "ctaDescription": "We reply to every email.",
+    "ctaLabel": "Contact us"
+  },
+  "blog": {
+    "heroKicker": "Blog",
+    "heroTitle": "The EduQuiz blog",
+    "heroSubtitle": "Pedagogical articles, product behind-the-scenes, updates. Coming soon.",
+    "emptyTitle": "Coming soon",
+    "emptyDescription": "The blog opens at V1 launch. In the meantime, updates are announced by email to subscribed users.",
+    "cta": "Back to home"
+  },
+  "testimonials": {
+    "heroKicker": "Testimonials",
+    "heroTitle": "Families learning with EduQuiz",
+    "heroSubtitle": "This section will grow as V1 welcomes its first families.",
+    "emptyTitle": "Under construction",
+    "emptyDescription": "Are you one of the first testers? Share your feedback at testimonials@solutions-infos.quebec — we love reading families' stories.",
+    "cta": "Back to home"
+  },
+  "legal": {
+    "common": {
+      "lastUpdatedLabel": "Last updated",
+      "lastUpdatedValue": "April 22, 2026",
+      "backToLegal": "All legal notices"
+    },
+    "privacy": {
+      "heroKicker": "Privacy",
+      "heroTitle": "Privacy policy",
+      "heroSubtitle": "What we collect, why, and how you can exercise your rights.",
+      "paragraphs": [
+        "Solutions Infos inc., a Quebec company based in Montreal, operates EduQuiz and acts as data controller within the meaning of Quebec Law 25.",
+        "Data collection is limited to what is strictly necessary: account identifiers, exercise answers, progress, language preferences, technical logs.",
+        "Data is hosted in Quebec (Montreal), encrypted at rest and in transit. It is never sold or shared with commercial third parties.",
+        "Your rights: access, rectification, portability, deletion, withdrawal of consent. They can be exercised from the account Settings or by email to privacy@solutions-infos.quebec.",
+        "Retention: learning data is kept for 24 months after last activity then anonymized. Technical logs are kept for 90 days maximum.",
+        "Processors: hosting is provided by a vendor whose servers are located in Quebec. Transactional emails are sent by a Canadian provider. A complete list is available on request."
+      ]
+    },
+    "terms": {
+      "heroKicker": "Terms",
+      "heroTitle": "Terms of service",
+      "heroSubtitle": "The rules for using the service, in plain language.",
+      "paragraphs": [
+        "By creating an EduQuiz account, you accept these terms. If you are acting on behalf of a minor student, you must be legally entitled to do so.",
+        "The service is provided as-is, intended to support learning. It is not a substitute for schooling or professional pedagogical advice.",
+        "An account is strictly personal. Sharing credentials between multiple people is forbidden; family plans exist precisely to cover multi-user usage.",
+        "You agree to use the service legally and respectfully: no offensive content, no attempt to bypass security, no automated scraping.",
+        "We may suspend an account in case of serious or repeated violations of these terms. Data remains available for export for 30 days after suspension.",
+        "Termination is possible at any time from the account area. Amounts already charged are not refunded pro rata, except as required by law."
+      ]
+    },
+    "cookies": {
+      "heroKicker": "Cookies",
+      "heroTitle": "Cookie policy",
+      "heroSubtitle": "Which cookies we use, what for, and how to refuse them.",
+      "paragraphs": [
+        "EduQuiz uses a limited number of cookies, strictly necessary for the service to function or for its security. No advertising cookie, no third-party commercial tracker.",
+        "Strictly necessary cookies: authenticated session, CSRF protection, language preference. They do not require your consent because the service cannot function without them.",
+        "Analytics cookies: enabled only with your explicit consent. Statistics are aggregated and do not let us re-identify you personally.",
+        "You can change your preferences at any time in the account Settings or delete cookies from your browser. Refusing optional cookies does not affect service availability.",
+        "Retention: session cookies expire when the browser closes. Language preference cookies last 12 months. Analytics cookies last 13 months maximum (CAI standard)."
+      ]
+    },
+    "accessibility": {
+      "heroKicker": "Accessibility",
+      "heroTitle": "Accessibility",
+      "heroSubtitle": "Our commitment so that everyone can learn with EduQuiz.",
+      "paragraphs": [
+        "EduQuiz targets WCAG 2.1 Level AA conformance. Each page is audited before release and feedback from users with disabilities is prioritized.",
+        "Applied principles: sufficient contrast, adjustable text size without content loss, full keyboard navigation, text alternatives for all meaningful images, clear semantic structure (headings, lists, landmarks).",
+        "Known improvement areas: some progress charts do not yet provide exhaustive text alternatives. A remediation plan is in progress.",
+        "Reporting a problem: write to accessibility@solutions-infos.quebec describing the observed behavior, the page involved and your assistive tool. We respond within 5 business days.",
+        "Conformance: this statement is updated annually or after any significant product change."
+      ]
+    },
+    "loi25": {
+      "heroKicker": "Law 25",
+      "heroTitle": "Quebec Law 25 compliance",
+      "heroSubtitle": "How EduQuiz complies with the Act respecting the protection of personal information in the private sector, as modernized by Law 25.",
+      "paragraphs": [
+        "Privacy officer: the person in charge within Solutions Infos inc. can be reached at privacy@solutions-infos.quebec.",
+        "Transparency: the privacy policy describes in plain language the data collected, the purposes, and any third parties involved. Substantial changes are notified by email and announced on this page.",
+        "Consent: any collection not strictly necessary to the service requires explicit, granular consent that can be withdrawn at any time without friction.",
+        "Minimization and retention: only data useful to the service is collected; it is kept only as long as strictly required, then anonymized or deleted.",
+        "Rights of individuals: access, rectification, portability, deletion, withdrawal of consent, de-indexing. Each request is processed within 30 days.",
+        "Privacy Impact Assessment (PIA): carried out before any significant product change. Documentation is available on request from partner schools.",
+        "Incident: in case of a breach likely to cause serious harm, notification to the Commission d'accès à l'information and to affected individuals as soon as reasonably possible."
+      ]
+    }
   },
   "locale": {
     "switchTo": "Switch to {locale}",

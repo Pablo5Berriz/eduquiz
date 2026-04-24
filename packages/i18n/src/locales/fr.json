@@ -12,7 +12,9 @@
     "en": "Anglais",
     "loading": "Chargement…",
     "error": "Une erreur est survenue",
-    "skipToContent": "Aller au contenu principal"
+    "skipToContent": "Aller au contenu principal",
+    "backHome": "Retour à l'accueil",
+    "readMore": "En savoir plus"
   },
   "nav": {
     "home": "Accueil",
@@ -45,10 +47,406 @@
     "localeLabel": "Changer de langue"
   },
   "home": {
+    "heroKicker": "Primaire 3 à Secondaire 5",
     "heroTitle": "Apprends à ton rythme. En français et en anglais.",
-    "heroSubtitle": "Un parcours d'exercices et de quiz alignés sur le PFEQ, avec suivi parental et rapports de progression.",
-    "ctaPrimary": "Créer un compte",
-    "ctaSecondary": "Découvrir les matières"
+    "heroSubtitle": "Un parcours d'exercices et de quiz alignés sur le PFEQ, avec suivi personnalisé et rapports de progression clairs.",
+    "ctaPrimary": "Créer un compte gratuit",
+    "ctaSecondary": "Découvrir les matières",
+    "trust": {
+      "title": "Conçu avec et pour les familles du Québec",
+      "items": [
+        "Aligné PFEQ",
+        "Hébergé à Montréal",
+        "Conforme Loi 25",
+        "Bilingue FR + EN"
+      ]
+    },
+    "features": {
+      "kicker": "Fonctionnalités",
+      "title": "Tout ce qu'il faut pour progresser, rien de superflu",
+      "description": "Des quiz qui s'adaptent au niveau, un suivi par matière et des rapports compréhensibles en un coup d'œil.",
+      "item1Title": "Quiz adaptatif",
+      "item1Description": "Les questions se calent sur ton niveau réel et évoluent à mesure que tu progresses.",
+      "item2Title": "Parcours par matière",
+      "item2Description": "Chaque matière est découpée en domaines du programme, avec objectifs clairs et exemples corrigés.",
+      "item3Title": "Suivi de progression",
+      "item3Description": "Un tableau de bord lisible qui montre ce qui est maîtrisé, ce qui reste à travailler et quand réviser.",
+      "cta": "Voir toutes les fonctionnalités"
+    },
+    "subjects": {
+      "kicker": "Matières",
+      "title": "Des parcours par matière, alignés sur les programmes",
+      "description": "Mathématiques, français, sciences et histoire — avec progression continue du primaire au secondaire.",
+      "cta": "Explorer les matières"
+    },
+    "howItWorks": {
+      "kicker": "Comment ça marche",
+      "title": "Trois étapes pour démarrer",
+      "step1Title": "Créer ton compte",
+      "step1Description": "En moins de deux minutes. Sans carte de crédit.",
+      "step2Title": "Choisir tes matières",
+      "step2Description": "Un test de positionnement rapide te place au bon niveau.",
+      "step3Title": "Apprendre à ton rythme",
+      "step3Description": "Quinze minutes par jour suffisent à voir la différence."
+    },
+    "pricingTeaser": {
+      "kicker": "Tarifs simples",
+      "title": "Un plan gratuit généreux, des formules famille abordables",
+      "description": "Commence sans engagement. Passe à un plan famille seulement quand c'est utile.",
+      "cta": "Voir les tarifs"
+    },
+    "finalCta": {
+      "title": "Prêt·e à commencer ?",
+      "description": "Crée un compte gratuit en deux minutes et teste le parcours de ton choix.",
+      "ctaPrimary": "Créer un compte gratuit",
+      "ctaSecondary": "Parler à quelqu'un"
+    }
+  },
+  "features": {
+    "heroKicker": "Fonctionnalités",
+    "heroTitle": "Un outil pédagogique, pas un casse-tête",
+    "heroSubtitle": "EduQuiz réunit ce qui aide réellement à apprendre : exercices adaptés, parcours structurés, suivi honnête et confidentialité stricte.",
+    "pillars": {
+      "quizTitle": "Quiz adaptatif",
+      "quizDescription": "Chaque session ajuste la difficulté en fonction de tes réponses. Plus besoin de refaire ce que tu maîtrises déjà ni de te noyer dans ce qui est hors de portée.",
+      "quizBullets": [
+        "Sélection intelligente des questions en fonction de tes dernières réponses",
+        "Explications détaillées après chaque question, avec ressource complémentaire",
+        "Mode révision espacé pour ancrer durablement ce qui est appris"
+      ],
+      "pathwayTitle": "Parcours par matière",
+      "pathwayDescription": "Chaque matière est découpée selon les domaines du PFEQ. Les objectifs sont explicites et la progression est visible.",
+      "pathwayBullets": [
+        "Découpage fidèle aux programmes de l'école primaire et secondaire du Québec",
+        "Objectifs pédagogiques affichés avant chaque chapitre",
+        "Exercices types reliés à des exemples corrigés"
+      ],
+      "progressTitle": "Suivi de progression",
+      "progressDescription": "Un tableau de bord qui privilégie la clarté : ce qui est maîtrisé, ce qui reste à travailler, et une prochaine action concrète.",
+      "progressBullets": [
+        "Indicateurs par domaine et par compétence, pas juste une note globale",
+        "Rapport hebdomadaire envoyé par courriel (désactivable)",
+        "Export PDF pour partager à l'enseignante ou à l'enseignant"
+      ],
+      "privacyTitle": "Sécurité et confidentialité",
+      "privacyDescription": "Les données restent à Montréal, conformes à la Loi 25. Aucune publicité, aucune revente, aucun pistage tiers.",
+      "privacyBullets": [
+        "Chiffrement au repos et en transit",
+        "Accès, export et suppression possibles à tout moment",
+        "Aucun tracker publicitaire sur les pages de l'application"
+      ]
+    },
+    "finalCtaTitle": "Prêt·e à voir les parcours en action ?",
+    "finalCtaDescription": "Crée ton compte en deux minutes et commence par la matière qui t'intéresse le plus.",
+    "finalCtaPrimary": "Créer un compte gratuit",
+    "finalCtaSecondary": "Voir les tarifs"
+  },
+  "subjects": {
+    "heroKicker": "Matières",
+    "heroTitle": "Des parcours conçus pour le programme du Québec",
+    "heroSubtitle": "Quatre matières essentielles, du primaire au secondaire, avec une progression continue et des objectifs clairs.",
+    "list": {
+      "mathematiques": {
+        "slug": "mathematiques",
+        "title": "Mathématiques",
+        "shortDescription": "Arithmétique, algèbre, géométrie, statistiques — avec raisonnement progressif.",
+        "levels": "Primaire 3 – Secondaire 5",
+        "topics": [
+          "Nombres et opérations",
+          "Géométrie et mesure",
+          "Algèbre et fonctions",
+          "Statistiques et probabilités"
+        ],
+        "skills": [
+          "Résoudre une situation-problème",
+          "Utiliser un raisonnement mathématique",
+          "Communiquer à l'aide du langage mathématique"
+        ],
+        "longDescription": "Un parcours complet qui suit la progression des programmes québécois. Chaque notion est introduite par un exemple concret, puis pratiquée avec des exercices progressifs, avant d'être consolidée par des problèmes ouverts."
+      },
+      "francais": {
+        "slug": "francais",
+        "title": "Français",
+        "shortDescription": "Lecture, écriture, grammaire et communication orale.",
+        "levels": "Primaire 3 – Secondaire 5",
+        "topics": [
+          "Lecture et compréhension",
+          "Écriture et rédaction",
+          "Grammaire et orthographe",
+          "Communication orale"
+        ],
+        "skills": [
+          "Lire et apprécier des textes variés",
+          "Écrire des textes variés",
+          "Communiquer oralement selon des modalités variées"
+        ],
+        "longDescription": "Une approche qui mise sur la compréhension fine avant la mémorisation de règles. Les exercices varient les genres (récit, informatif, argumentatif) et la correction explique systématiquement le pourquoi plutôt que de se limiter au verdict."
+      },
+      "sciences": {
+        "slug": "sciences",
+        "title": "Sciences",
+        "shortDescription": "Sciences de la nature et technologie, du cycle 2 au secondaire.",
+        "levels": "Primaire 5 – Secondaire 5",
+        "topics": [
+          "Univers matériel",
+          "Univers vivant",
+          "Terre et espace",
+          "Technologie"
+        ],
+        "skills": [
+          "Explorer le monde de la science et de la technologie",
+          "Mettre à profit des outils, objets et procédés",
+          "Communiquer à l'aide des langages scientifiques"
+        ],
+        "longDescription": "Une matière où l'expérimentation guide la compréhension. Les activités partent d'une question concrète, proposent une démarche d'investigation, puis invitent à généraliser les résultats. Les concepts sont reliés au quotidien."
+      },
+      "histoire": {
+        "slug": "histoire-geographie",
+        "title": "Histoire et géographie",
+        "shortDescription": "Histoire du Québec, du Canada et du monde, géographie et éducation à la citoyenneté.",
+        "levels": "Primaire 3 – Secondaire 5",
+        "topics": [
+          "Premières sociétés",
+          "Histoire du Québec et du Canada",
+          "Histoire du monde",
+          "Géographie et citoyenneté"
+        ],
+        "skills": [
+          "Interroger les réalités sociales dans une perspective historique",
+          "Interpréter les réalités sociales à l'aide de la méthode historique",
+          "Construire sa conscience citoyenne à l'aide de l'histoire"
+        ],
+        "longDescription": "Un parcours qui privilégie la lecture de sources et la mise en relation des événements. Les exercices travaillent la chronologie, l'analyse de documents et l'écriture historique, sans tomber dans la seule mémorisation de dates."
+      }
+    },
+    "detail": {
+      "backToList": "Toutes les matières",
+      "levelsLabel": "Niveaux",
+      "topicsLabel": "Domaines abordés",
+      "skillsLabel": "Compétences développées",
+      "ctaPrimary": "Commencer cette matière",
+      "ctaSecondary": "Voir les autres matières"
+    },
+    "notFoundTitle": "Matière introuvable",
+    "notFoundDescription": "Cette matière n'existe pas ou n'est pas encore publiée.",
+    "notFoundCta": "Revenir à la liste"
+  },
+  "pricing": {
+    "heroKicker": "Tarifs",
+    "heroTitle": "Un plan gratuit. Deux plans famille.",
+    "heroSubtitle": "Commence sans carte de crédit. Tu peux changer ou annuler à tout moment depuis ton compte.",
+    "note": "Prix en dollars canadiens. Taxes applicables en sus. Aucun engagement minimum.",
+    "plans": {
+      "discoveryName": "Découverte",
+      "discoveryPrice": "0 $",
+      "discoveryPeriod": "/ mois",
+      "discoveryDescription": "Pour découvrir EduQuiz sans engagement.",
+      "discoveryCta": "Créer un compte",
+      "discoveryBullets": [
+        "Accès à deux matières au choix",
+        "Jusqu'à 30 exercices par jour",
+        "Suivi de progression de base",
+        "Aucune carte de crédit requise"
+      ],
+      "familyName": "Famille",
+      "familyPrice": "9,99 $",
+      "familyPeriod": "/ mois",
+      "familyBadge": "Le plus populaire",
+      "familyDescription": "Pour un·e élève qui veut toutes les matières.",
+      "familyCta": "Choisir ce plan",
+      "familyBullets": [
+        "Accès à toutes les matières",
+        "Exercices illimités",
+        "Rapports hebdomadaires détaillés",
+        "Export PDF des rapports",
+        "Soutien par courriel sous 48 h"
+      ],
+      "familyPlusName": "Famille+",
+      "familyPlusPrice": "19,99 $",
+      "familyPlusPeriod": "/ mois",
+      "familyPlusDescription": "Pour toute la famille, jusqu'à 4 élèves.",
+      "familyPlusCta": "Choisir ce plan",
+      "familyPlusBullets": [
+        "Tout le plan Famille, inclus",
+        "Jusqu'à 4 profils d'élèves",
+        "Tableau de bord famille consolidé",
+        "Rapports individuels par élève",
+        "Soutien prioritaire sous 24 h"
+      ]
+    },
+    "faqTitle": "Questions fréquentes sur les tarifs",
+    "faqLinkLabel": "Voir toute la FAQ",
+    "faq": {
+      "q1": "Puis-je annuler à tout moment ?",
+      "a1": "Oui. L'abonnement est résiliable en deux clics depuis ton espace compte. Aucun engagement minimum.",
+      "q2": "Y a-t-il un essai gratuit du plan Famille ?",
+      "a2": "Le plan Découverte est gratuit en permanence et couvre deux matières. Il te permet de juger la qualité du service avant de passer à Famille.",
+      "q3": "Comment fonctionne la facturation ?",
+      "a3": "Prélèvement mensuel par carte de crédit ou Interac. La facture est disponible dans ton compte. Taxes applicables (TPS + TVQ) en sus."
+    }
+  },
+  "about": {
+    "heroKicker": "À propos",
+    "heroTitle": "Bâtir un outil pédagogique que les familles du Québec peuvent adopter sans compromis",
+    "heroSubtitle": "EduQuiz est une initiative québécoise, bilingue dès la conception, avec la Loi 25 comme contrainte de départ plutôt que comme correctif après coup.",
+    "missionTitle": "Notre mission",
+    "missionDescription": "Rendre l'apprentissage adaptatif accessible aux élèves du primaire et du secondaire du Québec, dans les deux langues officielles, sans publicité, sans revente de données, sans compromis sur la qualité pédagogique.",
+    "valuesTitle": "Nos valeurs",
+    "value1Title": "Pédagogie avant tout",
+    "value1Description": "Les choix de produit sont arbitrés par des enseignant·e·s et des spécialistes de l'éducation, pas uniquement par des métriques d'engagement.",
+    "value2Title": "Confidentialité non négociable",
+    "value2Description": "Les données restent au Québec, ne sont jamais vendues et peuvent être exportées ou supprimées à tout moment. La Loi 25 est notre plancher, pas notre plafond.",
+    "value3Title": "Bilinguisme authentique",
+    "value3Description": "Chaque exercice, chaque interface, chaque courriel est produit par des locuteurs natifs dans les deux langues. Pas de traduction automatique déguisée.",
+    "teamTitle": "L'équipe",
+    "teamDescription": "Une petite équipe québécoise : pédagogues, ingénieur·e·s, designers. Basée à Montréal, hébergée au Québec, partenaire de plusieurs écoles dans la région.",
+    "ctaTitle": "Envie d'en discuter ?",
+    "ctaDescription": "On répond à tous les courriels et on rencontre les écoles partenaires sur demande.",
+    "ctaPrimary": "Nous écrire",
+    "ctaSecondary": "Voir les fonctionnalités"
+  },
+  "contact": {
+    "heroKicker": "Contact",
+    "heroTitle": "Une question ? Nous sommes là.",
+    "heroSubtitle": "Nous répondons sous 48 h ouvrables. Pour les demandes de confidentialité (Loi 25), utilise la catégorie dédiée ou écris directement à l'adresse indiquée en bas de page.",
+    "form": {
+      "nameLabel": "Nom complet",
+      "namePlaceholder": "Prénom Nom",
+      "emailLabel": "Courriel",
+      "emailPlaceholder": "toi@exemple.ca",
+      "topicLabel": "Sujet",
+      "topicOptionGeneral": "Question générale",
+      "topicOptionSupport": "Soutien technique",
+      "topicOptionBilling": "Facturation",
+      "topicOptionPrivacy": "Confidentialité (Loi 25)",
+      "topicOptionOther": "Autre",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Décris ta question en quelques lignes…",
+      "submitLabel": "Envoyer le message",
+      "sendingLabel": "Envoi en cours…",
+      "successTitle": "Message envoyé",
+      "successDescription": "Nous te répondons sous 48 h ouvrables. Pense à vérifier tes courriels indésirables si tu ne vois rien arriver.",
+      "errorGeneric": "L'envoi a échoué. Réessaie dans un instant.",
+      "errorEmail": "Adresse courriel invalide.",
+      "errorRequired": "Ce champ est requis.",
+      "errorMessageTooShort": "Le message doit contenir au moins 10 caractères."
+    },
+    "altTitle": "Autres moyens de nous joindre",
+    "altEmailLabel": "Courriel général",
+    "altEmailValue": "bonjour@solutions-infos.quebec",
+    "altPrivacyLabel": "Confidentialité (Loi 25)",
+    "altPrivacyValue": "confidentialite@solutions-infos.quebec",
+    "altHoursLabel": "Heures de réponse",
+    "altHoursValue": "Lun–Ven, 9 h à 17 h (UTC−5)"
+  },
+  "faq": {
+    "heroKicker": "FAQ",
+    "heroTitle": "Les questions qui reviennent le plus souvent",
+    "heroSubtitle": "Si tu ne trouves pas ta réponse ici, écris-nous — on répond à tout.",
+    "items": {
+      "q1": "Pour quel âge est conçu EduQuiz ?",
+      "a1": "EduQuiz couvre de la Primaire 3 à la Secondaire 5, avec une adaptation fine du niveau à l'intérieur de chaque matière. Les élèves plus jeunes peuvent aussi y trouver leur compte sur certains domaines.",
+      "q2": "L'outil est-il aligné sur le PFEQ ?",
+      "a2": "Oui. Les parcours suivent le Programme de formation de l'école québécoise. Les objectifs affichés avant chaque chapitre renvoient aux compétences disciplinaires correspondantes.",
+      "q3": "Mes données sont-elles vraiment protégées ?",
+      "a3": "Les données sont hébergées au Québec, chiffrées, jamais revendues, et tu peux à tout moment les consulter, les exporter ou les supprimer. Voir la page Confidentialité pour le détail.",
+      "q4": "Est-ce que je dois payer pour commencer ?",
+      "a4": "Non. Le plan Découverte est gratuit en permanence et couvre deux matières au choix. Tu ne passes à un plan payant que si tu le souhaites.",
+      "q5": "Y a-t-il une application mobile ?",
+      "a5": "L'application iOS et Android arrive en Phase 2. Le site web actuel est pleinement responsive et utilisable sur téléphone.",
+      "q6": "Puis-je créer un compte pour toute ma famille ?",
+      "a6": "Oui. Le plan Famille+ permet jusqu'à 4 profils d'élèves sous un compte parent, avec rapports individuels et un tableau de bord consolidé."
+    },
+    "ctaTitle": "Autre question ?",
+    "ctaDescription": "On répond à tous les courriels.",
+    "ctaLabel": "Nous écrire"
+  },
+  "blog": {
+    "heroKicker": "Blogue",
+    "heroTitle": "Le blogue d'EduQuiz",
+    "heroSubtitle": "Articles pédagogiques, coulisses produit, nouveautés. Bientôt en ligne.",
+    "emptyTitle": "Bientôt en ligne",
+    "emptyDescription": "Le blogue ouvre à la sortie de la V1. En attendant, les nouveautés sont annoncées par courriel aux personnes inscrites.",
+    "cta": "Retour à l'accueil"
+  },
+  "testimonials": {
+    "heroKicker": "Témoignages",
+    "heroTitle": "Des familles qui apprennent avec EduQuiz",
+    "heroSubtitle": "Cette section s'enrichira à mesure que la V1 accueille ses premières familles.",
+    "emptyTitle": "Section en construction",
+    "emptyDescription": "Tu fais partie des premiers testeurs ? Partage ton retour à temoignages@solutions-infos.quebec — on adore lire les histoires des familles.",
+    "cta": "Retour à l'accueil"
+  },
+  "legal": {
+    "common": {
+      "lastUpdatedLabel": "Dernière mise à jour",
+      "lastUpdatedValue": "22 avril 2026",
+      "backToLegal": "Toutes les mentions légales"
+    },
+    "privacy": {
+      "heroKicker": "Confidentialité",
+      "heroTitle": "Politique de confidentialité",
+      "heroSubtitle": "Ce que nous collectons, pourquoi, et comment exercer tes droits.",
+      "paragraphs": [
+        "Solutions Infos inc., société québécoise basée à Montréal, exploite EduQuiz et agit à titre de responsable du traitement au sens de la Loi 25.",
+        "Les données collectées se limitent au strict nécessaire : identifiants de compte, réponses aux exercices, progression, préférences linguistiques, journaux techniques.",
+        "Les données sont hébergées au Québec (Montréal), chiffrées au repos et en transit. Elles ne sont jamais vendues ni partagées à des tiers commerciaux.",
+        "Tes droits : accès, rectification, portabilité, suppression, retrait du consentement. Ils peuvent être exercés depuis l'espace Paramètres du compte ou par courriel à confidentialite@solutions-infos.quebec.",
+        "Conservation : les données d'apprentissage sont conservées 24 mois après la dernière activité puis anonymisées. Les journaux techniques sont conservés 90 jours maximum.",
+        "Sous-traitants : l'hébergement est assuré par un fournisseur dont les serveurs sont situés au Québec. L'envoi de courriels transactionnels passe par un prestataire canadien. La liste complète est disponible sur demande."
+      ]
+    },
+    "terms": {
+      "heroKicker": "Conditions",
+      "heroTitle": "Conditions d'utilisation",
+      "heroSubtitle": "Les règles d'usage du service, en clair.",
+      "paragraphs": [
+        "En créant un compte EduQuiz, tu acceptes les présentes conditions. Si tu agis pour le compte d'un·e élève mineur·e, tu dois être légalement habilité·e à le faire.",
+        "Le service est fourni tel quel, dans le but d'accompagner l'apprentissage. Il ne se substitue pas à l'enseignement scolaire ni à un avis pédagogique professionnel.",
+        "Un compte est strictement personnel. Le partage d'identifiants entre plusieurs personnes est interdit ; les plans famille existent précisément pour couvrir un usage multi-utilisateurs.",
+        "Tu t'engages à utiliser le service de manière légale et respectueuse : pas de contenu injurieux, pas de tentative de contournement des mesures de sécurité, pas de scraping automatisé.",
+        "Nous pouvons suspendre un compte en cas de violation grave ou répétée des présentes conditions. Les données restent accessibles pour export pendant 30 jours après la suspension.",
+        "La résiliation est possible à tout moment depuis l'espace compte. Les montants déjà prélevés ne sont pas remboursés au prorata, sauf cas prévu par la loi."
+      ]
+    },
+    "cookies": {
+      "heroKicker": "Cookies",
+      "heroTitle": "Politique de cookies",
+      "heroSubtitle": "Quels cookies nous utilisons, dans quel but, et comment les refuser.",
+      "paragraphs": [
+        "EduQuiz utilise un nombre limité de cookies, strictement nécessaires au fonctionnement du service ou à sa sécurité. Aucun cookie publicitaire, aucun traceur tiers commercial.",
+        "Cookies strictement nécessaires : session authentifiée, protection CSRF, préférence de langue. Ils ne demandent pas ton consentement car le service ne peut pas fonctionner sans eux.",
+        "Cookies de mesure d'audience : activés uniquement avec ton accord explicite. Les statistiques sont agrégées et ne permettent pas de te réidentifier personnellement.",
+        "Tu peux à tout moment modifier tes préférences dans les Paramètres du compte ou supprimer les cookies depuis ton navigateur. Le refus des cookies optionnels n'affecte pas la disponibilité du service.",
+        "Conservation : les cookies de session expirent à la fermeture du navigateur. Les cookies de préférence linguistique durent 12 mois. Les cookies de mesure d'audience durent 13 mois maximum (standard CNIL/CAI)."
+      ]
+    },
+    "accessibility": {
+      "heroKicker": "Accessibilité",
+      "heroTitle": "Accessibilité",
+      "heroSubtitle": "Notre engagement pour que tout le monde puisse apprendre avec EduQuiz.",
+      "paragraphs": [
+        "EduQuiz vise la conformité WCAG 2.1 niveau AA. Chaque page est auditée avant sa mise en ligne et les retours d'usager·ère·s en situation de handicap sont traités en priorité.",
+        "Principes appliqués : contraste suffisant, taille de texte ajustable sans perte de contenu, navigation clavier complète, alternatives textuelles pour toutes les images porteuses de sens, structure sémantique claire (titres, listes, landmarks).",
+        "Zones perfectibles connues : certains graphiques de progression n'offrent pas encore d'alternative textuelle exhaustive. Un plan de correction est en cours.",
+        "Signaler un problème : écris à accessibilite@solutions-infos.quebec en décrivant le comportement observé, la page concernée et ton outil d'assistance. Nous répondons sous 5 jours ouvrables.",
+        "Conformité : cette déclaration sera mise à jour annuellement ou après toute évolution majeure du produit."
+      ]
+    },
+    "loi25": {
+      "heroKicker": "Loi 25",
+      "heroTitle": "Conformité à la Loi 25 du Québec",
+      "heroSubtitle": "Comment EduQuiz respecte la Loi sur la protection des renseignements personnels dans le secteur privé, modernisée par la Loi 25.",
+      "paragraphs": [
+        "Responsable de la protection des renseignements personnels : la personne responsable au sein de Solutions Infos inc. est joignable à confidentialite@solutions-infos.quebec.",
+        "Transparence : la politique de confidentialité décrit en langage clair les données collectées, les finalités et les tiers éventuels. Les modifications substantielles sont notifiées par courriel et annoncées sur cette page.",
+        "Consentement : toute collecte non strictement nécessaire au service requiert un consentement explicite, granulaire, et révocable à tout moment sans friction.",
+        "Minimisation et conservation : seules les données utiles au service sont collectées ; elles sont conservées le temps strictement requis puis anonymisées ou supprimées.",
+        "Droits des personnes : accès, rectification, portabilité, suppression, retrait du consentement, désindexation. Chaque demande est traitée sous 30 jours.",
+        "Évaluation des facteurs relatifs à la vie privée (EFVP) : réalisée avant chaque évolution produit significative. Documentation disponible sur demande auprès des écoles partenaires.",
+        "Incident : en cas de violation susceptible de causer un préjudice sérieux, notification à la Commission d'accès à l'information et aux personnes concernées dans les meilleurs délais."
+      ]
+    }
   },
   "locale": {
     "switchTo": "Basculer en {locale}",

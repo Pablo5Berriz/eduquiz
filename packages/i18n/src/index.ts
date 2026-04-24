@@ -103,6 +103,30 @@ export function tf(
 }
 
 /**
+ * Résout une clé pointée vers un tableau de chaînes. Utile pour les
+ * listes de contenu (puces, étapes, paragraphes de pages légales) que
+ * l'on préfère garder dans le dictionnaire JSON plutôt qu'en dur dans
+ * les composants. Retourne un tableau vide si la clé est absente ou ne
+ * pointe pas vers un tableau d'éléments `string`.
+ *
+ * Exemple :
+ *   tList(messages, 'home.trust.items') // ["Aligné PFEQ", "Hébergé à Montréal", ...]
+ */
+export function tList(messages: Messages, key: string): readonly string[] {
+  const parts = key.split('.');
+  let node: unknown = messages;
+  for (const part of parts) {
+    if (node && typeof node === 'object' && part in (node as Record<string, unknown>)) {
+      node = (node as Record<string, unknown>)[part];
+    } else {
+      return [];
+    }
+  }
+  if (!Array.isArray(node)) return [];
+  return node.filter((item): item is string => typeof item === 'string');
+}
+
+/**
  * Détecte la meilleure locale supportée à partir d'un en-tête
  * `Accept-Language` (RFC 9110). Stratégie naïve : on cherche la
  * première étiquette commençant par `fr-` ou `fr`, puis `en-` ou `en`,

@@ -15,4 +15,10 @@ export type { ContainerProps, ContainerVariants } from './components/Container';
 export { Logo } from './components/Logo';
 export type { LogoProps } from './components/Logo';
 
+export { Card } from './components/Card';
+export type { CardProps, CardVariants } from './components/Card';
+
+export { SectionHeading } from './components/SectionHeading';
+export type { SectionHeadingProps } from './components/SectionHeading';
+
 export { cn } from './utils/cn';
