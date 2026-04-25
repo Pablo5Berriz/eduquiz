@@ -73,6 +73,12 @@
       "item3Description": "A clear dashboard showing what is mastered, what needs work, and when to review.",
       "cta": "See all features"
     },
+    "levels": {
+      "kicker": "For every step of the path",
+      "title": "Nine levels, nine priorities",
+      "description": "From elementary through secondary, each level has its goals. Pick yours to see what this year is about.",
+      "cta": "See all levels"
+    },
     "subjects": {
       "kicker": "Subjects",
       "title": "Ten subjects from primary to secondary",
@@ -735,6 +741,152 @@
     "notFoundTitle": "Subject not found",
     "notFoundDescription": "This subject does not exist or has not been published yet.",
     "notFoundCta": "Back to list"
+  },
+  "levels": {
+    "heroKicker": "School levels",
+    "heroTitle": "Nine levels — from Cycle 2 of elementary to Secondary 5",
+    "heroSubtitle": "Each level has its priorities. Discover what a student works on, at what age, with which subjects in Quebec's curriculum.",
+    "detail": {
+      "heroKicker": "School level",
+      "ageLabel": "Typical age",
+      "goalsLabel": "Goals for this year",
+      "subjectsLabel": "Subjects in the curriculum",
+      "ctaPrimary": "Try EduQuiz at this level",
+      "ctaSecondary": "See all levels",
+      "backToList": "Back to home",
+      "imageAlt": "School level illustration"
+    },
+    "notFoundTitle": "Level not found",
+    "notFoundDescription": "The requested level is not in our catalogue.",
+    "notFoundCta": "Back to home",
+    "list": {
+      "primaire3": {
+        "title": "Grade 3",
+        "slug": "grade-3",
+        "age": "Ages 8-9",
+        "shortDescription": "First half of Cycle 2 in elementary school. Students consolidate reading, writing and early maths.",
+        "longDescription": "In Grade 3, students enter Cycle 2 of elementary school. The year focuses on fluent reading, first structured writing, and giving meaning to arithmetic operations. Social studies (history, geography, culture) progressively take their place.",
+        "goals": [
+          "Read short texts fluently and with comprehension",
+          "Write complete sentences and short paragraphs",
+          "Master addition and subtraction facts",
+          "Observe and describe the surrounding world"
+        ],
+        "subjectGroup": "p3p4"
+      },
+      "primaire4": {
+        "title": "Grade 4",
+        "slug": "grade-4",
+        "age": "Ages 9-10",
+        "shortDescription": "End of Cycle 2 in elementary school. Students gain autonomy and structure their thinking.",
+        "longDescription": "In Grade 4, students complete Cycle 2. Focus shifts to longer written productions, multiplication and division, and a deeper exploration of Quebec and Canada.",
+        "goals": [
+          "Write multi-paragraph structured texts",
+          "Master multiplication tables",
+          "Solve multi-step problems",
+          "Locate themselves in time and space (Quebec, Canada)"
+        ],
+        "subjectGroup": "p3p4"
+      },
+      "primaire5": {
+        "title": "Grade 5",
+        "slug": "grade-5",
+        "age": "Ages 10-11",
+        "shortDescription": "Start of Cycle 3. Students learn to argue and to investigate.",
+        "longDescription": "Cycle 3 of elementary school raises the bar: reading to learn, writing to convince, reasoning to solve. Fractions, percentages and geometry take a central role in mathematics.",
+        "goals": [
+          "Read to learn across all subjects",
+          "Write informational and argumentative texts",
+          "Work with fractions, decimals and percentages",
+          "Develop a research and verification method"
+        ],
+        "subjectGroup": "p5p6"
+      },
+      "primaire6": {
+        "title": "Grade 6",
+        "slug": "grade-6",
+        "age": "Ages 11-12",
+        "shortDescription": "Final year of elementary. Explicit preparation for secondary school.",
+        "longDescription": "Grade 6 closes Cycle 3. Students consolidate everything learned in elementary and prepare the transition to secondary: independent work, note-taking, more abstract problem solving and first digital competencies.",
+        "goals": [
+          "Consolidate French and mathematics skills",
+          "Take notes and organise ideas",
+          "Work in teams on subject-based projects",
+          "Prepare for the transition to secondary school"
+        ],
+        "subjectGroup": "p5p6"
+      },
+      "secondaire1": {
+        "title": "Secondary 1",
+        "slug": "secondary-1",
+        "age": "Ages 12-13",
+        "shortDescription": "Entry into secondary school. Students explore disciplines and develop work methods.",
+        "longDescription": "Secondary 1 is a transition year — organisation by subject and by teacher. Students consolidate elementary learnings and begin algebra, world geography and experimental sciences.",
+        "goals": [
+          "Organise work and manage an agenda",
+          "Tackle algebra and literal expressions",
+          "Experiment in science and technology",
+          "Understand major territories and populations"
+        ],
+        "subjectGroup": "s1"
+      },
+      "secondaire2": {
+        "title": "Secondary 2",
+        "slug": "secondary-2",
+        "age": "Ages 13-14",
+        "shortDescription": "End of Cycle 1 in secondary. Students deepen scientific and literary methods.",
+        "longDescription": "Secondary 2 closes Cycle 1 with higher ambition: analysing texts, modelling in mathematics, distinguishing living from non-living in science. Geography officially ends this year.",
+        "goals": [
+          "Analyse literary and argumentative texts",
+          "Work with equations and proportionality",
+          "Carry out full scientific investigations",
+          "Master major territorial issues"
+        ],
+        "subjectGroup": "s2"
+      },
+      "secondaire3": {
+        "title": "Secondary 3",
+        "slug": "secondary-3",
+        "age": "Ages 14-15",
+        "shortDescription": "Start of Cycle 2 in secondary. Students begin Quebec history and prepare their path choices.",
+        "longDescription": "Secondary 3 opens Cycle 2. It is the year when History of Quebec and Canada officially begins — a thread continued until the end of secondary. Students also start choosing options and mathematics sequences.",
+        "goals": [
+          "Understand the origins of Quebec (1500-1840)",
+          "Develop written and oral argumentation",
+          "Deepen algebra and analytic geometry",
+          "Make informed choices for the next steps"
+        ],
+        "subjectGroup": "s3"
+      },
+      "secondaire4": {
+        "title": "Secondary 4",
+        "slug": "secondary-4",
+        "age": "Ages 15-16",
+        "shortDescription": "Pivotal year. End-of-cycle ministerial exams and CEGEP preparation.",
+        "longDescription": "Secondary 4 is pivotal: students complete History of Quebec and Canada (1840 to today), take ministerial exams, and choose the mathematics sequence that will shape their CEGEP admission.",
+        "goals": [
+          "Close History of Quebec and Canada (1840 →)",
+          "Choose and master the mathematics sequence",
+          "Prepare the ministerial single exams",
+          "Build a post-secondary project"
+        ],
+        "subjectGroup": "s4"
+      },
+      "secondaire5": {
+        "title": "Secondary 5",
+        "slug": "secondary-5",
+        "age": "Ages 16-17",
+        "shortDescription": "Final year before CEGEP. Financial Education and Contemporary World complete the path.",
+        "longDescription": "Secondary 5 is the final year of compulsory schooling in Quebec. Two subjects are introduced: Financial Education (budgeting, consumption, credit) and Contemporary World (power, wealth, population, tensions). Students end with the single French exam.",
+        "goals": [
+          "Manage a budget, understand credit, save",
+          "Analyse contemporary geopolitical issues",
+          "Pass the single French exam",
+          "Finalise CEGEP or training admission"
+        ],
+        "subjectGroup": "s5"
+      }
+    }
   },
   "pricing": {
     "heroKicker": "Pricing",

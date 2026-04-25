@@ -2,6 +2,10 @@ import { getMessages, t, tList } from '@eduquiz/i18n';
 import { Button, Card, Container, SectionHeading, cn } from '@eduquiz/ui';
 import Link from 'next/link';
 
+import {
+  SCHOOL_LEVEL_KEYS,
+  getSchoolLevelSlug,
+} from '../../lib/catalog/levels';
 import { SUBJECT_KEYS, getSubjectSlug } from '../../lib/catalog/subjects';
 import { resolveLocaleParam, type LocaleRouteParams } from '../../lib/i18n/locale';
 
@@ -16,12 +20,14 @@ import type { JSX } from 'react';
  *      Loi 25, bilingue).
  *   3. Features teaser : trois piliers, carte cliquable vers la page
  *      Fonctionnalités pour aller plus loin.
- *   4. Subjects teaser : quatre matières, grille 2×2 sur mobile, 4 col
+ *   4. School levels : neuf niveaux scolaires (mini-cards avec âge
+ *      propice) → page détail `/[locale]/niveaux/[level]`.
+ *   5. Subjects teaser : dix matières, grille 2×2 sur mobile, 5 col
  *      sur desktop.
- *   5. How it works : trois étapes numérotées.
- *   6. Pricing teaser : mention du plan gratuit + redirection vers la
+ *   6. How it works : trois étapes numérotées.
+ *   7. Pricing teaser : mention du plan gratuit + redirection vers la
  *      page Tarifs.
- *   7. Final CTA : encart avec double appel à l'action.
+ *   8. Final CTA : encart avec double appel à l'action.
  *
  * On privilégie une structure `<section aria-labelledby="…">` propre et
  * des landmarks clairs (un `<h1>` unique, `<h2>` par section).
@@ -150,7 +156,54 @@ export default function LocalizedHomePage({
         </Container>
       </section>
 
-      {/* 4. Subjects teaser */}
+      {/* 4. School levels teaser */}
+      <section aria-labelledby="home-levels-title">
+        <Container width="lg" className="py-20">
+          <SectionHeading
+            kicker={t(messages, 'home.levels.kicker')}
+            title={<span id="home-levels-title">{t(messages, 'home.levels.title')}</span>}
+            description={t(messages, 'home.levels.description')}
+            align="center"
+            className="mx-auto max-w-3xl"
+          />
+
+          <ul className="mt-12 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+            {SCHOOL_LEVEL_KEYS.map((key) => {
+              const slug = getSchoolLevelSlug(messages, key);
+              const title = t(messages, `levels.list.${key}.title`);
+              const age = t(messages, `levels.list.${key}.age`);
+              return (
+                <li
+                  key={key}
+                  className="rounded-xl border border-slate-200 bg-white shadow-sm transition-colors hover:border-brand-300 hover:bg-brand-50/40 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-700 dark:hover:bg-brand-950/30"
+                >
+                  <Link
+                    href={`/${locale}/niveaux/${slug}`}
+                    className="flex items-center justify-between gap-4 p-4 focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500"
+                  >
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        {title}
+                      </span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">
+                        {age}
+                      </span>
+                    </div>
+                    <span
+                      aria-hidden="true"
+                      className="text-brand-600 dark:text-brand-300"
+                    >
+                      →
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </Container>
+      </section>
+
+      {/* 5. Subjects teaser */}
       <section
         aria-labelledby="home-subjects-title"
         className="bg-slate-50 dark:bg-slate-900/40"
@@ -212,7 +265,7 @@ export default function LocalizedHomePage({
         </Container>
       </section>
 
-      {/* 5. How it works */}
+      {/* 6. How it works */}
       <section aria-labelledby="home-how-title">
         <Container width="lg" className="py-20">
           <SectionHeading
@@ -241,7 +294,7 @@ export default function LocalizedHomePage({
         </Container>
       </section>
 
-      {/* 6. Pricing teaser */}
+      {/* 7. Pricing teaser */}
       <section
         aria-labelledby="home-pricing-title"
         className="bg-slate-50 dark:bg-slate-900/40"
@@ -267,7 +320,7 @@ export default function LocalizedHomePage({
         </Container>
       </section>
 
-      {/* 7. Final CTA */}
+      {/* 8. Final CTA */}
       <section aria-labelledby="home-final-cta-title">
         <Container width="lg" className="py-20">
           <Card variant="accent" padding="lg" className="text-center">

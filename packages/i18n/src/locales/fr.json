@@ -73,6 +73,12 @@
       "item3Description": "Un tableau de bord lisible qui montre ce qui est maîtrisé, ce qui reste à travailler et quand réviser.",
       "cta": "Voir toutes les fonctionnalités"
     },
+    "levels": {
+      "kicker": "Pour chaque étape du parcours",
+      "title": "Neuf niveaux, neuf priorités",
+      "description": "Du primaire au secondaire, chaque niveau a ses objectifs. Choisis le tien pour voir ce qui est travaillé cette année.",
+      "cta": "Voir tous les niveaux"
+    },
     "subjects": {
       "kicker": "Matières",
       "title": "Dix matières du primaire au secondaire",
@@ -735,6 +741,152 @@
     "notFoundTitle": "Matière introuvable",
     "notFoundDescription": "Cette matière n'existe pas ou n'est pas encore publiée.",
     "notFoundCta": "Revenir à la liste"
+  },
+  "levels": {
+    "heroKicker": "Niveaux scolaires",
+    "heroTitle": "Neuf niveaux — du 2e cycle du primaire à la 5e secondaire",
+    "heroSubtitle": "À chaque niveau, ses priorités. Découvre ce que travaille un élève, à quel âge, avec quelles matières au programme québécois.",
+    "detail": {
+      "heroKicker": "Niveau scolaire",
+      "ageLabel": "Âge propice",
+      "goalsLabel": "Ce que l’élève vise cette année",
+      "subjectsLabel": "Matières au programme",
+      "ctaPrimary": "Essayer EduQuiz à ce niveau",
+      "ctaSecondary": "Voir tous les niveaux",
+      "backToList": "Retour à l’accueil",
+      "imageAlt": "Illustration du niveau scolaire"
+    },
+    "notFoundTitle": "Niveau introuvable",
+    "notFoundDescription": "Le niveau demandé n’existe pas dans notre catalogue.",
+    "notFoundCta": "Retour à l’accueil",
+    "list": {
+      "primaire3": {
+        "title": "3e année du primaire",
+        "slug": "primaire-3",
+        "age": "8-9 ans",
+        "shortDescription": "Première moitié du 2e cycle du primaire. L’élève consolide la lecture, l’écriture et les bases du calcul.",
+        "longDescription": "En 3e année, les élèves entrent dans le 2e cycle du primaire. Les apprentissages visent à rendre la lecture plus fluide, à structurer les premières productions écrites et à donner du sens aux opérations mathématiques. C’est aussi l’année où l’univers social (histoire, géographie, culture) prend progressivement sa place.",
+        "goals": [
+          "Lire des textes courts avec fluidité et compréhension",
+          "Écrire des phrases complètes et de courts paragraphes",
+          "Maîtriser les tables d’addition et de soustraction",
+          "Observer et décrire le monde qui entoure l’élève"
+        ],
+        "subjectGroup": "p3p4"
+      },
+      "primaire4": {
+        "title": "4e année du primaire",
+        "slug": "primaire-4",
+        "age": "9-10 ans",
+        "shortDescription": "Fin du 2e cycle du primaire. L’élève gagne en autonomie et structure sa pensée.",
+        "longDescription": "En 4e année, les élèves terminent le 2e cycle du primaire. On travaille la production de textes plus longs, la multiplication et la division, et on approfondit l’exploration du territoire québécois.",
+        "goals": [
+          "Écrire des textes structurés de plusieurs paragraphes",
+          "Maîtriser les tables de multiplication",
+          "Résoudre des problèmes avec plusieurs étapes",
+          "Se situer dans le temps et l’espace (Québec et Canada)"
+        ],
+        "subjectGroup": "p3p4"
+      },
+      "primaire5": {
+        "title": "5e année du primaire",
+        "slug": "primaire-5",
+        "age": "10-11 ans",
+        "shortDescription": "Début du 3e cycle du primaire. L’élève apprend à argumenter et à chercher.",
+        "longDescription": "Le 3e cycle du primaire marque une exigence nouvelle : lire pour apprendre, écrire pour convaincre, raisonner pour résoudre. Les fractions, les pourcentages et la géométrie prennent une place centrale en mathématiques.",
+        "goals": [
+          "Lire pour apprendre dans toutes les disciplines",
+          "Rédiger des textes informatifs et argumentatifs",
+          "Travailler les fractions, décimaux et pourcentages",
+          "Développer une méthode de recherche et de vérification"
+        ],
+        "subjectGroup": "p5p6"
+      },
+      "primaire6": {
+        "title": "6e année du primaire",
+        "slug": "primaire-6",
+        "age": "11-12 ans",
+        "shortDescription": "Dernière année du primaire. Préparation explicite à l’entrée au secondaire.",
+        "longDescription": "La 6e année boucle le 3e cycle. L’élève consolide tous les acquis du primaire et prépare la transition vers le secondaire : autonomie de travail, prise de notes, résolution de problèmes plus abstraits et premières compétences numériques.",
+        "goals": [
+          "Consolider les compétences en français et en mathématiques",
+          "Prendre des notes et organiser ses idées",
+          "Travailler en équipe sur des projets disciplinaires",
+          "Se préparer à la transition vers le secondaire"
+        ],
+        "subjectGroup": "p5p6"
+      },
+      "secondaire1": {
+        "title": "1re secondaire",
+        "slug": "secondaire-1",
+        "age": "12-13 ans",
+        "shortDescription": "Entrée au secondaire. L’élève explore les disciplines et développe sa méthode de travail.",
+        "longDescription": "La 1re secondaire marque la transition avec une organisation par matières et par enseignants différents. On y consolide les acquis du primaire tout en introduisant l’algèbre, la géographie du monde et les sciences expérimentales.",
+        "goals": [
+          "Organiser son travail et gérer son agenda",
+          "Aborder l’algèbre et les expressions littérales",
+          "Expérimenter en sciences et en technologie",
+          "Comprendre les grands territoires et populations"
+        ],
+        "subjectGroup": "s1"
+      },
+      "secondaire2": {
+        "title": "2e secondaire",
+        "slug": "secondaire-2",
+        "age": "13-14 ans",
+        "shortDescription": "Fin du 1er cycle du secondaire. L’élève approfondit les méthodes scientifiques et littéraires.",
+        "longDescription": "La 2e secondaire prolonge le 1er cycle avec une ambition plus forte : analyser des textes, modéliser des situations en mathématiques, distinguer le vivant du non-vivant en sciences. C’est l’année où la géographie se clôt au programme.",
+        "goals": [
+          "Analyser des textes littéraires et argumentatifs",
+          "Travailler les équations et la proportionnalité",
+          "Réaliser des démarches scientifiques complètes",
+          "Maîtriser les grands enjeux territoriaux"
+        ],
+        "subjectGroup": "s2"
+      },
+      "secondaire3": {
+        "title": "3e secondaire",
+        "slug": "secondaire-3",
+        "age": "14-15 ans",
+        "shortDescription": "Début du 2e cycle du secondaire. L’élève aborde l’histoire du Québec et se prépare aux choix de parcours.",
+        "longDescription": "La 3e secondaire ouvre le 2e cycle. C’est l’année où l’Histoire du Québec et du Canada commence officiellement — un fil rouge jusqu’à la fin du secondaire. L’élève commence également à faire des choix (séquences mathématiques, options).",
+        "goals": [
+          "Comprendre les origines du Québec (1500 à 1840)",
+          "Développer l’argumentation écrite et orale",
+          "Approfondir l’algèbre et la géométrie analytique",
+          "Faire des choix éclairés pour la suite du parcours"
+        ],
+        "subjectGroup": "s3"
+      },
+      "secondaire4": {
+        "title": "4e secondaire",
+        "slug": "secondaire-4",
+        "age": "15-16 ans",
+        "shortDescription": "Année charnière. Épreuves ministérielles de fin de cycle et préparation au cégep.",
+        "longDescription": "La 4e secondaire est une année charnière : l’élève termine officiellement l’Histoire du Québec et du Canada (1840 à aujourd’hui), passe des épreuves ministérielles, et choisit la séquence mathématique qui conditionnera son admission au cégep.",
+        "goals": [
+          "Clôturer l’Histoire du Québec et du Canada (1840 →)",
+          "Choisir et maîtriser sa séquence mathématique",
+          "Préparer les épreuves uniques ministérielles",
+          "Construire son projet post-secondaire"
+        ],
+        "subjectGroup": "s4"
+      },
+      "secondaire5": {
+        "title": "5e secondaire",
+        "slug": "secondaire-5",
+        "age": "16-17 ans",
+        "shortDescription": "Dernière année avant le cégep. Éducation financière et Monde contemporain complètent le parcours.",
+        "longDescription": "La 5e secondaire est la dernière année du parcours scolaire obligatoire au Québec. Deux matières y sont introduites : l’Éducation financière (budget, consommation, crédit) et le Monde contemporain (pouvoir, richesse, population, tensions). L’élève termine avec l’épreuve unique de français.",
+        "goals": [
+          "Gérer un budget, comprendre le crédit, épargner",
+          "Analyser les enjeux géopolitiques contemporains",
+          "Réussir l’épreuve unique de français",
+          "Finaliser l’admission au cégep ou à la formation"
+        ],
+        "subjectGroup": "s5"
+      }
+    }
   },
   "pricing": {
     "heroKicker": "Tarifs",
