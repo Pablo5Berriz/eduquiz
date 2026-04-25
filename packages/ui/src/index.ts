@@ -21,4 +21,16 @@ export type { CardProps, CardVariants } from './components/Card';
 export { SectionHeading } from './components/SectionHeading';
 export type { SectionHeadingProps } from './components/SectionHeading';
 
+export { Input } from './components/Input';
+export type { InputProps, InputVariants } from './components/Input';
+
+export { PasswordInput } from './components/PasswordInput';
+export type { PasswordInputProps } from './components/PasswordInput';
+
+export { Checkbox } from './components/Checkbox';
+export type { CheckboxProps } from './components/Checkbox';
+
+export { FormField } from './components/FormField';
+export type { FormFieldProps } from './components/FormField';
+
 export { cn } from './utils/cn';

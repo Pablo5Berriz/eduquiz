@@ -31,6 +31,93 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu"
   },
+  "auth": {
+    "accountTypePicker": {
+      "backToHome": "Back to home",
+      "title": "What kind of account would you like to create?",
+      "subtitle": "Pick the profile that matches you.",
+      "optionAdult": {
+        "title": "Adult",
+        "description": "I'm learning for myself (15+ years old, full autonomy).",
+        "cta": "Choose"
+      },
+      "optionParent": {
+        "title": "Parent",
+        "description": "I supervise my child and view their progress.",
+        "cta": "Choose",
+        "comingSoon": "Coming soon"
+      },
+      "optionMinor": {
+        "title": "Minor",
+        "description": "I have a parent-issued attachment code.",
+        "cta": "Choose",
+        "comingSoon": "Coming soon"
+      },
+      "alreadyHaveAccount": "Already have an account?",
+      "signInCta": "Sign in"
+    },
+    "signup": {
+      "adult": {
+        "heroKicker": "Adult signup",
+        "title": "Create my account",
+        "subtitle": "A few details so we can start securely.",
+        "emailLabel": "Email address",
+        "emailHint": "Used as your sign-in identifier and to send confirmation.",
+        "passwordLabel": "Password",
+        "passwordHint": "At least 8 characters with 1 digit and 1 uppercase letter.",
+        "birthDateLabel": "Date of birth",
+        "birthDateHint": "Used to verify you are 18 or older.",
+        "termsLabel": "I have read and accept the {terms} and the {privacy}.",
+        "termsLink": "Terms",
+        "privacyLink": "Privacy Policy",
+        "marketingLabel": "I accept occasional product news (optional).",
+        "submit": "Create my account",
+        "submitting": "Creating account…",
+        "dividerOr": "or",
+        "googleCta": "Continue with Google",
+        "appleCta": "Continue with Apple",
+        "alreadyHaveAccount": "Already registered?",
+        "signInCta": "Sign in",
+        "errors": {
+          "emailInvalid": "Invalid email address.",
+          "emailTaken": "This email address is already in use.",
+          "passwordTooShort": "Password must be at least 8 characters.",
+          "passwordWeak": "Password must contain at least 1 digit and 1 uppercase letter.",
+          "birthDateInvalid": "Invalid date of birth.",
+          "notAdult": "Adult signup requires being 18 years old or above.",
+          "termsRequired": "You must accept the Terms and Privacy Policy.",
+          "unknown": "Something went wrong. Please try again in a moment."
+        }
+      }
+    },
+    "verifyEmail": {
+      "pending": {
+        "heroKicker": "Email verification",
+        "title": "Verify your email",
+        "body": "We've sent a confirmation link to {email}. Click it to activate your account.",
+        "resendCta": "Resend email",
+        "resendCooldown": "Available in {seconds}s",
+        "resendSuccess": "Email resent!",
+        "supportLink": "Contact support",
+        "signOut": "Sign me out"
+      },
+      "confirmed": {
+        "title": "Email verified",
+        "body": "Your account is active. You can now sign in and explore the Quebec curriculum.",
+        "signInCta": "Sign in"
+      },
+      "expired": {
+        "title": "Link expired",
+        "body": "This verification link is no longer valid. Sign in to receive a new one.",
+        "signInCta": "Sign in"
+      },
+      "invalid": {
+        "title": "Invalid link",
+        "body": "This link is not recognised. Make sure it is complete or request a new one.",
+        "signInCta": "Sign in"
+      }
+    }
+  },
   "footer": {
     "tagline": "Learning in Quebec, in French and English.",
     "product": "Product",

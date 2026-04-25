@@ -16,6 +16,7 @@
   "dependencies": {
     "@eduquiz/auth": "workspace:*",
     "@eduquiz/db": "workspace:*",
+    "@eduquiz/email": "workspace:*",
     "@eduquiz/i18n": "workspace:*",
     "@eduquiz/ui": "workspace:*",
     "@eduquiz/utils": "workspace:*",

@@ -12,6 +12,22 @@ phases préparatoires (Phase 0 : scaffolding, Phase 1 : domaine cœur, etc.).
 
 ### Added
 
+- **Étape 1.4 — Flux d'inscription adulte (écrans 15, 19, 22, 23).**
+  Nouveau paquet `@eduquiz/email` (nodemailer + templates HTML
+  bilingues : verification, welcome). Composants UI ajoutés à
+  `@eduquiz/ui` (`Input`, `PasswordInput`, `Checkbox`, `FormField`).
+  Migration Prisma `20260425_extend_audit_event_kind` étendant
+  `AuditEventKind` avec `AUTH_USER_CREATED` et `AUTH_VERIFY_EMAIL`.
+  Côté `apps/web`, quatre routes `/[locale]/{inscription,
+  inscription/adulte, verification-email, verification-email/confirme/
+  [token]}` avec trois Server Actions (`registerAdult`,
+  `resendVerification`, `confirmVerification`). Validation Zod stricte
+  (email, complexité mot de passe ≥ 8 + 1 chiffre + 1 majuscule, check
+  majorité 18 ans, CGU obligatoire). Anti-collision email avec message
+  clair. Hash Argon2id + transaction Prisma User+Profile+ConsentRecord
+  (TERMS_ACCEPTED, PRIVACY_ACCEPTED, MARKETING_OPTED_IN si choisi).
+  Aucune auto-connexion — vérification email obligatoire avant login.
+  OAuth Google/Apple rendus conditionnellement (env configurés).
 - **Étape 1.3 — Auth.js v5 backbone.** Nouveau paquet `@eduquiz/auth`
   exposant la configuration Auth.js v5 en deux variantes (Node et
   Edge-safe), l'adapter Prisma, les providers Credentials (Argon2id) et

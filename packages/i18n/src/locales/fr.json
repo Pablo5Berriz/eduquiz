@@ -31,6 +31,93 @@
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu"
   },
+  "auth": {
+    "accountTypePicker": {
+      "backToHome": "Retour à l’accueil",
+      "title": "Quel type de compte souhaitez-vous créer ?",
+      "subtitle": "Choisissez le profil qui vous correspond.",
+      "optionAdult": {
+        "title": "Adulte",
+        "description": "J'apprends pour moi (15 ans et plus, autonomie complète).",
+        "cta": "Choisir"
+      },
+      "optionParent": {
+        "title": "Parent",
+        "description": "Je supervise mon enfant et je consulte ses progrès.",
+        "cta": "Choisir",
+        "comingSoon": "Bientôt disponible"
+      },
+      "optionMinor": {
+        "title": "Mineur",
+        "description": "J’ai un code de rattachement reçu par mon parent.",
+        "cta": "Choisir",
+        "comingSoon": "Bientôt disponible"
+      },
+      "alreadyHaveAccount": "Déjà un compte ?",
+      "signInCta": "Se connecter"
+    },
+    "signup": {
+      "adult": {
+        "heroKicker": "Inscription adulte",
+        "title": "Créer mon compte",
+        "subtitle": "Quelques informations pour démarrer en toute sécurité.",
+        "emailLabel": "Adresse courriel",
+        "emailHint": "Sert d’identifiant et reçoit la confirmation.",
+        "passwordLabel": "Mot de passe",
+        "passwordHint": "8 caractères minimum, dont 1 chiffre et 1 majuscule.",
+        "birthDateLabel": "Date de naissance",
+        "birthDateHint": "Sert à vérifier que vous êtes majeur (18 ans et plus).",
+        "termsLabel": "J’ai lu et j’accepte les {terms} et la {privacy}.",
+        "termsLink": "CGU",
+        "privacyLink": "Politique de confidentialité",
+        "marketingLabel": "J’accepte de recevoir occasionnellement des nouveautés (facultatif).",
+        "submit": "Créer mon compte",
+        "submitting": "Création en cours…",
+        "dividerOr": "ou",
+        "googleCta": "Continuer avec Google",
+        "appleCta": "Continuer avec Apple",
+        "alreadyHaveAccount": "Déjà inscrit ?",
+        "signInCta": "Se connecter",
+        "errors": {
+          "emailInvalid": "Adresse courriel invalide.",
+          "emailTaken": "Cette adresse courriel est déjà utilisée.",
+          "passwordTooShort": "Le mot de passe doit faire au moins 8 caractères.",
+          "passwordWeak": "Le mot de passe doit contenir au moins 1 chiffre et 1 majuscule.",
+          "birthDateInvalid": "Date de naissance invalide.",
+          "notAdult": "L’inscription adulte est réservée aux personnes de 18 ans et plus.",
+          "termsRequired": "Vous devez accepter les CGU et la politique de confidentialité.",
+          "unknown": "Une erreur est survenue. Réessayez dans un instant."
+        }
+      }
+    },
+    "verifyEmail": {
+      "pending": {
+        "heroKicker": "Vérification du courriel",
+        "title": "Vérifie ton adresse courriel",
+        "body": "Nous t’avons envoyé un lien de confirmation à {email}. Clique dessus pour activer ton compte.",
+        "resendCta": "Renvoyer le courriel",
+        "resendCooldown": "Disponible dans {seconds} s",
+        "resendSuccess": "Courriel renvoyé !",
+        "supportLink": "Contacter le support",
+        "signOut": "Me déconnecter"
+      },
+      "confirmed": {
+        "title": "Courriel vérifié",
+        "body": "Ton compte est actif. Tu peux maintenant te connecter et explorer le programme québécois.",
+        "signInCta": "Me connecter"
+      },
+      "expired": {
+        "title": "Lien expiré",
+        "body": "Ce lien de vérification n’est plus valide. Connecte-toi pour en recevoir un nouveau.",
+        "signInCta": "Me connecter"
+      },
+      "invalid": {
+        "title": "Lien invalide",
+        "body": "Ce lien n’est pas reconnu. Vérifie qu’il est complet ou demande-en un nouveau.",
+        "signInCta": "Me connecter"
+      }
+    }
+  },
   "footer": {
     "tagline": "Apprendre au Québec, en français et en anglais.",
     "product": "Produit",
