@@ -33,4 +33,7 @@ export type { CheckboxProps } from './components/Checkbox';
 export { FormField } from './components/FormField';
 export type { FormFieldProps } from './components/FormField';
 
+export { Alert } from './components/Alert';
+export type { AlertProps, AlertVariants } from './components/Alert';
+
 export { cn } from './utils/cn';

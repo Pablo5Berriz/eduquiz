@@ -116,6 +116,80 @@
         "body": "Ce lien n’est pas reconnu. Vérifie qu’il est complet ou demande-en un nouveau.",
         "signInCta": "Me connecter"
       }
+    },
+    "signin": {
+      "heroKicker": "Connexion",
+      "title": "Se connecter à EduQuiz",
+      "subtitle": "Heureux de te revoir.",
+      "emailLabel": "Adresse courriel",
+      "passwordLabel": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submit": "Me connecter",
+      "submitting": "Connexion en cours…",
+      "dividerOr": "ou",
+      "googleCta": "Continuer avec Google",
+      "appleCta": "Continuer avec Apple",
+      "noAccount": "Pas encore de compte ?",
+      "signupCta": "Créer un compte",
+      "alerts": {
+        "verified": "Ton adresse a été vérifiée. Tu peux te connecter.",
+        "reset": "Mot de passe modifié. Connecte-toi avec ton nouveau mot de passe.",
+        "sessionExpired": "Ta session a expiré. Reconnecte-toi pour continuer."
+      },
+      "errors": {
+        "invalidCredentials": "Identifiants invalides.",
+        "accountDisabled": "Ce compte n’est plus actif. Contacte le support.",
+        "unverified": "Ton adresse n’est pas encore vérifiée. Consulte ta boîte courriel.",
+        "unknown": "Une erreur est survenue. Réessaie dans un instant."
+      }
+    },
+    "forgotPassword": {
+      "heroKicker": "Mot de passe oublié",
+      "title": "Réinitialiser ton mot de passe",
+      "subtitle": "Entre ton adresse courriel : si un compte existe, tu recevras un lien pour choisir un nouveau mot de passe.",
+      "emailLabel": "Adresse courriel",
+      "submit": "Envoyer le lien",
+      "submitting": "Envoi en cours…",
+      "sentTitle": "Vérifie ta boîte courriel",
+      "sentBody": "Si un compte est associé à cette adresse, un lien de réinitialisation vient d’être envoyé. Le lien expire dans 1 heure.",
+      "backToSignIn": "Retour à la connexion",
+      "errors": {
+        "emailInvalid": "Adresse courriel invalide.",
+        "unknown": "Une erreur est survenue. Réessaie dans un instant."
+      }
+    },
+    "resetPassword": {
+      "heroKicker": "Nouveau mot de passe",
+      "title": "Choisir un nouveau mot de passe",
+      "subtitle": "Choisis un mot de passe fort que tu n’as pas déjà utilisé ailleurs.",
+      "newPasswordLabel": "Nouveau mot de passe",
+      "newPasswordHint": "8 caractères minimum, dont 1 chiffre et 1 majuscule.",
+      "confirmPasswordLabel": "Confirme le mot de passe",
+      "submit": "Mettre à jour mon mot de passe",
+      "submitting": "Mise à jour en cours…",
+      "success": {
+        "title": "Mot de passe mis à jour",
+        "body": "Ton mot de passe a été modifié. Tu peux maintenant te connecter.",
+        "signInCta": "Me connecter"
+      },
+      "expired": {
+        "title": "Lien expiré",
+        "body": "Ce lien de réinitialisation n’est plus valide. Demande-en un nouveau.",
+        "requestCta": "Redemander un lien"
+      },
+      "invalid": {
+        "title": "Lien invalide",
+        "body": "Ce lien n’est pas reconnu. Vérifie qu’il est complet ou demande-en un nouveau.",
+        "requestCta": "Redemander un lien"
+      },
+      "errors": {
+        "passwordTooShort": "Le mot de passe doit faire au moins 8 caractères.",
+        "passwordWeak": "Le mot de passe doit contenir au moins 1 chiffre et 1 majuscule.",
+        "passwordMismatch": "Les deux mots de passe ne correspondent pas.",
+        "tokenExpired": "Ce lien a expiré.",
+        "tokenInvalid": "Ce lien n’est pas valide.",
+        "unknown": "Une erreur est survenue. Réessaie dans un instant."
+      }
     }
   },
   "footer": {

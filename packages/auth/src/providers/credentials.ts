@@ -19,13 +19,51 @@
  * valide. Coût : un `UPDATE` ponctuel par utilisateur.
  */
 
-import { Locale, prisma, UserRole } from '@eduquiz/db';
+import { AuditEventKind, Locale, prisma, UserRole } from '@eduquiz/db';
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
 
 import { hashPassword, needsRehash, verifyPassword } from '../password.js';
 
 import type { Provider } from 'next-auth/providers';
+
+/**
+ * Codes internes de raison d'échec d'authentification, jamais exposés
+ * à l'utilisateur. Tracés dans `AuditLog.payload.reason` pour permettre
+ * la détection d'attaques (énumération d'emails, credential stuffing)
+ * et le rate limiting Redis qui sera ajouté en 1.7.
+ */
+type FailReason =
+  | 'invalid_input'
+  | 'unknown_user'
+  | 'disabled'
+  | 'no_password'
+  | 'unverified'
+  | 'bad_password';
+
+/**
+ * Trace un échec d'authentification. Best-effort : ne bloque jamais le
+ * flux. `actorId` est posé si on a réussi à identifier l'utilisateur,
+ * `null` sinon (cas `invalid_input` / `unknown_user`).
+ */
+async function logFailedSignIn(
+  reason: FailReason,
+  email: string,
+  actorId: string | null,
+): Promise<void> {
+  try {
+    await prisma.auditLog.create({
+      data: {
+        kind: AuditEventKind.AUTH_FAILED,
+        actorId,
+        targetType: 'user',
+        payload: { reason, email } as never,
+      },
+    });
+  } catch {
+    // L'audit ne doit pas bloquer le retour.
+  }
+}
 
 /**
  * Schéma Zod d'entrée. L'erreur Zod n'est jamais propagée à
@@ -47,7 +85,16 @@ export const credentialsProvider: Provider = Credentials({
 
   async authorize(rawCredentials) {
     const parsed = credentialsSchema.safeParse(rawCredentials);
-    if (!parsed.success) return null;
+    if (!parsed.success) {
+      // Email peut être absent/mal formé — on ne loggue rien d'utile
+      // et on ne révèle pas la raison côté UI.
+      const emailHint =
+        typeof (rawCredentials as { email?: unknown })?.email === 'string'
+          ? ((rawCredentials as { email: string }).email).slice(0, 254)
+          : '';
+      await logFailedSignIn('invalid_input', emailHint, null);
+      return null;
+    }
 
     const { email, password } = parsed.data;
 
@@ -67,13 +114,30 @@ export const credentialsProvider: Provider = Credentials({
       },
     });
 
-    if (!user) return null;
-    if (user.disabledAt || user.deletedAt) return null;
-    if (!user.passwordHash) return null; // compte créé via OAuth, pas de password
-    if (!user.emailVerifiedAt) return null; // refus tant que email non vérifié
+    if (!user) {
+      await logFailedSignIn('unknown_user', email, null);
+      return null;
+    }
+    if (user.disabledAt || user.deletedAt) {
+      await logFailedSignIn('disabled', email, user.id);
+      return null;
+    }
+    if (!user.passwordHash) {
+      // compte créé via OAuth, pas de password
+      await logFailedSignIn('no_password', email, user.id);
+      return null;
+    }
+    if (!user.emailVerifiedAt) {
+      // refus tant que email non vérifié
+      await logFailedSignIn('unverified', email, user.id);
+      return null;
+    }
 
     const ok = await verifyPassword(user.passwordHash, password);
-    if (!ok) return null;
+    if (!ok) {
+      await logFailedSignIn('bad_password', email, user.id);
+      return null;
+    }
 
     // Re-hash si paramètres obsolètes — silencieux, en best-effort.
     if (needsRehash(user.passwordHash)) {

@@ -15,4 +15,5 @@
 export { sendEmail, type EmailMessage } from './sender.js';
 export { buildVerificationEmail, type VerificationEmailInput } from './templates/verification.js';
 export { buildWelcomeEmail, type WelcomeEmailInput } from './templates/welcome.js';
+export { buildResetPasswordEmail, type ResetPasswordEmailInput } from './templates/reset-password.js';
 export { getEmailEnv, type EmailEnv } from './env.js';

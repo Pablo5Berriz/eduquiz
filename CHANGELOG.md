@@ -12,6 +12,26 @@ phases préparatoires (Phase 0 : scaffolding, Phase 1 : domaine cœur, etc.).
 
 ### Added
 
+- **Étape 1.5 — Connexion + reset password (écrans 16, 17, 18).**
+  Trois nouvelles routes Next.js : `/[locale]/connexion` avec
+  bannières contextuelles (`?verified=1`, `?reset=1`,
+  `?session=expired`), OAuth Google/Apple conditionnels, formulaire
+  Credentials sécurisé via Server Action `signInAdult` (pattern
+  Auth.js v5 `try/catch AuthError`) ; `/[locale]/mot-de-passe-oublie`
+  qui appelle `requestPasswordReset` (anti-énumération, toujours
+  `ok: true` côté UI) ; `/[locale]/mot-de-passe-oublie/reinitialiser/
+  [token]` qui inspecte le token côté Server Component et délègue la
+  consommation à `completePasswordReset` (transaction Prisma : update
+  passwordHash + suppression de toutes les sessions actives + AuditLog
+  AUTH_PASSWORD_RESET). Nouveau template email
+  `buildResetPasswordEmail` (FR/EN, validité 1 h). Nouveau composant
+  `Alert` dans `@eduquiz/ui` (variants info/success/warning/danger).
+  Le provider Credentials de `@eduquiz/auth` trace désormais les
+  échecs (`AUTH_FAILED`) avec une raison interne
+  (unknown_user/disabled/no_password/unverified/bad_password) sans
+  jamais la révéler à l'utilisateur (anti-énumération maintenue).
+  Aucune option « Se souvenir de moi » : la stratégie session=database
+  donne déjà 30 jours par défaut.
 - **Étape 1.4 — Flux d'inscription adulte (écrans 15, 19, 22, 23).**
   Nouveau paquet `@eduquiz/email` (nodemailer + templates HTML
   bilingues : verification, welcome). Composants UI ajoutés à

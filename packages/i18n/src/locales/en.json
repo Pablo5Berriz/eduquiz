@@ -116,6 +116,80 @@
         "body": "This link is not recognised. Make sure it is complete or request a new one.",
         "signInCta": "Sign in"
       }
+    },
+    "signin": {
+      "heroKicker": "Sign in",
+      "title": "Sign in to EduQuiz",
+      "subtitle": "Glad to see you again.",
+      "emailLabel": "Email address",
+      "passwordLabel": "Password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "dividerOr": "or",
+      "googleCta": "Continue with Google",
+      "appleCta": "Continue with Apple",
+      "noAccount": "Don't have an account yet?",
+      "signupCta": "Create an account",
+      "alerts": {
+        "verified": "Your address has been verified. You can sign in.",
+        "reset": "Password updated. Sign in with your new password.",
+        "sessionExpired": "Your session expired. Please sign in again to continue."
+      },
+      "errors": {
+        "invalidCredentials": "Invalid credentials.",
+        "accountDisabled": "This account is no longer active. Contact support.",
+        "unverified": "Your address has not been verified yet. Check your inbox.",
+        "unknown": "Something went wrong. Try again in a moment."
+      }
+    },
+    "forgotPassword": {
+      "heroKicker": "Forgot password",
+      "title": "Reset your password",
+      "subtitle": "Enter your email address: if an account exists, you will receive a link to choose a new password.",
+      "emailLabel": "Email address",
+      "submit": "Send the link",
+      "submitting": "Sending…",
+      "sentTitle": "Check your inbox",
+      "sentBody": "If an account matches this address, a reset link has just been sent. The link expires in 1 hour.",
+      "backToSignIn": "Back to sign in",
+      "errors": {
+        "emailInvalid": "Invalid email address.",
+        "unknown": "Something went wrong. Try again in a moment."
+      }
+    },
+    "resetPassword": {
+      "heroKicker": "New password",
+      "title": "Choose a new password",
+      "subtitle": "Pick a strong password you have not used elsewhere.",
+      "newPasswordLabel": "New password",
+      "newPasswordHint": "At least 8 characters with 1 digit and 1 uppercase letter.",
+      "confirmPasswordLabel": "Confirm password",
+      "submit": "Update my password",
+      "submitting": "Updating…",
+      "success": {
+        "title": "Password updated",
+        "body": "Your password has been changed. You can now sign in.",
+        "signInCta": "Sign in"
+      },
+      "expired": {
+        "title": "Link expired",
+        "body": "This reset link is no longer valid. Request a new one.",
+        "requestCta": "Request a new link"
+      },
+      "invalid": {
+        "title": "Invalid link",
+        "body": "This link is not recognised. Make sure it is complete or request a new one.",
+        "requestCta": "Request a new link"
+      },
+      "errors": {
+        "passwordTooShort": "Password must be at least 8 characters.",
+        "passwordWeak": "Password must contain at least 1 digit and 1 uppercase letter.",
+        "passwordMismatch": "The two passwords do not match.",
+        "tokenExpired": "This link has expired.",
+        "tokenInvalid": "This link is not valid.",
+        "unknown": "Something went wrong. Try again in a moment."
+      }
     }
   },
   "footer": {
