@@ -1,22 +1,25 @@
 /**
- * Middleware Next.js — détection et préfixe de locale.
+ * Middleware Next.js — détection de locale + protection des zones
+ * authentifiées.
  *
- * Stratégie i18n d'EduQuiz :
- *   1. Toutes les pages publiques sont servies sous `/[locale]/...` où
- *      `[locale]` ∈ SUPPORTED_LOCALES (`fr`, `en`).
- *   2. Si la requête arrive sans préfixe de locale, on redirige (302)
- *      vers la locale détectée dans cet ordre :
- *        a. cookie `NEXT_LOCALE` posé par le LocaleSwitcher,
- *        b. en-tête `Accept-Language` du navigateur,
- *        c. DEFAULT_LOCALE (`fr`).
- *   3. Les routes API (`/api/*`), les assets statiques (`/_next/*`,
- *      fichiers avec extension) et les routes futures sans i18n sont
- *      passées sans rewrite.
+ * Composition de deux préoccupations exécutées dans cet ordre :
  *
- * Le middleware ne fait pas de réécriture interne : on reste sur des
- * URLs canoniques préfixées, ce qui simplifie le SEO multilingue
- * (hreflang, sitemap par locale).
+ *   1. **i18n**. Toutes les pages publiques sont servies sous
+ *      `/[locale]/...` (`fr`, `en`). Si la requête arrive sans préfixe,
+ *      on redirige vers la locale détectée (cookie → Accept-Language →
+ *      DEFAULT_LOCALE).
+ *
+ *   2. **Auth**. Une fois la locale présente, on délègue à Auth.js v5
+ *      (`auth(...)`) qui consomme `authConfigEdge.callbacks.authorized`
+ *      pour décider de l'accès aux zones protégées
+ *      (`/[locale]/dashboard/*`, `/parent/*`, `/admin/*`). Pour le reste,
+ *      la requête passe librement.
+ *
+ * Le middleware tourne sur Edge runtime → on importe uniquement
+ * `@eduquiz/auth/edge`. Aucun accès Prisma ici.
  */
+
+import { authConfigEdge } from '@eduquiz/auth/edge';
 import {
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
@@ -24,13 +27,20 @@ import {
   isLocale,
   type Locale,
 } from '@eduquiz/i18n';
+import NextAuth from 'next-auth';
 import { NextResponse, type NextRequest } from 'next/server';
 
 const LOCALE_COOKIE = 'NEXT_LOCALE';
 
-// Préfixes qui ne doivent jamais être préfixés par une locale.
 const PUBLIC_FILE = /\.[a-zA-Z0-9]+$/;
-const SKIP_PREFIXES = ['/api', '/_next', '/static', '/favicon.ico', '/robots.txt', '/sitemap.xml'];
+const SKIP_PREFIXES = [
+  '/api',
+  '/_next',
+  '/static',
+  '/favicon.ico',
+  '/robots.txt',
+  '/sitemap.xml',
+];
 
 export const config = {
   matcher: [
@@ -39,42 +49,60 @@ export const config = {
   ],
 };
 
-export function middleware(request: NextRequest): NextResponse {
+/**
+ * Wrapper Auth.js Edge — instancié une seule fois au boot du
+ * middleware. Expose `auth` qui est un `(req) => NextResponse | void`
+ * que l'on chaîne avec notre logique i18n.
+ */
+const { auth: authMiddleware } = NextAuth(authConfigEdge);
+
+/**
+ * Composition i18n → auth. Auth.js attend une fonction `(req, ctx)` et
+ * fournit `req.auth`. On l'enveloppe pour intercaler l'étape locale
+ * avant la décision d'accès.
+ */
+export default authMiddleware((request: NextRequest) => {
   const { pathname } = request.nextUrl;
 
-  if (SKIP_PREFIXES.some((p) => pathname.startsWith(p)) || PUBLIC_FILE.test(pathname)) {
+  // 1. Bypass des chemins techniques.
+  if (
+    SKIP_PREFIXES.some((p) => pathname.startsWith(p)) ||
+    PUBLIC_FILE.test(pathname)
+  ) {
     return NextResponse.next();
   }
 
   const segments = pathname.split('/').filter(Boolean);
   const first = segments[0];
 
-  // Cas 1 : URL déjà préfixée par une locale supportée → pass-through.
-  if (first && isLocale(first)) {
-    return NextResponse.next();
+  // 2. Locale absente → redirection vers la locale détectée.
+  if (!first || !isLocale(first)) {
+    const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
+    const acceptLanguage = request.headers.get('accept-language');
+
+    const target: Locale =
+      cookieLocale && isLocale(cookieLocale)
+        ? cookieLocale
+        : detectLocaleFromAcceptLanguage(acceptLanguage);
+
+    const url = request.nextUrl.clone();
+    url.pathname = `/${target}${pathname === '/' ? '' : pathname}`;
+
+    const response = NextResponse.redirect(url, 307);
+    response.cookies.set(LOCALE_COOKIE, target, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: 'lax',
+    });
+    return response;
   }
 
-  // Cas 2 : pas de locale → on en choisit une et on redirige.
-  const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
-  const acceptLanguage = request.headers.get('accept-language');
+  // 3. Locale présente → la décision d'accès est portée par
+  //    `authConfigEdge.callbacks.authorized`. Si ce callback retourne
+  //    `false`, Auth.js redirige automatiquement vers `pages.signIn`
+  //    en préservant l'URL d'origine via `?callbackUrl=...`.
+  return NextResponse.next();
+});
 
-  const target: Locale =
-    cookieLocale && isLocale(cookieLocale)
-      ? cookieLocale
-      : detectLocaleFromAcceptLanguage(acceptLanguage);
-
-  const url = request.nextUrl.clone();
-  url.pathname = `/${target}${pathname === '/' ? '' : pathname}`;
-
-  const response = NextResponse.redirect(url, 307);
-  // Persister le choix pour les visites suivantes.
-  response.cookies.set(LOCALE_COOKIE, target, {
-    path: '/',
-    maxAge: 60 * 60 * 24 * 365,
-    sameSite: 'lax',
-  });
-  return response;
-}
-
-// Re-export utilitaire pour les éventuelles intégrations (tests, RSC).
+// Re-export utilitaire pour les tests.
 export { LOCALE_COOKIE, SUPPORTED_LOCALES, DEFAULT_LOCALE };

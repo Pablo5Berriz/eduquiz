@@ -12,7 +12,23 @@ phases préparatoires (Phase 0 : scaffolding, Phase 1 : domaine cœur, etc.).
 
 ### Added
 
-- (à compléter au fil des PR mergées après la Phase 0)
+- **Étape 1.3 — Auth.js v5 backbone.** Nouveau paquet `@eduquiz/auth`
+  exposant la configuration Auth.js v5 en deux variantes (Node et
+  Edge-safe), l'adapter Prisma, les providers Credentials (Argon2id) et
+  Google/Apple OAuth conditionnels, ainsi que des helpers serveur
+  (rôles, mots de passe, tokens de vérification). Côté `apps/web`,
+  catch-all `/api/auth/[...nextauth]`, instanciation `auth()` Node, et
+  refonte du middleware pour composer i18n + protection des futures
+  zones `/[locale]/{dashboard,parent,admin}/*`. Sessions persistées en
+  DB côté Node (révocation immédiate, audit IP/UA), JWT côté Edge.
+  Événements `signIn`/`signOut` tracés dans `AuditLog`. Variables
+  d'environnement `AUTH_*` validées par Zod au boot.
+- **Étape 1.2 — Catalogue matières et niveaux scolaires.** Catalogue
+  étendu à dix matières du programme québécois avec détail niveau par
+  niveau et placeholders SVG. Nouvelle section « Niveaux scolaires »
+  sur la home (mini-cards) avec page détail
+  `/[locale]/niveaux/[level]` listant les matières au programme à ce
+  niveau.
 
 ## [0.0.0] — 2026-04-21
 
