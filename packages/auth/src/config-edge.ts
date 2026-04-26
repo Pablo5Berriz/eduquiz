@@ -107,15 +107,25 @@ export const authConfigEdge: NextAuthConfig = {
      * autorisé, `false` pour rediriger vers `pages.signIn`, ou un
      * `NextResponse.redirect(...)` pour cibler une autre route.
      *
-     * Logique actuelle : on protège `/[locale]/dashboard/*`, `/parent/*`,
-     * `/admin/*`. Tout le reste est public.
+     * Zones protégées :
+     *   - `/[locale]/profil(/*)`     → tout utilisateur authentifié
+     *   - `/[locale]/parametres(/*)` → tout utilisateur authentifié
+     *   - `/[locale]/dashboard(/*)`  → tout utilisateur authentifié
+     *   - `/[locale]/parent(/*)`     → rôle PARENT ou ADMIN
+     *   - `/[locale]/admin(/*)`      → rôle ADMIN
+     * Tout le reste est public.
      */
     authorized({ auth, request: { nextUrl } }) {
       const segments = nextUrl.pathname.split('/').filter(Boolean);
       // Le premier segment est la locale (validée par le middleware
       // i18n). Le second indique la zone protégée.
       const zone = segments[1];
-      const isProtected = zone === 'dashboard' || zone === 'parent' || zone === 'admin';
+      const isProtected =
+        zone === 'dashboard' ||
+        zone === 'parent' ||
+        zone === 'admin' ||
+        zone === 'profil' ||
+        zone === 'parametres';
       if (!isProtected) return true;
       if (!auth?.user) return false;
       // Zone admin : exige rôle ADMIN.

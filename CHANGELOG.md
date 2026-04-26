@@ -12,6 +12,28 @@ phases préparatoires (Phase 0 : scaffolding, Phase 1 : domaine cœur, etc.).
 
 ### Added
 
+- **Étape 1.6 — Espace authentifié minimal (écrans 29, 30, 32, 33, 37,
+  38).** Nouveau route group `(authenticated)` sous
+  `/[locale]/...` avec layout commun (header + UserMenu) qui force
+  `requireAuthenticated`. Sept routes : `/profil` (lecture), `/profil/
+  modifier` (édition), `/parametres` (index), `/parametres/compte`
+  (changement de mot de passe), `/parametres/langue` (FR/EN), `/
+  parametres/donnees` (export Loi 25), `/parametres/suppression`
+  (soft delete avec délai de grâce 30 jours). Cinq Server Actions
+  (signOutUser, updateProfile, changePassword, updateLocale,
+  requestAccountDeletion) et une Route Handler `/api/account/export`
+  qui génère le JSON immédiat avec `Content-Disposition: attachment`.
+  Sécurité Loi 25 : mot de passe actuel exigé pour changement mdp et
+  suppression, invalidation de toutes les sessions au changement de
+  mdp et à la suppression, AuditLog (PROFILE_UPDATED, AUTH_PASSWORD_RESET,
+  DATA_EXPORT_DELIVERED, DATA_DELETION_REQUESTED), DataRequest tracé
+  (EXPORT/DELETION). Soft delete : marque `User.disabledAt` + crée
+  DataRequest type=DELETION status=AWAITING_GRACE_PERIOD avec
+  graceExpiresAt à +30j, purge effective différée à un futur worker.
+  Nouveau composant `Avatar` dans `@eduquiz/ui` (gradient déterministe
+  + initiales en fallback). Middleware Auth.js Edge étendu pour
+  protéger `/profil` et `/parametres`. Changement d'email reporté à
+  un lot dédié (re-vérification, période transitoire, anti-takeover).
 - **Étape 1.5 — Connexion + reset password (écrans 16, 17, 18).**
   Trois nouvelles routes Next.js : `/[locale]/connexion` avec
   bannières contextuelles (`?verified=1`, `?reset=1`,

@@ -1273,5 +1273,132 @@
   "health": {
     "ok": "All services are healthy",
     "degraded": "One or more services are unavailable"
+  },
+  "account": {
+    "userMenu": {
+      "open": "Open menu",
+      "profile": "My profile",
+      "settings": "Settings",
+      "signOut": "Sign out"
+    },
+    "profile": {
+      "title": "My profile",
+      "fields": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "displayName": "Display name",
+        "currentGrade": "School level",
+        "preferredLocale": "Preferred language",
+        "avatarUrl": "Avatar URL",
+        "noValue": "—"
+      },
+      "editCta": "Edit my information"
+    },
+    "editProfile": {
+      "title": "Edit my profile",
+      "subtitle": "Your personal information. You can update it any time.",
+      "submit": "Save changes",
+      "submitting": "Saving…",
+      "cancel": "Cancel",
+      "success": "Profile updated.",
+      "fields": {
+        "firstNameHint": "What is your first name?",
+        "lastNameHint": "Your last name (optional).",
+        "displayNameHint": "Shown publicly (optional).",
+        "currentGradeHint": "Used to personalise suggested content.",
+        "preferredLocaleHint": "Display language for the interface and emails.",
+        "avatarUrlHint": "URL of a square image hosted elsewhere (PNG/JPG/WebP)."
+      },
+      "errors": {
+        "firstNameTooLong": "First name is too long (max 80 characters).",
+        "lastNameTooLong": "Last name is too long (max 80 characters).",
+        "displayNameTooLong": "Display name is too long (max 60 characters).",
+        "avatarUrlInvalid": "Avatar URL is not valid.",
+        "gradeInvalid": "Invalid school level.",
+        "localeInvalid": "Invalid language.",
+        "unknown": "Something went wrong. Try again in a moment."
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Manage your account, language and data.",
+      "navigation": {
+        "account": "Account",
+        "language": "Language",
+        "data": "My data",
+        "deletion": "Delete my account"
+      }
+    },
+    "changePassword": {
+      "title": "Change my password",
+      "subtitle": "Pick a strong new password. Other sessions will be signed out.",
+      "currentLabel": "Current password",
+      "newLabel": "New password",
+      "newHint": "At least 8 characters with 1 digit and 1 uppercase letter.",
+      "confirmLabel": "Confirm new password",
+      "submit": "Update",
+      "submitting": "Updating…",
+      "success": "Password updated. Other sessions have been signed out.",
+      "errors": {
+        "currentRequired": "Current password required.",
+        "currentInvalid": "Current password is incorrect.",
+        "newTooShort": "New password must be at least 8 characters.",
+        "newWeak": "New password must contain at least 1 digit and 1 uppercase letter.",
+        "newSameAsOld": "New password must differ from the current one.",
+        "mismatch": "The two passwords do not match.",
+        "unknown": "Something went wrong. Try again in a moment."
+      }
+    },
+    "language": {
+      "title": "Language",
+      "subtitle": "Pick the language used for the interface and emails.",
+      "currentLabel": "Current language",
+      "optionFr": "Français",
+      "optionEn": "English",
+      "submit": "Save",
+      "submitting": "Saving…",
+      "success": "Language saved."
+    },
+    "dataExport": {
+      "title": "My data (Law 25)",
+      "subtitle": "Under Quebec's Law 25, you can download a copy of all your data.",
+      "includes": {
+        "heading": "The export includes:",
+        "profile": "Profile information",
+        "activity": "Activity history and scores",
+        "consents": "Consent log",
+        "audit": "Audit log (actions on your account)",
+        "requests": "History of your requests (export, deletion)"
+      },
+      "formatLabel": "Format",
+      "formatJson": "JSON",
+      "downloadCta": "Download my export",
+      "note": "Download starts immediately. The file includes the data available at click time."
+    },
+    "deletion": {
+      "title": "Delete my account",
+      "subtitle": "This action immediately disables your account. Grace period: 30 days to cancel.",
+      "includes": {
+        "heading": "Deletion will erase:",
+        "profile": "Your profile and personal data",
+        "progress": "Your scores and progress",
+        "badges": "Your badges and rewards"
+      },
+      "legalNote": "Some data is kept under legal obligation (consent log, 3 years).",
+      "confirmInstruction": "To confirm, type the word DELETE in uppercase:",
+      "confirmWord": "DELETE",
+      "confirmPlaceholder": "DELETE",
+      "passwordLabel": "Current password",
+      "submit": "Delete permanently",
+      "submitting": "Deleting…",
+      "cancel": "Cancel",
+      "success": "Your account is disabled. You will be redirected.",
+      "errors": {
+        "passwordRequired": "Password required.",
+        "passwordInvalid": "Incorrect password.",
+        "mustTypeWord": "Type exactly the requested word to confirm.",
+        "unknown": "Something went wrong. Try again in a moment."
+      }
+    }
   }
 }

@@ -36,4 +36,7 @@ export type { FormFieldProps } from './components/FormField';
 export { Alert } from './components/Alert';
 export type { AlertProps, AlertVariants } from './components/Alert';
 
+export { Avatar } from './components/Avatar';
+export type { AvatarProps, AvatarVariants } from './components/Avatar';
+
 export { cn } from './utils/cn';

@@ -1273,5 +1273,132 @@
   "health": {
     "ok": "Tous les services répondent",
     "degraded": "Un ou plusieurs services sont indisponibles"
+  },
+  "account": {
+    "userMenu": {
+      "open": "Ouvrir le menu",
+      "profile": "Mon profil",
+      "settings": "Paramètres",
+      "signOut": "Me déconnecter"
+    },
+    "profile": {
+      "title": "Mon profil",
+      "fields": {
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "displayName": "Pseudo",
+        "currentGrade": "Niveau scolaire",
+        "preferredLocale": "Langue préférée",
+        "avatarUrl": "URL de l’avatar",
+        "noValue": "—"
+      },
+      "editCta": "Modifier mes informations"
+    },
+    "editProfile": {
+      "title": "Modifier mon profil",
+      "subtitle": "Tes informations personnelles. Tu peux les modifier à tout moment.",
+      "submit": "Enregistrer les modifications",
+      "submitting": "Enregistrement…",
+      "cancel": "Annuler",
+      "success": "Profil mis à jour.",
+      "fields": {
+        "firstNameHint": "Comment t’appelles-tu ?",
+        "lastNameHint": "Ton nom de famille (facultatif).",
+        "displayNameHint": "Affiché publiquement (facultatif).",
+        "currentGradeHint": "Sert à personnaliser le contenu suggéré.",
+        "preferredLocaleHint": "Langue d’affichage de l’interface et des courriels.",
+        "avatarUrlHint": "URL d’une image carrée hébergée ailleurs (PNG/JPG/WebP)."
+      },
+      "errors": {
+        "firstNameTooLong": "Le prénom est trop long (max 80 caractères).",
+        "lastNameTooLong": "Le nom est trop long (max 80 caractères).",
+        "displayNameTooLong": "Le pseudo est trop long (max 60 caractères).",
+        "avatarUrlInvalid": "L’URL de l’avatar n’est pas valide.",
+        "gradeInvalid": "Niveau scolaire invalide.",
+        "localeInvalid": "Langue invalide.",
+        "unknown": "Une erreur est survenue. Réessaie dans un instant."
+      }
+    },
+    "settings": {
+      "title": "Paramètres",
+      "subtitle": "Gère ton compte, ta langue et tes données.",
+      "navigation": {
+        "account": "Compte",
+        "language": "Langue",
+        "data": "Mes données",
+        "deletion": "Supprimer mon compte"
+      }
+    },
+    "changePassword": {
+      "title": "Changer mon mot de passe",
+      "subtitle": "Choisis un nouveau mot de passe fort. Tu seras déconnecté de tes autres appareils.",
+      "currentLabel": "Mot de passe actuel",
+      "newLabel": "Nouveau mot de passe",
+      "newHint": "8 caractères minimum, dont 1 chiffre et 1 majuscule.",
+      "confirmLabel": "Confirme le nouveau mot de passe",
+      "submit": "Mettre à jour",
+      "submitting": "Mise à jour…",
+      "success": "Mot de passe mis à jour. Tes autres sessions ont été fermées.",
+      "errors": {
+        "currentRequired": "Mot de passe actuel requis.",
+        "currentInvalid": "Mot de passe actuel incorrect.",
+        "newTooShort": "Le nouveau mot de passe doit faire au moins 8 caractères.",
+        "newWeak": "Le nouveau mot de passe doit contenir au moins 1 chiffre et 1 majuscule.",
+        "newSameAsOld": "Le nouveau mot de passe doit être différent de l’actuel.",
+        "mismatch": "Les deux mots de passe ne correspondent pas.",
+        "unknown": "Une erreur est survenue. Réessaie dans un instant."
+      }
+    },
+    "language": {
+      "title": "Langue",
+      "subtitle": "Choisis la langue d’affichage de l’interface et des courriels.",
+      "currentLabel": "Langue actuelle",
+      "optionFr": "Français",
+      "optionEn": "English",
+      "submit": "Enregistrer",
+      "submitting": "Enregistrement…",
+      "success": "Langue enregistrée."
+    },
+    "dataExport": {
+      "title": "Mes données (Loi 25)",
+      "subtitle": "Conformément à la Loi 25 du Québec, tu peux télécharger une copie de toutes tes données.",
+      "includes": {
+        "heading": "L’export inclut :",
+        "profile": "Informations de profil",
+        "activity": "Historique d’activités et de scores",
+        "consents": "Journal de consentements",
+        "audit": "Journal d’audit (actions sur ton compte)",
+        "requests": "Historique de tes demandes (export, suppression)"
+      },
+      "formatLabel": "Format",
+      "formatJson": "JSON",
+      "downloadCta": "Télécharger mon export",
+      "note": "Le téléchargement démarre immédiatement. Le fichier inclut les données présentes au moment du clic."
+    },
+    "deletion": {
+      "title": "Supprimer mon compte",
+      "subtitle": "Cette action désactive immédiatement ton compte. Délai de grâce : 30 jours pour annuler.",
+      "includes": {
+        "heading": "La suppression effacera :",
+        "profile": "Ton profil et tes données personnelles",
+        "progress": "Tes scores et tes progressions",
+        "badges": "Tes badges et récompenses"
+      },
+      "legalNote": "Certaines données sont conservées par obligation légale (journal de consentement, 3 ans).",
+      "confirmInstruction": "Pour confirmer, tape le mot SUPPRIMER en majuscules :",
+      "confirmWord": "SUPPRIMER",
+      "confirmPlaceholder": "SUPPRIMER",
+      "passwordLabel": "Mot de passe actuel",
+      "submit": "Supprimer définitivement",
+      "submitting": "Suppression…",
+      "cancel": "Annuler",
+      "success": "Ton compte est désactivé. Tu vas être redirigé.",
+      "errors": {
+        "passwordRequired": "Mot de passe requis.",
+        "passwordInvalid": "Mot de passe incorrect.",
+        "mustTypeWord": "Tape exactement le mot demandé pour confirmer.",
+        "unknown": "Une erreur est survenue. Réessaie dans un instant."
+      }
+    }
   }
 }
