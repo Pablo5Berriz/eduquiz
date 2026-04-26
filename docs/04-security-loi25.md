@@ -11,6 +11,46 @@ Il se veut opérationnel : chaque obligation est rattachée à un contrôle
 technique ou organisationnel concret et à un emplacement dans le code ou la
 documentation.
 
+## État de l'implémentation V1 (v0.1.0)
+
+Récapitulatif des contrôles déjà livrés au tag `v0.1.0` (avril 2026,
+Phase 1) :
+
+| Contrôle | Statut | Emplacement |
+| --- | --- | --- |
+| Consentement à l'inscription (CGU + Politique + Marketing optionnel) | ✅ | `apps/web/src/lib/auth/actions/register.ts` → ConsentRecord ×2/3 en transaction |
+| Hashing Argon2id (OWASP 2024) avec re-hash automatique | ✅ | `packages/auth/src/password.ts` |
+| Sessions DB révocables (table `sessions`) | ✅ | `@eduquiz/auth/config.ts` (strategy=database) |
+| Audit append-only (signin, signout, failed, password reset, profile update, export, deletion) | ✅ | `AuditLog` + triggers Postgres bloquant UPDATE/DELETE |
+| Anti-énumération sur connexion ET sur reset-password | ✅ | Messages génériques côté UI, raison réelle dans `AuditLog.AUTH_FAILED.payload.reason` |
+| Rate limiting Redis sur 5 surfaces sensibles | ✅ | `@eduquiz/rate-limit` + `apps/web/src/lib/auth/rate-limit.ts` |
+| Refus de connexion si compte désactivé/supprimé/email non vérifié | ✅ | `packages/auth/src/providers/credentials.ts` |
+| Invalidation de toutes les sessions au reset password / changement mdp | ✅ | `forgot-password.ts` et `account.ts` (DELETE sessions en transaction) |
+| Mot de passe actuel exigé pour : changement mdp, suppression compte | ✅ | `account.ts` (`verifyPassword` avant action) |
+| Soft delete avec délai de grâce 30 jours | ✅ | `User.disabledAt` + `DataRequest{kind:DELETION, status:AWAITING_GRACE_PERIOD, graceExpiresAt:+30j}` |
+| Export Loi 25 (article 27) — JSON immédiat | ✅ | `GET /api/account/export` (Profile, User, ConsentRecord, AuditLog filtré, DataRequest) |
+| Tracé des demandes de droits (export/suppression) | ✅ | Table `DataRequest` |
+| RPRP désigné et joignable | ✅ | Solutions Infos, `solutionsinfos2023@gmail.com` (cf. README + page `/contact`) |
+| Cookies sécurisés (`__Secure-eduquiz` en prod, HttpOnly, SameSite=Lax) | ✅ | `@eduquiz/auth/config-edge.ts` |
+| Validation env stricte au boot (AUTH_*, SMTP_*, REDIS_URL) | ✅ | Schémas Zod dans chaque paquet |
+| Logger structuré JSONL (niveau via LOG_LEVEL) | ✅ | `apps/web/src/lib/logger.ts` |
+| Request ID propagé (corrélation logs ↔ AuditLog) | ✅ | Middleware Next.js |
+| Healthcheck combiné app + DB (200/503) | ✅ | `GET /api/health` |
+
+**Reporté à des phases ultérieures** :
+
+- Worker cron de purge effective post-30 jours (les `DataRequest` en
+  `AWAITING_GRACE_PERIOD` sont créés mais pas encore exécutés)
+- Export en arrière-plan (V1 = synchrone, à passer en background si la
+  taille des données devient problématique)
+- Inscription parent et mineur (Lots 10/11) avec consentement parental
+  vérifiable
+- Notifications, paramètres confidentialité fine, accessibilité (écrans
+  34/35/36 — Lots ultérieurs)
+- Tests d'intégration Postgres (Testcontainers) et E2E Playwright
+- 2FA, magic link, WebAuthn (Phase 2)
+- Registre d'incidents (`IncidentRegister`) avec workflow CAI
+
 ## Cadre légal applicable
 
 **Loi 25 (Québec)** — obligatoire. EduQuiz héberge les données sur le territoire

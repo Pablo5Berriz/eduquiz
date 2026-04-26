@@ -10,9 +10,126 @@ phases préparatoires (Phase 0 : scaffolding, Phase 1 : domaine cœur, etc.).
 
 ## [Unreleased]
 
-### Added
+_(rien pour le moment — voir les phases 2+ dans `docs/08-delivery-phases.md`)_
 
-- **Étape 1.7 — Tests, RLS wrapper, observabilité.** Nouveau paquet
+## [0.1.0] — 2026-04-26
+
+### Added — Phase 1 : vitrine publique, authentification, espace authentifié, observabilité
+
+**Étape 1.1 — Layout web partagé + i18n dynamique FR/EN.** Middleware de
+détection de locale (cookie `NEXT_LOCALE` → `Accept-Language` → `fr`),
+préfixe `/[locale]/` systématique, header bilingue avec `LocaleSwitcher`,
+footer avec mentions légales, layout racine + dictionnaires FR/EN typés
+(`Messages = typeof frMessages` pour symétrie forcée).
+
+**Étape 1.2 — Pages vitrine publiques (écrans 1-14).** Home, Fonctionnalités,
+Matières (catalogue de 10 matières du programme québécois avec détail
+niveau par niveau et placeholders SVG), Niveaux scolaires (9 mini-cards
+P3 → S5 avec page détail listant les matières au programme), Tarifs, FAQ,
+Blog (squelette), Contact, À propos, Témoignages, Conditions, Confidentialité,
+Cookies, Loi 25, Accessibilité.
+
+**Étape 1.3 — Auth.js v5 backbone.** Nouveau paquet `@eduquiz/auth`
+exposant la configuration Auth.js v5 en deux variantes (Node et Edge-safe),
+l'adapter Prisma, les providers Credentials (Argon2id) et Google/Apple
+OAuth conditionnels, ainsi que des helpers serveur (rôles, mots de passe,
+tokens de vérification). Côté `apps/web`, catch-all `/api/auth/[...nextauth]`,
+instanciation `auth()` Node, et refonte du middleware pour composer i18n +
+protection des futures zones `/[locale]/{dashboard,parent,admin}/*`.
+Sessions persistées en DB côté Node (révocation immédiate, audit IP/UA),
+JWT côté Edge (lecture middleware sans Prisma). Événements `signIn`/
+`signOut` tracés dans `AuditLog`. Variables d'environnement `AUTH_*`
+validées par Zod au boot.
+
+**Étape 1.4 — Flux d'inscription adulte (écrans 15, 19, 22, 23).** Nouveau
+paquet `@eduquiz/email` (nodemailer + templates HTML bilingues : verification,
+welcome). Composants UI ajoutés à `@eduquiz/ui` (`Input`, `PasswordInput`,
+`Checkbox`, `FormField`). Migration Prisma
+`20260425_extend_audit_event_kind` étendant `AuditEventKind` avec
+`AUTH_USER_CREATED` et `AUTH_VERIFY_EMAIL`. Quatre routes Next + trois
+Server Actions (`registerAdult`, `resendVerification`,
+`confirmVerification`). Validation Zod stricte (email, complexité mot de
+passe ≥ 8 + 1 chiffre + 1 majuscule, check majorité 18 ans, CGU
+obligatoire). Hash Argon2id + transaction Prisma User+Profile+ConsentRecord
+(TERMS_ACCEPTED, PRIVACY_ACCEPTED, MARKETING_OPTED_IN si choisi). Aucune
+auto-connexion — vérification email obligatoire avant login. OAuth
+Google/Apple rendus conditionnellement (env configurés).
+
+**Étape 1.5 — Connexion + reset password (écrans 16, 17, 18).** Trois
+nouvelles routes Next.js : `/[locale]/connexion` avec bannières
+contextuelles (`?verified=1`, `?reset=1`, `?session=expired`), OAuth
+Google/Apple conditionnels, formulaire Credentials sécurisé via Server
+Action `signInAdult` (pattern Auth.js v5 `try/catch AuthError`) ;
+`/[locale]/mot-de-passe-oublie` qui appelle `requestPasswordReset`
+(anti-énumération, toujours `ok: true` côté UI) ;
+`/[locale]/mot-de-passe-oublie/reinitialiser/[token]` qui inspecte le
+token côté Server Component et délègue la consommation à
+`completePasswordReset` (transaction Prisma : update passwordHash +
+suppression de toutes les sessions actives + AuditLog AUTH_PASSWORD_RESET).
+Nouveau template email `buildResetPasswordEmail` (FR/EN, validité 1 h).
+Nouveau composant `Alert` dans `@eduquiz/ui` (variants
+info/success/warning/danger). Le provider Credentials de `@eduquiz/auth`
+trace désormais les échecs (`AUTH_FAILED`) avec une raison interne
+(unknown_user/disabled/no_password/unverified/bad_password) sans jamais
+la révéler à l'utilisateur (anti-énumération maintenue). Aucune option
+« Se souvenir de moi » : la stratégie session=database donne déjà 30
+jours par défaut.
+
+**Étape 1.6 — Espace authentifié minimal (écrans 29, 30, 32, 33, 37, 38).**
+Nouveau route group `(authenticated)` sous `/[locale]/...` avec layout
+commun (header + UserMenu) qui force `requireAuthenticated`. Sept routes :
+`/profil` (lecture), `/profil/modifier` (édition), `/parametres` (index),
+`/parametres/compte` (changement de mot de passe), `/parametres/langue`
+(FR/EN), `/parametres/donnees` (export Loi 25), `/parametres/suppression`
+(soft delete avec délai de grâce 30 jours). Cinq Server Actions
+(signOutUser, updateProfile, changePassword, updateLocale,
+requestAccountDeletion) et une Route Handler `/api/account/export` qui
+génère le JSON immédiat avec `Content-Disposition: attachment`. Sécurité
+Loi 25 : mot de passe actuel exigé pour changement mdp et suppression,
+invalidation de toutes les sessions au changement de mdp et à la
+suppression, AuditLog (PROFILE_UPDATED, AUTH_PASSWORD_RESET,
+DATA_EXPORT_DELIVERED, DATA_DELETION_REQUESTED), DataRequest tracé
+(EXPORT/DELETION). Nouveau composant `Avatar` dans `@eduquiz/ui`
+(gradient déterministe + initiales en fallback). Middleware Auth.js Edge
+étendu pour protéger `/profil` et `/parametres`. Changement d'email
+reporté à un lot dédié.
+
+**Étape 1.7 — Tests, RLS wrapper, observabilité.** Nouveau paquet
+`@eduquiz/rate-limit` (ioredis + bucket fenêtre fixe atomique via
+`MULTI INCR + PEXPIRE NX`, mode no-op si `REDIS_URL` absent, fail-open en
+cas de panne Redis). Application sur cinq Server Actions sensibles : signin
+(5/min/IP+email), register (3/15min/IP), forgot-password (3/15min/IP),
+resend-verification (3/15min/email), account-deletion (3/jour/userId). Sur
+dépassement : message générique anti-énumération. Logger structuré
+minimaliste sans dépendance externe (`apps/web/src/lib/logger.ts` — JSONL,
+niveau via `LOG_LEVEL`). Middleware Next.js : génération/propagation de
+`x-request-id` (8 octets hex), repris en réponse, visible dans `headers()`
+côté Server Components. Helper `withAuthenticatedDb()` qui combine
+`requireApiUser` + `withUser` pour ouvrir une transaction RLS scopée —
+pattern documenté pour les actions futures qui toucheront à des données
+partagées. Healthcheck `/api/health` enrichi (uptime, status combiné app+DB,
+503 si dépendance down). Tests unit ajoutés : `password.test.ts`,
+`permissions.test.ts`, `templates/verification.test.ts`,
+`rate-limit/limit.test.ts`. i18n : clé `rateLimited` ajoutée dans toutes
+les sections d'erreur concernées + bloc partagé `auth.rateLimit.tooMany`.
+`LOG_LEVEL` ajouté à `.env.example`.
+
+**Étape 1.8 — Documentation et release.** Mise à jour de
+`docs/01-architecture.md` (section Auth.js détaillée, paquets `auth`,
+`email`, `rate-limit` ajoutés au diagramme), `docs/04-security-loi25.md`
+(matrice « État de l'implémentation V1 » avec 17 contrôles livrés et
+liste explicite des contrôles reportés), `README.md` racine (statut
+Phase 1 + parcours d'auth livré + structure monorepo enrichie). Bump du
+`package.json` racine à `0.1.0`. Tag annoté `v0.1.0`.
+
+### Notes de migration
+
+Aucune action manuelle requise pour passer de la phase 0 à `v0.1.0`. La
+migration Prisma `20260425_extend_audit_event_kind` est idempotente et
+sera appliquée automatiquement au prochain `pnpm --filter @eduquiz/db
+db:migrate:deploy`. Les nouvelles variables d'environnement
+(`AUTH_TRUST_HOST`, `AUTH_DEBUG`, `LOG_LEVEL`) ont des valeurs par défaut
+sûres documentées dans `.env.example`. Nouveau paquet
   `@eduquiz/rate-limit` (ioredis + bucket fenêtre fixe atomique via
   `MULTI INCR + PEXPIRE NX`, mode no-op si `REDIS_URL` absent,
   fail-open en cas de panne Redis). Application sur cinq Server

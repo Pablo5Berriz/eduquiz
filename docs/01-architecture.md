@@ -85,10 +85,16 @@ eduquiz/
 │   ├── web/          Next.js 14 (App Router, output: standalone)
 │   └── mobile/       Expo SDK 52 (Expo Router v4)
 ├── packages/
-│   ├── ui/           Composants partagés (shadcn/ui + NativeWind)
+│   ├── ui/           Composants partagés (tailwind-variants + NativeWind)
 │   ├── db/           Prisma + RLS + PrismaClient avec context
+│   ├── auth/         Auth.js v5 backbone (config Edge/Node, providers,
+│   │                 helpers password/tokens/permissions)
+│   ├── email/        nodemailer + templates HTML bilingues (verification,
+│   │                 welcome, reset-password)
+│   ├── rate-limit/   Bucket fenêtre fixe Redis (ioredis), mode no-op si
+│   │                 REDIS_URL absent, fail-open en cas de panne
 │   ├── types/        Types de domaine (indépendants de Prisma)
-│   ├── i18n/         Dictionnaires FR/EN + helpers (t, formatDate)
+│   ├── i18n/         Dictionnaires FR/EN + helpers (t, tf, tList)
 │   ├── utils/        Fonctions pures (slug, age calc, scoring)
 │   └── config/       ESLint, Prettier, TypeScript, Tailwind partagés
 ├── infra/
@@ -105,6 +111,9 @@ flowchart TB
   utils[utils]
   i18n[i18n]
   db[db]
+  auth[auth]
+  email[email]
+  rate[rate-limit]
   ui[ui]
   web[apps/web]
   mobile[apps/mobile]
@@ -114,7 +123,13 @@ flowchart TB
   db --> types
   ui --> i18n
   ui --> utils
+  auth --> db
+  auth --> i18n
+  email --> i18n
   web --> db
+  web --> auth
+  web --> email
+  web --> rate
   web --> ui
   web --> i18n
   web --> utils
@@ -175,26 +190,110 @@ Quelques invariants appliqués à **chaque** requête authentifiée :
 
 ## Authentification et sessions
 
-Auth.js v5 (NextAuth) gère l'échange de credentials. Trois moyens d'entrée :
+État livré en **Phase 1 (v0.1.0)** — Auth.js v5 (NextAuth) avec une
+architecture en deux configs pour respecter la contrainte Edge runtime du
+middleware Next.js :
 
-**Magic link par courriel.** Saisie de l'email → `POST /api/auth/signin/email` →
-token éphémère inséré dans `verification_tokens` → Resend envoie le message avec
-le lien signé. Clic du lien → callback Next → échange contre une session →
-cookie HttpOnly + Secure + SameSite=Lax. C'est le chemin privilégié pour les
-apprenants mineurs et pour les familles qui n'ont pas de mot de passe robuste.
+- `@eduquiz/auth/config.ts` (Node) : adapter Prisma + provider Credentials
+  (Argon2id) + providers Google et Apple OAuth conditionnels + events
+  `signIn` / `signOut` qui logent dans `AuditLog`.
+- `@eduquiz/auth/edge.ts` (Edge-safe) : callbacks JWT/session + autorisation
+  des zones protégées, sans Prisma ni Argon2 (incompatibles avec Edge).
 
-**OAuth Google / Apple.** Les deux fournisseurs sont câblés via Auth.js. Après
-échange du code, on persiste le `accounts` lié au `User`. Le premier login crée
-automatiquement un `Profile` partiellement rempli, à compléter dans l'écran
-post-inscription (date de naissance obligatoire, d'où le calcul mineur /
-adulte).
+Trois moyens d'entrée :
 
-**Email + mot de passe.** Conservé pour les comptes créés au lancement. Les mots
-de passe sont hashés en Argon2id (paramètres Auth.js v5 par défaut) et stockés
-dans `users.password_hash`. Cette surface sera retirée ou durcie (2FA) en Phase
-2 si les métriques de compromission grimpent.
+**Email + mot de passe (Credentials).** Surface principale en V1. Mots de
+passe hashés en Argon2id avec les paramètres OWASP 2024 (`m=19456 KiB`,
+`t=2`, `p=1`). Re-hash automatique au login si les paramètres deviennent
+obsolètes. Refus de connexion si email non vérifié, compte désactivé
+(`disabledAt`) ou supprimé (`deletedAt`). Les échecs sont tracés dans
+`AuditLog.AUTH_FAILED` avec une raison interne (`unknown_user` /
+`disabled` / `no_password` / `unverified` / `bad_password`) jamais
+révélée à l'utilisateur (anti-énumération maintenue).
 
-Côté session, la stratégie est **database + cache** :
+**OAuth Google / Apple.** Câblés via Auth.js, **conditionnels** : actifs
+seulement si les variables `AUTH_GOOGLE_ID/SECRET` ou `AUTH_APPLE_ID/SECRET`
+sont renseignées. Sinon les boutons OAuth sont absents des écrans de
+connexion / inscription (pas de chemin mort vers une erreur). Lors d'un
+premier OAuth login, l'adapter crée automatiquement la `User` + un `Account`
+lié.
+
+**Magic link par courriel.** Préparé via les helpers `createToken` /
+`consumeToken` (`@eduquiz/auth/tokens`) mais le provider Email d'Auth.js
+n'est pas activé en V1. Cible Phase 2.
+
+Côté session, la stratégie est **DB côté Node, JWT côté Edge** :
+
+- **Node (signin/signout réel)** : sessions persistées dans la table
+  `sessions` (révocation immédiate, audit IP/user-agent, cohérence avec
+  RLS). TTL 30 jours, refresh quotidien.
+- **Edge (middleware)** : lit un JWT signé dans le cookie pour ne pas
+  toucher à Prisma. Conséquence : un changement de rôle prend effet au
+  prochain refresh JWT (≤ 24 h) ou à la prochaine connexion.
+
+Cookies : `__Secure-eduquiz.session-token` en prod (`Secure`, `HttpOnly`,
+`SameSite=Lax`).
+
+**Flux livrés en Phase 1 :**
+
+| Écran | Route | Contenu |
+| --- | --- | --- |
+| 15 | `/[locale]/inscription` | Sélecteur de type (adulte actif, parent/mineur en « Bientôt disponible ») |
+| 19 | `/[locale]/inscription/adulte` | Formulaire complet, validation Zod, OAuth conditionnels |
+| 22 | `/[locale]/verification-email` | Page d'attente avec bouton renvoi cooldown 60s |
+| 23 | `/[locale]/verification-email/confirme/[token]` | Confirme l'email (succès / expiré / invalide) |
+| 16 | `/[locale]/connexion` | Credentials + OAuth, bannières contextuelles `?verified` `?reset` `?session=expired` |
+| 17 | `/[locale]/mot-de-passe-oublie` | Demande lien reset, anti-énumération |
+| 18 | `/[locale]/mot-de-passe-oublie/reinitialiser/[token]` | Nouveau mdp + confirmation, invalide toutes les sessions |
+| 29 | `/[locale]/profil` | Vue lecture seule du profil |
+| 30 | `/[locale]/profil/modifier` | Édition profil (firstName, lastName, displayName, currentGrade, preferredLocale, avatarUrl) |
+| 32 | `/[locale]/parametres/compte` | Changement mot de passe (changement email reporté) |
+| 33 | `/[locale]/parametres/langue` | Toggle FR/EN persisté |
+| 37 | `/[locale]/parametres/donnees` | Export Loi 25 via `/api/account/export` (JSON immédiat) |
+| 38 | `/[locale]/parametres/suppression` | Soft delete avec délai de grâce 30 jours |
+
+**Sécurité Loi 25 livrée :**
+
+- `ConsentRecord` créé en transaction à l'inscription (TERMS_ACCEPTED,
+  PRIVACY_ACCEPTED, MARKETING_OPTED_IN si choisi)
+- Toutes les actions sensibles tracées dans `AuditLog`
+  (`AUTH_USER_CREATED`, `AUTH_VERIFY_EMAIL`, `AUTH_SIGNIN`, `AUTH_SIGNOUT`,
+  `AUTH_FAILED`, `AUTH_PASSWORD_RESET`, `PROFILE_UPDATED`,
+  `DATA_EXPORT_DELIVERED`, `DATA_DELETION_REQUESTED`)
+- Soft delete : `disabledAt` empêche immédiatement le login, `DataRequest`
+  tracé avec `graceExpiresAt` à +30j, purge effective différée à un
+  worker cron à venir
+- Anti-énumération sur connexion (message générique
+  « identifiants invalides ») et sur reset password (toujours `ok:true`
+  côté UI)
+- Mot de passe actuel exigé pour : changement de mdp, suppression de compte
+- Invalidation de toutes les sessions au reset password et au changement
+  de mdp
+
+**Rate limiting Redis** (`@eduquiz/rate-limit`) — bucket fenêtre fixe via
+`MULTI INCR + PEXPIRE NX`, mode no-op si `REDIS_URL` absent, fail-open en
+cas de panne. Quotas livrés :
+
+| Action | Quota |
+| --- | --- |
+| `signIn` | 5 / minute / IP+email |
+| `register` | 3 / 15 minutes / IP |
+| `forgot-password` | 3 / 15 minutes / IP |
+| `resend-verification` | 3 / 15 minutes / email |
+| `account-deletion` | 3 / jour / userId |
+
+Sur dépassement : `{ ok: false, fieldErrors: { form: 'rateLimited' } }`,
+message générique côté UI (l'anti-énumération reste préservée).
+
+**Helper RLS** `withAuthenticatedDb()` (`apps/web/src/lib/auth/rls.ts`)
+combine `requireApiUser()` + `withUser({ userId, role })` de `@eduquiz/db`.
+Pattern documenté pour les Server Actions futures qui toucheront à des
+données partagées (Lots 5+). En Phase 1, les actions opèrent sur le
+compte propre (User/Profile/Account/Session) qui ne sont pas couverts
+par les politiques RLS — un `prisma` direct suffit.
+
+Diagramme historique de la stratégie session « database + cache » prévue
+pour Phase 2 (Redis pour réduire le hit DB par requête) :
 
 ```mermaid
 sequenceDiagram

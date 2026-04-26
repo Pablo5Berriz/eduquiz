@@ -5,9 +5,25 @@
 Plateforme éducative bilingue FR/EN pour élèves québécois du Primaire 3 à la
 Secondaire 5. Mode libre uniquement (B2C).
 
-Monorepo Turborepo + pnpm workspaces, Node 22 LTS, TypeScript strict. Phase 0
-(scaffolding et fondations techniques) terminée le 2026-04-21 ; voir
-[`CHANGELOG.md`](./CHANGELOG.md).
+Monorepo Turborepo + pnpm workspaces, Node 22 LTS, TypeScript strict.
+
+- **Phase 0** (scaffolding et fondations techniques) terminée le 2026-04-21.
+- **Phase 1** (vitrine publique + auth + espace authentifié + observabilité)
+  terminée le 2026-04-26 — tag [`v0.1.0`](./CHANGELOG.md).
+
+État livré au tag `v0.1.0` :
+
+- Vitrine publique bilingue (38 écrans : home, fonctionnalités, 10 matières,
+  9 niveaux scolaires, tarifs, FAQ, blog, contact, pages légales)
+- Inscription adulte avec vérification d'email (Argon2id, OWASP 2024)
+- Connexion (Credentials + OAuth Google/Apple conditionnels), mot de passe
+  oublié, réinitialisation
+- Espace authentifié : profil, édition profil, changement mot de passe,
+  paramètre langue, export Loi 25, suppression de compte (soft delete +
+  délai de grâce 30 jours)
+- Audit complet (`AuditLog` append-only) + RLS prêt + rate limiting Redis
+- Logger structuré JSONL + propagation `x-request-id` + healthcheck
+  `/api/health` (app + DB)
 
 ## Structure du monorepo
 
@@ -15,10 +31,13 @@ Monorepo Turborepo + pnpm workspaces, Node 22 LTS, TypeScript strict. Phase 0
 eduquiz/
 ├── apps/
 │   ├── web/          # Application Next.js 14 (vitrine, app, admin)
-│   └── mobile/       # Application Expo SDK 52
+│   └── mobile/       # Application Expo SDK 52 (squelette)
 ├── packages/
-│   ├── ui/           # Composants React partagés (shadcn + NativeWind)
+│   ├── ui/           # Composants React partagés (tailwind-variants)
 │   ├── db/           # Schéma Prisma + client PostgreSQL + RLS
+│   ├── auth/         # Auth.js v5 backbone (split Edge/Node)
+│   ├── email/        # nodemailer + templates HTML bilingues
+│   ├── rate-limit/   # Bucket fenêtre fixe Redis (mode no-op si absent)
 │   ├── config/       # Configs partagées (TS, ESLint, Prettier, Tailwind)
 │   ├── i18n/         # Traductions FR/EN (FR par défaut)
 │   ├── types/        # Types TypeScript de domaine
