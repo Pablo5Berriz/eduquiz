@@ -17,6 +17,8 @@ import { consumeToken, createToken } from '@eduquiz/auth/tokens';
 import { AuditEventKind, prisma } from '@eduquiz/db';
 import { buildVerificationEmail, buildWelcomeEmail, sendEmail } from '@eduquiz/email';
 
+import { logger } from '../../logger';
+import { checkRateLimit } from '../rate-limit';
 import { getCanonicalAuthUrl } from '../url';
 
 export type ResendResult =
@@ -29,6 +31,14 @@ export async function resendVerification(input: {
 }): Promise<ResendResult> {
   const email = input.email.trim().toLowerCase();
   if (!email) return { ok: false, reason: 'unknown' };
+
+  // Rate limit par email — préserve l'anti-énumération en retournant
+  // toujours `ok: true` côté UI (le caller verra un cooldown identique).
+  const limited = await checkRateLimit({ bucket: 'resendVerification', key: email });
+  if (!limited.allowed) {
+    logger.warn('auth.resend_verification.rate_limited', { email });
+    return { ok: true };
+  }
 
   // On ne révèle pas si le compte existe : on retourne toujours `ok:true`
   // si l'email a un format valide. On envoie l'email seulement si le

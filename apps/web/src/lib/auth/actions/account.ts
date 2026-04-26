@@ -23,6 +23,8 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 import { signOut as signOutAuth } from '../../../auth';
+import { logger } from '../../logger';
+import { checkRateLimit } from '../rate-limit';
 import { requireApiUser } from '../server';
 
 // ─── signOutUser ─────────────────────────────────────────────────────
@@ -268,6 +270,7 @@ export type DeletionFieldErrorCode =
   | 'passwordRequired'
   | 'passwordInvalid'
   | 'mustTypeWord'
+  | 'rateLimited'
   | 'unknown';
 
 export type RequestAccountDeletionResult =
@@ -281,6 +284,15 @@ export async function requestAccountDeletion(
   input: RequestAccountDeletionInput,
 ): Promise<RequestAccountDeletionResult> {
   const sessionUser = await requireApiUser();
+
+  // Rate limit par utilisateur (3 tentatives par jour) — on bloque
+  // un attaquant qui aurait volé une session active de bombarder
+  // la suppression à coups de mauvais mot de passe.
+  const limited = await checkRateLimit({ bucket: 'accountDeletion', key: sessionUser.id });
+  if (!limited.allowed) {
+    logger.warn('account.deletion.rate_limited', { userId: sessionUser.id });
+    return { ok: false, fieldErrors: { form: 'rateLimited' } };
+  }
 
   // Refus prophylactique : un ADMIN ne peut pas se supprimer via cette
   // route en V1 (évite les erreurs irréversibles). À traiter par un

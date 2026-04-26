@@ -25,6 +25,8 @@ import { AuditEventKind, ConsentEventKind, Locale, UserRole, prisma } from '@edu
 import { buildVerificationEmail, sendEmail } from '@eduquiz/email';
 import { z } from 'zod';
 
+import { logger } from '../../logger';
+import { checkRateLimit, currentClientIp } from '../rate-limit';
 import { getCanonicalAuthUrl } from '../url';
 
 /** Code champ → clé i18n d'erreur dans `auth.signup.adult.errors`. */
@@ -36,6 +38,7 @@ export type SignupFieldErrorCode =
   | 'birthDateInvalid'
   | 'notAdult'
   | 'termsRequired'
+  | 'rateLimited'
   | 'unknown';
 
 export interface RegisterAdultInput {
@@ -80,6 +83,14 @@ function ageInYears(birthDate: Date, today: Date = new Date()): number {
 }
 
 export async function registerAdult(input: RegisterAdultInput): Promise<RegisterAdultResult> {
+  // 0. Rate limit IP (anti spam d'inscription).
+  const ip = currentClientIp();
+  const limited = await checkRateLimit({ bucket: 'register', key: ip });
+  if (!limited.allowed) {
+    logger.warn('auth.register.rate_limited', { ip });
+    return { ok: false, fieldErrors: { form: 'rateLimited' } };
+  }
+
   // 1. Validation Zod
   const parsed = inputSchema.safeParse(input);
   if (!parsed.success) {

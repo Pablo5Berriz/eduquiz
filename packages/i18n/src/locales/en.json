@@ -86,7 +86,8 @@
           "birthDateInvalid": "Invalid date of birth.",
           "notAdult": "Adult signup requires being 18 years old or above.",
           "termsRequired": "You must accept the Terms and Privacy Policy.",
-          "unknown": "Something went wrong. Please try again in a moment."
+          "unknown": "Something went wrong. Please try again in a moment.",
+          "rateLimited": "Too many recent signups from this address. Try again in a few minutes."
         }
       }
     },
@@ -140,7 +141,8 @@
         "invalidCredentials": "Invalid credentials.",
         "accountDisabled": "This account is no longer active. Contact support.",
         "unverified": "Your address has not been verified yet. Check your inbox.",
-        "unknown": "Something went wrong. Try again in a moment."
+        "unknown": "Something went wrong. Try again in a moment.",
+        "rateLimited": "Too many attempts. Please wait a few minutes before retrying."
       }
     },
     "forgotPassword": {
@@ -155,7 +157,8 @@
       "backToSignIn": "Back to sign in",
       "errors": {
         "emailInvalid": "Invalid email address.",
-        "unknown": "Something went wrong. Try again in a moment."
+        "unknown": "Something went wrong. Try again in a moment.",
+        "rateLimited": "Too many recent requests. Try again in a few minutes."
       }
     },
     "resetPassword": {
@@ -188,8 +191,12 @@
         "passwordMismatch": "The two passwords do not match.",
         "tokenExpired": "This link has expired.",
         "tokenInvalid": "This link is not valid.",
-        "unknown": "Something went wrong. Try again in a moment."
+        "unknown": "Something went wrong. Try again in a moment.",
+        "rateLimited": "Too many attempts. Try again later."
       }
+    },
+    "rateLimit": {
+      "tooMany": "Too many attempts. Try again later."
     }
   },
   "footer": {
@@ -1397,7 +1404,8 @@
         "passwordRequired": "Password required.",
         "passwordInvalid": "Incorrect password.",
         "mustTypeWord": "Type exactly the requested word to confirm.",
-        "unknown": "Something went wrong. Try again in a moment."
+        "unknown": "Something went wrong. Try again in a moment.",
+        "rateLimited": "Too many attempts. Try again tomorrow."
       }
     }
   }

@@ -12,6 +12,27 @@ phases préparatoires (Phase 0 : scaffolding, Phase 1 : domaine cœur, etc.).
 
 ### Added
 
+- **Étape 1.7 — Tests, RLS wrapper, observabilité.** Nouveau paquet
+  `@eduquiz/rate-limit` (ioredis + bucket fenêtre fixe atomique via
+  `MULTI INCR + PEXPIRE NX`, mode no-op si `REDIS_URL` absent,
+  fail-open en cas de panne Redis). Application sur cinq Server
+  Actions sensibles : signin (5/min/IP+email), register (3/15min/IP),
+  forgot-password (3/15min/IP), resend-verification (3/15min/email),
+  account-deletion (3/jour/userId). Sur dépassement : message
+  générique anti-énumération. Logger structuré minimaliste sans
+  dépendance externe (`apps/web/src/lib/logger.ts` — JSONL,
+  niveau via `LOG_LEVEL`). Middleware Next.js : génération/
+  propagation de `x-request-id` (8 octets hex), repris en réponse,
+  visible dans `headers()` côté Server Components. Helper
+  `withAuthenticatedDb()` qui combine `requireApiUser` + `withUser`
+  pour ouvrir une transaction RLS scopée — pattern documenté pour
+  les actions futures qui toucheront à des données partagées.
+  Healthcheck `/api/health` enrichi (uptime, status combiné app+DB,
+  503 si dépendance down). Tests unit ajoutés : `password.test.ts`,
+  `permissions.test.ts`, `templates/verification.test.ts`,
+  `rate-limit/limit.test.ts`. i18n : clé `rateLimited` ajoutée dans
+  toutes les sections d'erreur concernées + bloc partagé
+  `auth.rateLimit.tooMany`. `LOG_LEVEL` ajouté à `.env.example`.
 - **Étape 1.6 — Espace authentifié minimal (écrans 29, 30, 32, 33, 37,
   38).** Nouveau route group `(authenticated)` sous
   `/[locale]/...` avec layout commun (header + UserMenu) qui force

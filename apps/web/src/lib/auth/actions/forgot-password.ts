@@ -22,6 +22,8 @@ import { AuditEventKind, prisma } from '@eduquiz/db';
 import { buildResetPasswordEmail, sendEmail } from '@eduquiz/email';
 import { z } from 'zod';
 
+import { logger } from '../../logger';
+import { checkRateLimit, currentClientIp } from '../rate-limit';
 import { getCanonicalAuthUrl } from '../url';
 
 export type PasswordResetFieldErrorCode =
@@ -30,6 +32,7 @@ export type PasswordResetFieldErrorCode =
   | 'passwordMismatch'
   | 'tokenExpired'
   | 'tokenInvalid'
+  | 'rateLimited'
   | 'unknown';
 
 const PASSWORD_STRENGTH = /^(?=.*[A-Z])(?=.*\d).+$/;
@@ -50,6 +53,17 @@ export type RequestPasswordResetResult =
 export async function requestPasswordReset(
   input: RequestPasswordResetInput,
 ): Promise<RequestPasswordResetResult> {
+  // Rate limit IP — applique avant validation Zod pour limiter le coût
+  // d'une attaque par flood de requêtes mal formées.
+  const ip = currentClientIp();
+  const limited = await checkRateLimit({ bucket: 'forgotPassword', key: ip });
+  if (!limited.allowed) {
+    logger.warn('auth.forgot_password.rate_limited', { ip });
+    // On retourne quand même `ok: true` pour préserver l'anti-énumération
+    // côté UI — pas de différence visible avec un succès légitime.
+    return { ok: true };
+  }
+
   const parsed = requestSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, fieldErrors: { email: 'emailInvalid' } };

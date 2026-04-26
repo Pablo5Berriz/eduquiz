@@ -18,6 +18,7 @@
     "@eduquiz/db": "workspace:*",
     "@eduquiz/email": "workspace:*",
     "@eduquiz/i18n": "workspace:*",
+    "@eduquiz/rate-limit": "workspace:*",
     "@eduquiz/ui": "workspace:*",
     "@eduquiz/utils": "workspace:*",
     "next": "^14.2.18",

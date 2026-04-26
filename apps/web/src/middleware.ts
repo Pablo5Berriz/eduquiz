@@ -56,6 +56,21 @@ export const config = {
  */
 const { auth: authMiddleware } = NextAuth(authConfigEdge);
 
+const REQUEST_ID_HEADER = 'x-request-id';
+
+/**
+ * Génère un ID de requête lisible (8 octets hex). On évite `crypto.
+ * randomUUID()` qui est verbeux pour les logs ; 16 caractères suffisent
+ * pour une corrélation sur quelques heures de trafic.
+ */
+function generateRequestId(): string {
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  let out = '';
+  for (const b of bytes) out += b.toString(16).padStart(2, '0');
+  return out;
+}
+
 /**
  * Composition i18n → auth. Auth.js attend une fonction `(req, ctx)` et
  * fournit `req.auth`. On l'enveloppe pour intercaler l'étape locale
@@ -64,12 +79,26 @@ const { auth: authMiddleware } = NextAuth(authConfigEdge);
 export default authMiddleware((request: NextRequest) => {
   const { pathname } = request.nextUrl;
 
+  // 0. Request ID. Si l'amont (Traefik, Cloudflare) en a déjà posé un,
+  // on le respecte ; sinon on en génère un. Le header est posé sur la
+  // requête (pour que les Server Components et Route Handlers le voient
+  // via `headers()`) et copié sur la réponse pour le client.
+  const reqId = request.headers.get(REQUEST_ID_HEADER) ?? generateRequestId();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(REQUEST_ID_HEADER, reqId);
+
+  function passthrough(): NextResponse {
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
+    response.headers.set(REQUEST_ID_HEADER, reqId);
+    return response;
+  }
+
   // 1. Bypass des chemins techniques.
   if (
     SKIP_PREFIXES.some((p) => pathname.startsWith(p)) ||
     PUBLIC_FILE.test(pathname)
   ) {
-    return NextResponse.next();
+    return passthrough();
   }
 
   const segments = pathname.split('/').filter(Boolean);
@@ -89,6 +118,7 @@ export default authMiddleware((request: NextRequest) => {
     url.pathname = `/${target}${pathname === '/' ? '' : pathname}`;
 
     const response = NextResponse.redirect(url, 307);
+    response.headers.set(REQUEST_ID_HEADER, reqId);
     response.cookies.set(LOCALE_COOKIE, target, {
       path: '/',
       maxAge: 60 * 60 * 24 * 365,
@@ -101,7 +131,7 @@ export default authMiddleware((request: NextRequest) => {
   //    `authConfigEdge.callbacks.authorized`. Si ce callback retourne
   //    `false`, Auth.js redirige automatiquement vers `pages.signIn`
   //    en préservant l'URL d'origine via `?callbackUrl=...`.
-  return NextResponse.next();
+  return passthrough();
 });
 
 // Re-export utilitaire pour les tests.

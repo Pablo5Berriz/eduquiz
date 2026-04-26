@@ -86,7 +86,8 @@
           "birthDateInvalid": "Date de naissance invalide.",
           "notAdult": "L’inscription adulte est réservée aux personnes de 18 ans et plus.",
           "termsRequired": "Vous devez accepter les CGU et la politique de confidentialité.",
-          "unknown": "Une erreur est survenue. Réessayez dans un instant."
+          "unknown": "Une erreur est survenue. Réessayez dans un instant.",
+          "rateLimited": "Trop d’inscriptions récentes depuis cette adresse. Réessaie dans quelques minutes."
         }
       }
     },
@@ -140,7 +141,8 @@
         "invalidCredentials": "Identifiants invalides.",
         "accountDisabled": "Ce compte n’est plus actif. Contacte le support.",
         "unverified": "Ton adresse n’est pas encore vérifiée. Consulte ta boîte courriel.",
-        "unknown": "Une erreur est survenue. Réessaie dans un instant."
+        "unknown": "Une erreur est survenue. Réessaie dans un instant.",
+        "rateLimited": "Trop de tentatives. Patiente quelques minutes avant de réessayer."
       }
     },
     "forgotPassword": {
@@ -155,7 +157,8 @@
       "backToSignIn": "Retour à la connexion",
       "errors": {
         "emailInvalid": "Adresse courriel invalide.",
-        "unknown": "Une erreur est survenue. Réessaie dans un instant."
+        "unknown": "Une erreur est survenue. Réessaie dans un instant.",
+        "rateLimited": "Trop de demandes récentes. Réessaie dans quelques minutes."
       }
     },
     "resetPassword": {
@@ -188,8 +191,12 @@
         "passwordMismatch": "Les deux mots de passe ne correspondent pas.",
         "tokenExpired": "Ce lien a expiré.",
         "tokenInvalid": "Ce lien n’est pas valide.",
-        "unknown": "Une erreur est survenue. Réessaie dans un instant."
+        "unknown": "Une erreur est survenue. Réessaie dans un instant.",
+        "rateLimited": "Trop de tentatives. Réessaie plus tard."
       }
+    },
+    "rateLimit": {
+      "tooMany": "Trop de tentatives. Réessaie plus tard."
     }
   },
   "footer": {
@@ -1397,7 +1404,8 @@
         "passwordRequired": "Mot de passe requis.",
         "passwordInvalid": "Mot de passe incorrect.",
         "mustTypeWord": "Tape exactement le mot demandé pour confirmer.",
-        "unknown": "Une erreur est survenue. Réessaie dans un instant."
+        "unknown": "Une erreur est survenue. Réessaie dans un instant.",
+        "rateLimited": "Trop de tentatives. Réessaie demain."
       }
     }
   }
