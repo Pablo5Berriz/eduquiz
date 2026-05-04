@@ -10,12 +10,12 @@ import type { JSX } from 'react';
 /**
  * Écran 15 — Sélecteur de type de compte.
  *
- * Affiche trois cartes (adulte, parent, mineur). Conformément au lot
- * 2 du plan de livraison, seul le compte adulte est cliquable en V1 :
- * parent et mineur arrivent aux lots 10 et 11. On les rend visibles
- * (anticipation produit) avec un badge « Bientôt disponible » sur les
- * deux cartes désactivées pour éviter qu'un visiteur cherche en vain
- * où s'inscrire.
+ * Affiche trois cartes (adulte, parent, mineur). Seul le compte adulte
+ * est cliquable en V1 : parent (Lot 10) et mineur (Lot 11) arrivent dans
+ * des lots ultérieurs. Les deux cartes sont visibles mais désactivées avec
+ * un badge « Bientôt disponible » pour anticiper la demande sans créer
+ * d'impasse : un mineur ne peut pas s'inscrire si son parent n'a pas encore
+ * de compte PARENT, et le flux parent n'est pas encore livré.
  */
 
 export function generateMetadata({ params }: { params: LocaleRouteParams }): Metadata {
@@ -58,7 +58,7 @@ export default function AccountTypePickerPage({
         {t(messages, 'auth.accountTypePicker.subtitle')}
       </p>
 
-      <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="list">
+      <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {/* Adulte — actif */}
         <li>
           <Link
@@ -104,7 +104,7 @@ export default function AccountTypePickerPage({
           </div>
         </li>
 
-        {/* Mineur — désactivé (Lot 11) */}
+        {/* Mineur — désactivé (Lot 11 — dépend du Lot 10 parent) */}
         <li>
           <div
             aria-disabled="true"
