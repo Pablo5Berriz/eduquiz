@@ -43,12 +43,19 @@ export type SignInAdultResult =
   | { readonly ok: true } // jamais retourné en pratique : le redirect Auth.js court-circuite
   | { readonly ok: false; readonly code: SignInErrorCode };
 
-/** Refuse les URL absolues / protocole / `//` pour éviter l'open-redirect. */
+/**
+ * Valide et retourne un chemin de redirection post-connexion.
+ *
+ * Refuse les URL absolues, les protocoles et les doubles-slash pour
+ * éviter l'open-redirect. Retourne `/${locale}/accueil` par défaut
+ * (tableau de bord apprenant) plutôt que la vitrine publique.
+ */
 function safeNextPath(locale: 'fr' | 'en', candidate: string | null | undefined): string {
-  if (!candidate) return `/${locale}`;
-  if (!candidate.startsWith('/')) return `/${locale}`;
-  if (candidate.startsWith('//')) return `/${locale}`;
-  if (candidate.includes('\\') || candidate.includes('://')) return `/${locale}`;
+  const fallback = `/${locale}/accueil`;
+  if (!candidate) return fallback;
+  if (!candidate.startsWith('/')) return fallback;
+  if (candidate.startsWith('//')) return fallback;
+  if (candidate.includes('\\') || candidate.includes('://')) return fallback;
   return candidate;
 }
 
@@ -94,11 +101,4 @@ export async function signInAdult(input: SignInAdultInput): Promise<SignInAdultR
       //   - email non vérifié (Credentials.authorize() retourne null)
       //   - compte désactivé (idem)
       // On ne distingue PAS côté UI (anti-énumération) — toujours
-      // « invalidCredentials ». La vraie raison est tracée dans
-      // AuditLog par `logFailedSignIn` côté provider.
-      return { ok: false, code: 'invalidCredentials' };
-    }
-
-    return { ok: false, code: 'unknown' };
-  }
-}
+      // « inv
