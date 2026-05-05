@@ -167,7 +167,7 @@ describe('submitQuizAttempt', () => {
     expect(mockGetPublishedQuizByActivityId).not.toHaveBeenCalled();
   });
 
-  it('retourne invalid si activityId n'est pas un UUID', async () => {
+  it("retourne invalid si activityId n'est pas un UUID", async () => {
     const fd = makeFormData({ activityId: 'not-a-uuid', locale: 'fr' });
     const result = await submitQuizAttempt(fd);
     expect(result).toEqual({ ok: false, error: 'invalid' });
@@ -304,7 +304,7 @@ describe('submitQuizAttempt', () => {
     expect(upsertCall.create.attemptsCount).toBe(1);
   });
 
-  it('applique l'EMA (α=0.3) quand une progression existe déjà', async () => {
+  it("applique l'EMA (α=0.3) quand une progression existe déjà", async () => {
     // Progression existante à 0.4 pour skill-1
     const EXISTING_MASTERY = 0.4;
     let capturedTx: ReturnType<typeof makeTxProxy> | null = null;
