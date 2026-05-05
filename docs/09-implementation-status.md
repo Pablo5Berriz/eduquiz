@@ -1,6 +1,6 @@
 # Statut d'implémentation — EduQuiz
 
-Dernière mise à jour : 2026-05-04. (Purge worker Loi 25 + 3 correctifs audit Phase 1)
+Dernière mise à jour : 2026-05-05. (EMA mastery, tests Vitest submitQuizAttempt, E2E découplé, TRUE_FALSE exercices guidés)
 
 Ce document distingue la vision cible décrite dans les autres documents de
 l'état réellement livré dans le dépôt. Il doit primer lorsqu'une page de doc
@@ -27,13 +27,13 @@ restent à livrer.
 | RLS                     | Livré partiel     | Politiques et helpers existent; `withUser` est désormais appelé dans toutes les routes d'apprentissage (`getAttemptResult`, `getQuizAttemptHistory`, `getLearnerLearningOverview`, `submitQuizAttempt`). Les routes admin et l'export Loi 25 restent à vérifier.                                                                                        |
 | Catalogue pédagogique   | Livré minimal     | Mini-catalogue seedé et espace authentifié `/apprendre` connecté à la DB.                                                                               |
 | Leçons                  | Livré minimal     | Lecteur simple de leçon publiée avec contenu structuré `bodyFr/bodyEn`, compétences, objectifs et accès au quiz.                                        |
-| Exercices               | Livré minimal     | Exercice guidé `MCQ_SINGLE` affiché dans la page leçon avec feedback immédiat. Les autres types restent à exposer.                                      |
+| Exercices               | Livré minimal     | Exercices guidés `MCQ_SINGLE` et `TRUE_FALSE` affichés dans la page leçon avec feedback immédiat. `TRUE_FALSE` : boutons Vrai/Faux (plus radio). Les autres types restent à exposer. |
 | Quiz                    | Livré minimal     | `MCQ_SINGLE` et `TRUE_FALSE`, scoring, erreurs de soumission affichées, tentative immuable et résultat visible.                                         |
 | Progression             | Livré minimal     | Mise à jour de `Progress` par compétence et carte de progression visible dans `/apprendre`.                                                             |
 | Gamification            | Non livré         | Tables préparées, pas d'expérience.                                                                                                                     |
 | Paiement Stripe         | Non livré         | Variables/infra prévues, intégration absente.                                                                                                           |
 | CI                      | Livré partiel     | Lint/typecheck/test/build sont câblés; e2e web minimal ajouté; mobile reste largement placeholder.                                                      |
-| Tests                   | Partiel           | Tests unitaires auth/email/rate-limit + scoring QCM/vrai-faux + un parcours critique Playwright web. Maestro mobile absent.                             |
+| Tests                   | Partiel           | Tests unitaires auth/email/rate-limit + scoring + mastery EMA + submitQuizAttempt (11 cas). Playwright découplé du seed. Maestro mobile absent.          |
 | Infra Docker/Proxmox    | Préparé           | Compose dev/prod, Traefik, MinIO, Redis, Postgres, backup; validation production réelle à faire.                                                        |
 
 ## Ce qui est réellement utilisable
@@ -88,5 +88,4 @@ Livrables recommandés :
 
 Les documents de vision (`00` à `08`) peuvent décrire la cible, mais toute
 affirmation du type "livré", "terminé", "Phase complète" doit être vérifiée
-contre ce fichier. Si le code change le statut réel d'un domaine, ce document
-doit être mis à jour da
+contre ce fichier. Si le code change le statut 
