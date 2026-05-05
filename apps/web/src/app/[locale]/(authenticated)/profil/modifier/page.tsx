@@ -1,4 +1,4 @@
-import { prisma } from '@eduquiz/db';
+import { prismaService as prisma } from '@eduquiz/db';
 import { getMessages, t } from '@eduquiz/i18n';
 import { Container } from '@eduquiz/ui';
 
@@ -13,8 +13,8 @@ import type { JSX } from 'react';
 /**
  * Écran 30 — Édition de profil.
  *
- * Server Component qui charge le profil courant depuis Prisma puis
- * délègue le formulaire au Client Component `EditProfileForm`.
+ * Accepte `?welcome=1` (nouvel utilisateur redirigé depuis la homepage)
+ * pour afficher un bandeau de bienvenue.
  */
 
 export const runtime = 'nodejs';
@@ -31,12 +31,15 @@ export function generateMetadata({ params }: { params: LocaleRouteParams }): Met
 
 export default async function EditProfilePage({
   params,
+  searchParams,
 }: {
   readonly params: LocaleRouteParams;
+  readonly searchParams: Record<string, string | string[] | undefined>;
 }): Promise<JSX.Element> {
   const locale = resolveLocaleParam(params.locale);
   const messages = getMessages(locale);
   const user = await requireAuthenticated(locale, `/${locale}/profil/modifier`);
+  const isWelcome = searchParams.welcome === '1';
 
   const profile = await prisma.profile.findUnique({
     where: { userId: user.id },
@@ -50,25 +53,48 @@ export default async function EditProfilePage({
     },
   });
 
+  const welcomeCopy =
+    locale === 'fr'
+      ? {
+          title: "Bienvenue sur EduQuiz !",
+          body: "Commence par compléter ton profil — ça prend moins d'une minute.",
+        }
+      : {
+          title: 'Welcome to EduQuiz!',
+          body: 'Start by completing your profile — it takes less than a minute.',
+        };
+
   return (
     <Container width="md" className="py-12">
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-balance text-2xl font-bold tracking-tight sm:text-3xl">
-          {t(messages, 'account.editProfile.title')}
-        </h1>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          {t(messages, 'account.editProfile.subtitle')}
-        </p>
+        {isWelcome ? (
+          <div className="mb-8 rounded-xl border border-brand-200 bg-brand-50 p-5 dark:border-brand-800 dark:bg-brand-950/30">
+            <h1 className="text-xl font-bold text-brand-800 dark:text-brand-200">
+              {welcomeCopy.title}
+            </h1>
+            <p className="mt-1 text-sm text-brand-700 dark:text-brand-300">{welcomeCopy.body}</p>
+          </div>
+        ) : (
+          <>
+            <h1 className="text-balance text-2xl font-bold tracking-tight sm:text-3xl">
+              {t(messages, 'account.editProfile.title')}
+            </h1>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+              {t(messages, 'account.editProfile.subtitle')}
+            </p>
+          </>
+        )}
 
-        <div className="mt-8">
+        <div className={isWelcome ? '' : 'mt-8'}>
           <EditProfileForm
             locale={locale}
+            redirectTo={isWelcome ? `/${locale}/accueil` : `/${locale}/profil`}
             initial={{
               firstName: profile?.firstName ?? '',
               lastName: profile?.lastName ?? '',
               displayName: profile?.displayName ?? '',
               currentGrade: profile?.currentGrade ?? '',
-              preferredLocale: (profile?.preferredLocale as 'FR' | 'EN') ?? 'FR',
+              preferredLocale: profile?.preferredLocale ?? 'FR',
               avatarUrl: profile?.avatarUrl ?? '',
             }}
             copy={{
@@ -107,6 +133,4 @@ export default async function EditProfilePage({
           />
         </div>
       </div>
-    </Container>
-  );
-}
+    </C

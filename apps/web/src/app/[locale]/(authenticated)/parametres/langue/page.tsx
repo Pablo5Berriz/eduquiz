@@ -1,4 +1,4 @@
-import { prisma } from '@eduquiz/db';
+import { prismaService as prisma } from '@eduquiz/db';
 import { getMessages, t } from '@eduquiz/i18n';
 
 import { requireAuthenticated } from '../../../../../lib/auth/server';
@@ -39,7 +39,7 @@ export default async function LanguageSettingsPage({
     where: { id: user.id },
     select: { locale: true },
   });
-  const initial = (dbUser?.locale as 'FR' | 'EN') ?? 'FR';
+  const initial = dbUser?.locale ?? 'FR';
 
   return (
     <div className="max-w-xl">
@@ -63,6 +63,4 @@ export default async function LanguageSettingsPage({
           }}
         />
       </div>
-    </div>
-  );
-}
+ 
