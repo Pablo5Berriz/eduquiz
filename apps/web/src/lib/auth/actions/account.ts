@@ -16,8 +16,8 @@ import {
   DataRequestStatus,
   GradeCode,
   Locale,
-  prisma,
   UserRole,
+  withUser,
 } from '@eduquiz/db';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
@@ -26,6 +26,17 @@ import { signOut as signOutAuth } from '../../../auth';
 import { logger } from '../../logger';
 import { checkRateLimit } from '../rate-limit-server';
 import { requireApiUser } from '../server';
+
+import type { RlsRole } from '@eduquiz/db';
+
+interface AccountRlsUser {
+  readonly id: string;
+  readonly role: string;
+}
+
+function accountRlsContext(user: AccountRlsUser): { userId: string; role: RlsRole } {
+  return { userId: user.id, role: user.role as RlsRole };
+}
 
 // ─── signOutUser ─────────────────────────────────────────────────────
 
@@ -66,7 +77,9 @@ export type UpdateProfileResult =
   | { readonly ok: true }
   | {
       readonly ok: false;
-      readonly fieldErrors: Partial<Record<keyof UpdateProfileInput | 'form', UpdateProfileFieldErrorCode>>;
+      readonly fieldErrors: Partial<
+        Record<keyof UpdateProfileInput | 'form', UpdateProfileFieldErrorCode>
+      >;
     };
 
 export async function updateProfile(input: UpdateProfileInput): Promise<UpdateProfileResult> {
@@ -74,7 +87,9 @@ export async function updateProfile(input: UpdateProfileInput): Promise<UpdatePr
 
   const parsed = profileSchema.safeParse(input);
   if (!parsed.success) {
-    const fieldErrors: Partial<Record<keyof UpdateProfileInput | 'form', UpdateProfileFieldErrorCode>> = {};
+    const fieldErrors: Partial<
+      Record<keyof UpdateProfileInput | 'form', UpdateProfileFieldErrorCode>
+    > = {};
     for (const issue of parsed.error.issues) {
       const path = issue.path[0];
       if (path === 'firstName') fieldErrors.firstName = 'firstNameTooLong';
@@ -87,11 +102,12 @@ export async function updateProfile(input: UpdateProfileInput): Promise<UpdatePr
     return { ok: false, fieldErrors };
   }
   const data = parsed.data;
-  const grade = data.currentGrade && data.currentGrade.length > 0 ? (data.currentGrade as GradeCode) : null;
+  const grade =
+    data.currentGrade && data.currentGrade.length > 0 ? (data.currentGrade as GradeCode) : null;
   const localeEnum = data.preferredLocale as Locale;
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await withUser(accountRlsContext(user)).$transaction(async (tx) => {
       await tx.profile.update({
         where: { userId: user.id },
         data: {
@@ -151,7 +167,9 @@ export type ChangePasswordResult =
   | { readonly ok: true }
   | {
       readonly ok: false;
-      readonly fieldErrors: Partial<Record<keyof ChangePasswordInput | 'form', ChangePasswordFieldErrorCode>>;
+      readonly fieldErrors: Partial<
+        Record<keyof ChangePasswordInput | 'form', ChangePasswordFieldErrorCode>
+      >;
     };
 
 export async function changePassword(input: ChangePasswordInput): Promise<ChangePasswordResult> {
@@ -159,7 +177,9 @@ export async function changePassword(input: ChangePasswordInput): Promise<Change
 
   const parsed = changePasswordSchema.safeParse(input);
   if (!parsed.success) {
-    const fieldErrors: Partial<Record<keyof ChangePasswordInput | 'form', ChangePasswordFieldErrorCode>> = {};
+    const fieldErrors: Partial<
+      Record<keyof ChangePasswordInput | 'form', ChangePasswordFieldErrorCode>
+    > = {};
     for (const issue of parsed.error.issues) {
       const path = issue.path[0];
       if (path === 'currentPassword') fieldErrors.currentPassword = 'currentRequired';
@@ -178,10 +198,13 @@ export async function changePassword(input: ChangePasswordInput): Promise<Change
   }
 
   // Lecture passwordHash (jamais exposé côté UI).
-  const dbUser = await prisma.user.findUnique({
-    where: { id: sessionUser.id },
-    select: { id: true, passwordHash: true },
-  });
+  const ctx = accountRlsContext(sessionUser);
+  const dbUser = await withUser(ctx).$transaction((tx) =>
+    tx.user.findUnique({
+      where: { id: sessionUser.id },
+      select: { id: true, passwordHash: true },
+    }),
+  );
   if (!dbUser?.passwordHash) {
     // Compte créé via OAuth — pas de mot de passe actuel à comparer.
     return { ok: false, fieldErrors: { currentPassword: 'currentInvalid' } };
@@ -193,7 +216,7 @@ export async function changePassword(input: ChangePasswordInput): Promise<Change
 
   try {
     const newHash = await hashPassword(data.newPassword);
-    await prisma.$transaction(async (tx) => {
+    await withUser(ctx).$transaction(async (tx) => {
       await tx.user.update({ where: { id: dbUser.id }, data: { passwordHash: newHash } });
       // Invalide TOUTES les sessions (y compris l'actuelle — l'utilisateur
       // sera déconnecté). C'est cohérent avec le flux reset ; pour ne pas
@@ -232,7 +255,7 @@ export async function updateLocale(input: UpdateLocaleInput): Promise<UpdateLoca
   if (!parsed.success) return { ok: false, reason: 'invalid' };
   const localeEnum = parsed.data.locale as Locale;
   try {
-    await prisma.$transaction(async (tx) => {
+    await withUser(accountRlsContext(user)).$transaction(async (tx) => {
       await tx.user.update({ where: { id: user.id }, data: { locale: localeEnum } });
       await tx.profile.update({
         where: { userId: user.id },
@@ -277,7 +300,9 @@ export type RequestAccountDeletionResult =
   | { readonly ok: true }
   | {
       readonly ok: false;
-      readonly fieldErrors: Partial<Record<'password' | 'confirmText' | 'form', DeletionFieldErrorCode>>;
+      readonly fieldErrors: Partial<
+        Record<'password' | 'confirmText' | 'form', DeletionFieldErrorCode>
+      >;
     };
 
 export async function requestAccountDeletion(
@@ -311,10 +336,13 @@ export async function requestAccountDeletion(
     return { ok: false, fieldErrors: { confirmText: 'mustTypeWord' } };
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: sessionUser.id },
-    select: { id: true, passwordHash: true },
-  });
+  const ctx = accountRlsContext(sessionUser);
+  const dbUser = await withUser(ctx).$transaction((tx) =>
+    tx.user.findUnique({
+      where: { id: sessionUser.id },
+      select: { id: true, passwordHash: true },
+    }),
+  );
   if (!dbUser?.passwordHash) {
     return { ok: false, fieldErrors: { password: 'passwordInvalid' } };
   }
@@ -326,7 +354,7 @@ export async function requestAccountDeletion(
   try {
     const now = new Date();
     const graceExpiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-    await prisma.$transaction(async (tx) => {
+    await withUser(ctx).$transaction(async (tx) => {
       // Soft delete : on marque disabledAt. Le provider Credentials et
       // les helpers serveur refuseront immédiatement le login.
       await tx.user.update({
