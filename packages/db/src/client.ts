@@ -1,20 +1,23 @@
 /**
  * PrismaClient singleton + helpers RLS pour EduQuiz.
  *
- * Deux façons de consommer la base :
+ * Trois façons de consommer la base :
  *
  * 1. `prisma` (default export + export nommé)
- *    Client partagé, sans contexte utilisateur. Réservé aux tâches
- *    back-office (jobs planifiés, webhooks Stripe, migration de données,
- *    seeds) qui ont légitimement besoin d'ignorer RLS. À n'utiliser JAMAIS
- *    dans un handler HTTP déclenché par un utilisateur sans s'être
- *    explicitement assuré que la route est réservée aux admins.
+ *    Client standard partagé. Il ne pose pas de contexte utilisateur RLS.
  *
- * 2. `withUser(userId, role).$transaction(async (tx) => { ... })`
+ * 2. `withUser({ userId, role }).$transaction(async (tx) => { ... })`
  *    Client scoppé à un utilisateur : ouvre une transaction PostgreSQL
  *    et injecte les variables de session lues par les politiques RLS
  *    (cf. `prisma/rls/00_helpers.sql`). C'est le mode à privilégier dans
- *    toutes les routes Next.js authentifiées.
+ *    toutes les actions et routes authentifiées déclenchées par un utilisateur.
+ *
+ * 3. `prismaService`
+ *    Client privilégié pour Auth.js, tâches internes, seed, maintenance, E2E
+ *    ou code admin explicitement audité. Ne jamais l'utiliser dans une route
+ *    user-facing sans justification de sécurité. Si `SERVICE_DATABASE_URL`
+ *    pointe vers un rôle PostgreSQL BYPASSRLS, ce client peut contourner les
+ *    policies RLS.
  */
 
 import { PrismaClient } from './generated/client/index.js';
@@ -42,6 +45,26 @@ const createPrismaClient = (): PrismaClient =>
 const globalForPrisma = globalThis as unknown as {
   __eduquizPrisma?: PrismaClient;
 };
+
+const createServiceClient = (): PrismaClient => {
+  const url = process.env.SERVICE_DATABASE_URL ?? process.env.DATABASE_URL;
+  if (!url) throw new Error('SERVICE_DATABASE_URL ou DATABASE_URL requis pour prismaService');
+  return new PrismaClient({
+    datasourceUrl: url,
+    errorFormat: isProd ? 'minimal' : 'pretty',
+  });
+};
+
+const globalForService = globalThis as unknown as {
+  __eduquizPrismaService?: PrismaClient;
+};
+
+export const prismaService: PrismaClient =
+  globalForService.__eduquizPrismaService ?? createServiceClient();
+
+if (!isProd) {
+  globalForService.__eduquizPrismaService = prismaService;
+}
 
 export const prisma: PrismaClient = globalForPrisma.__eduquizPrisma ?? createPrismaClient();
 
