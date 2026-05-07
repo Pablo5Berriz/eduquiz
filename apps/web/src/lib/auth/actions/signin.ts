@@ -22,7 +22,7 @@ import { AuthError } from 'next-auth';
 
 import { signIn } from '../../../auth';
 import { logger } from '../../logger';
-import { checkRateLimit, currentClientIp } from '../rate-limit';
+import { checkRateLimit, currentClientIp } from '../rate-limit-server';
 
 export type SignInErrorCode =
   | 'invalidCredentials'
@@ -62,21 +62,23 @@ function safeNextPath(locale: 'fr' | 'en', candidate: string | null | undefined)
 export async function signInAdult(input: SignInAdultInput): Promise<SignInAdultResult> {
   const redirectTo = safeNextPath(input.locale, input.nextPath ?? null);
   const ip = currentClientIp();
+  const email = input.email.trim().toLowerCase();
+  const rateLimitKey = `${ip}:${email}`;
 
   // Rate limit par IP. Discriminant secondaire par email pour ne pas
   // bloquer un quartier entier derrière un NAT au premier email visé.
   const limited = await checkRateLimit({
     bucket: 'signin',
-    key: `${ip}:${input.email.trim().toLowerCase()}`,
+    key: rateLimitKey,
   });
   if (!limited.allowed) {
-    logger.warn('auth.signin.rate_limited', { ip });
+    logger.warn('auth.signin.rate_limited', { keyHash: limited.keyHash });
     return { ok: false, code: 'rateLimited' };
   }
 
   try {
     await signIn('credentials', {
-      email: input.email.trim().toLowerCase(),
+      email,
       password: input.password,
       redirectTo,
     });

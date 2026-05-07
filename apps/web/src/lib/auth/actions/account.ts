@@ -24,7 +24,7 @@ import { z } from 'zod';
 
 import { signOut as signOutAuth } from '../../../auth';
 import { logger } from '../../logger';
-import { checkRateLimit } from '../rate-limit';
+import { checkRateLimit } from '../rate-limit-server';
 import { requireApiUser } from '../server';
 
 // ─── signOutUser ─────────────────────────────────────────────────────
@@ -290,7 +290,7 @@ export async function requestAccountDeletion(
   // la suppression à coups de mauvais mot de passe.
   const limited = await checkRateLimit({ bucket: 'accountDeletion', key: sessionUser.id });
   if (!limited.allowed) {
-    logger.warn('account.deletion.rate_limited', { userId: sessionUser.id });
+    logger.warn('account.deletion.rate_limited', { keyHash: limited.keyHash });
     return { ok: false, fieldErrors: { form: 'rateLimited' } };
   }
 

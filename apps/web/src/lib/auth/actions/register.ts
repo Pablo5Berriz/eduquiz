@@ -26,7 +26,7 @@ import { buildVerificationEmail, sendEmail } from '@eduquiz/email';
 import { z } from 'zod';
 
 import { logger } from '../../logger';
-import { checkRateLimit, currentClientIp } from '../rate-limit';
+import { checkRateLimit, currentClientIp } from '../rate-limit-server';
 import { getCanonicalAuthUrl } from '../url';
 
 /** Code champ → clé i18n d'erreur dans `auth.signup.adult.errors`. */
@@ -87,7 +87,7 @@ export async function registerAdult(input: RegisterAdultInput): Promise<Register
   const ip = currentClientIp();
   const limited = await checkRateLimit({ bucket: 'register', key: ip });
   if (!limited.allowed) {
-    logger.warn('auth.register.rate_limited', { ip });
+    logger.warn('auth.register.rate_limited', { keyHash: limited.keyHash });
     return { ok: false, fieldErrors: { form: 'rateLimited' } };
   }
 

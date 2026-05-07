@@ -18,7 +18,7 @@ import { AuditEventKind, prisma } from '@eduquiz/db';
 import { buildVerificationEmail, buildWelcomeEmail, sendEmail } from '@eduquiz/email';
 
 import { logger } from '../../logger';
-import { checkRateLimit } from '../rate-limit';
+import { checkRateLimit } from '../rate-limit-server';
 import { getCanonicalAuthUrl } from '../url';
 
 export type ResendResult =
@@ -36,7 +36,7 @@ export async function resendVerification(input: {
   // toujours `ok: true` côté UI (le caller verra un cooldown identique).
   const limited = await checkRateLimit({ bucket: 'resendVerification', key: email });
   if (!limited.allowed) {
-    logger.warn('auth.resend_verification.rate_limited', { email });
+    logger.warn('auth.resend_verification.rate_limited', { keyHash: limited.keyHash });
     return { ok: true };
   }
 

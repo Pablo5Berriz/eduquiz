@@ -11,6 +11,40 @@ import { getRateLimitEnv } from './env.js';
 
 let client: Redis | null = null;
 let initialised = false;
+let lastRedisErrorLogAt = 0;
+
+const REDIS_ERROR_LOG_COOLDOWN_MS = 30_000;
+
+function sanitizeLogValue(value: string): string {
+  return value.replace(/rediss?:\/\/[^\s"'\\]+/gi, '[redacted]');
+}
+
+function serializeRedisError(error: unknown): Record<string, unknown> {
+  if (!(error instanceof Error)) {
+    return { errorType: typeof error };
+  }
+
+  const withCode = error as Error & { code?: unknown };
+  return {
+    errorName: error.name,
+    errorMessage: sanitizeLogValue(error.message),
+    ...(typeof withCode.code === 'string' || typeof withCode.code === 'number' ? { errorCode: withCode.code } : {}),
+  };
+}
+
+function logRedisError(error: unknown): void {
+  const now = Date.now();
+  if (now - lastRedisErrorLogAt < REDIS_ERROR_LOG_COOLDOWN_MS) return;
+  lastRedisErrorLogAt = now;
+
+  const record = {
+    ts: new Date(now).toISOString(),
+    level: 'warn',
+    msg: 'rate_limit.redis.error',
+    ...serializeRedisError(error),
+  };
+  process.stderr.write(`${JSON.stringify(record)}\n`);
+}
 
 export function getRedis(): Redis | null {
   if (initialised) return client;
@@ -30,8 +64,8 @@ export function getRedis(): Redis | null {
     lazyConnect: false,
   });
   // Évite que le crash d'un événement non géré tombe le process.
-  client.on('error', () => {
-    // silencieux : la décision de fail-open est prise dans withRateLimit
+  client.on('error', (error) => {
+    logRedisError(error);
   });
   return client;
 }
@@ -49,4 +83,5 @@ export function _setRedisForTests(c: Redis | null): void {
 export function _resetRedisForTests(): void {
   client = null;
   initialised = false;
+  lastRedisErrorLogAt = 0;
 }

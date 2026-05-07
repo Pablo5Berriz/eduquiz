@@ -14,6 +14,8 @@ import { _resetRedisForTests, _setRedisForTests } from './client.js';
 import { _resetRateLimitEnvCacheForTests } from './env.js';
 import { clientIpFrom, withRateLimit } from './limit.js';
 
+type TestRedisClient = Parameters<typeof _setRedisForTests>[0];
+
 afterEach(() => {
   _resetRedisForTests();
   _resetRateLimitEnvCacheForTests();
@@ -52,13 +54,13 @@ describe('withRateLimit (avec Redis mock)', () => {
             cmds.push({ name: 'pttl' });
             return this;
           },
-          async exec() {
+          exec() {
             counter.value += 1;
-            return [
+            return Promise.resolve([
               [null, counter.value],
               [null, 1],
               [null, 30_000],
-            ];
+            ]);
           },
         };
       },
@@ -70,8 +72,7 @@ describe('withRateLimit (avec Redis mock)', () => {
 
   it('compte les hits et bloque au-delà du seuil', async () => {
     const counter = { value: 0 };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    _setRedisForTests(makePipelineMock(counter) as any);
+    _setRedisForTests(makePipelineMock(counter) as unknown as TestRedisClient);
 
     const r1 = await withRateLimit({ bucket: 'b', key: 'k', limit: 2, windowMs: 60_000 });
     expect(r1.allowed).toBe(true);
@@ -88,7 +89,6 @@ describe('withRateLimit (avec Redis mock)', () => {
   });
 
   it('fail-open quand pipeline.exec lève', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     _setRedisForTests({
       multi() {
         return {
@@ -107,11 +107,30 @@ describe('withRateLimit (avec Redis mock)', () => {
       on() {
         /* */
       },
-    } as any);
+    } as unknown as TestRedisClient);
 
     const result = await withRateLimit({ bucket: 'b', key: 'k', limit: 2, windowMs: 60_000 });
     expect(result.allowed).toBe(true);
     expect(result.bypassed).toBe(true);
+  });
+
+  it('fail-open quand pipeline.exec retourne null', async () => {
+    _setRedisForTests({
+      multi() {
+        return {
+          incr() { return this; },
+          pexpire() { return this; },
+          pttl() { return this; },
+          exec: vi.fn().mockResolvedValue(null),
+        };
+      },
+      on() {},
+    } as unknown as TestRedisClient);
+
+    const result = await withRateLimit({ bucket: 'b', key: 'k', limit: 2, windowMs: 60_000 });
+    expect(result.allowed).toBe(true);
+    expect(result.bypassed).toBe(true);
+    expect(result.remaining).toBe(2);
   });
 
   it('refuse les paramètres aberrants en fail-open', async () => {

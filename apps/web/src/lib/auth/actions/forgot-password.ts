@@ -23,7 +23,7 @@ import { buildResetPasswordEmail, sendEmail } from '@eduquiz/email';
 import { z } from 'zod';
 
 import { logger } from '../../logger';
-import { checkRateLimit, currentClientIp } from '../rate-limit';
+import { checkRateLimit, currentClientIp } from '../rate-limit-server';
 import { getCanonicalAuthUrl } from '../url';
 
 export type PasswordResetFieldErrorCode =
@@ -58,7 +58,7 @@ export async function requestPasswordReset(
   const ip = currentClientIp();
   const limited = await checkRateLimit({ bucket: 'forgotPassword', key: ip });
   if (!limited.allowed) {
-    logger.warn('auth.forgot_password.rate_limited', { ip });
+    logger.warn('auth.forgot_password.rate_limited', { keyHash: limited.keyHash });
     // On retourne quand même `ok: true` pour préserver l'anti-énumération
     // côté UI — pas de différence visible avec un succès légitime.
     return { ok: true };
@@ -71,20 +71,15 @@ export async function requestPasswordReset(
 
   const { email, locale } = parsed.data;
 
-  // Lookup discret. On ne lève PAS si l'utilisateur n'existe pas
-  // (anti-énumération : on retourne toujours `ok: true`).
-  const user = await prisma.user.findUnique({
-    where: { email },
-    select: { id: true, emailVerifiedAt: true, disabledAt: true, deletedAt: true },
-  });
-
   try {
-    if (
-      user &&
-      user.emailVerifiedAt &&
-      !user.disabledAt &&
-      !user.deletedAt
-    ) {
+    // Lookup discret. On ne lève PAS si l'utilisateur n'existe pas
+    // (anti-énumération : on retourne toujours `ok: true`).
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, emailVerifiedAt: true, disabledAt: true, deletedAt: true },
+    });
+
+    if (user?.emailVerifiedAt && !user.disabledAt && !user.deletedAt) {
       const { token } = await createToken({ purpose: 'reset-password', email });
       const resetUrl = getCanonicalAuthUrl(
         `/${locale}/mot-de-passe-oublie/reinitialiser/${encodeURIComponent(token)}`,
@@ -95,6 +90,7 @@ export async function requestPasswordReset(
   } catch {
     // Échec interne : on retourne quand même OK côté UI pour éviter de
     // révéler un état serveur exploitable.
+    logger.warn('auth.forgot_password.internal_bypassed', { keyHash: limited.keyHash });
     return { ok: true };
   }
 }
