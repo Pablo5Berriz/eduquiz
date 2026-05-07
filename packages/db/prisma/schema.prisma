@@ -299,6 +299,11 @@ model User {
   disabledAt      DateTime? @map("disabled_at")
   /// Date d'effacement réelle (post délai de grâce) — anonymise les FK.
   deletedAt       DateTime? @map("deleted_at")
+  /// Version monotone copiée dans le JWT. Toute action de sécurité
+  /// l'incrémente pour invalider les anciens cookies côté serveur.
+  sessionVersion  Int       @default(0) @map("session_version")
+  /// Email en attente de confirmation (changement d'adresse).
+  pendingEmail    String?   @map("pending_email") @db.Citext
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -345,6 +350,20 @@ model Profile {
   preferredLocale Locale       @default(FR) @map("preferred_locale")
   /// Province canadienne — V1 limitée au QC.
   province        String       @default("QC") @db.VarChar(2)
+
+  // ── Préférences UI ────────────────────────────────────────────────────────
+  /// Thème d'affichage : "light" | "dark" | "system".
+  theme           String       @default("system") @db.VarChar(16)
+  /// Réduire les animations (accessibilité).
+  reducedMotion   Boolean      @default(false) @map("reduced_motion")
+  /// Contraste élevé (accessibilité).
+  highContrast    Boolean      @default(false) @map("high_contrast")
+
+  // ── Préférences e-mail ────────────────────────────────────────────────────
+  notifWeeklyReport      Boolean @default(true)  @map("notif_weekly_report")
+  notifProgressMilestone Boolean @default(true)  @map("notif_progress_milestone")
+  notifContentNew        Boolean @default(false) @map("notif_content_new")
+  notifStreakReminder     Boolean @default(true)  @map("notif_streak_reminder")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
