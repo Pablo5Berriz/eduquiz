@@ -1,8 +1,24 @@
-import { base, nextjs, prettier, react } from '@eduquiz/config/eslint';
+import { base, nextjs, prettier, react, tsParser, tsPlugin } from '@eduquiz/config/eslint';
 
 export default [
   { ignores: ['.next/**', 'out/**', 'dist/**', '.turbo/**', 'node_modules/**', 'next-env.d.ts'] },
   ...base,
+  {
+    files: ['e2e/**/*.{ts,tsx}'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
+    rules: {
+      'import/no-default-export': 'off',
+    },
+  },
   ...react,
   ...nextjs,
   // Override local : autorise les default exports dans les fichiers spéciaux
