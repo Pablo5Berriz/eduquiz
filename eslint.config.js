@@ -6,7 +6,7 @@
  * prettier.config.js, eslint.config.js lui-même, etc.). Chaque paquet a son
  * propre `eslint.config.js` qui compose les presets de `@eduquiz/config`.
  *
- * On inclut aussi une entrée pour `**\/prisma/seed.ts` et `**\/prisma/scripts/**`
+ * On inclut aussi une entrée pour les fichiers Prisma de seed et scripts.
  * afin que `lint-staged` (qui lance ESLint depuis la racine) puisse linter ces
  * fichiers hors `src/` sans avertir « File ignored because no matching
  * configuration was supplied ».
@@ -33,6 +33,32 @@ export default [
     },
     rules: {
       'no-console': 'off',
+    },
+  },
+  // Override Next.js : autorise les default exports dans les fichiers spéciaux
+  // Next.js des apps. lint-staged invoque ESLint depuis la racine du repo avec
+  // le chemin complet apps/web/src/app/…, d'où les préfixes explicites.
+  {
+    files: [
+      'apps/web/src/app/**/page.ts',
+      'apps/web/src/app/**/page.tsx',
+      'apps/web/src/app/**/layout.ts',
+      'apps/web/src/app/**/layout.tsx',
+      'apps/web/src/app/**/loading.ts',
+      'apps/web/src/app/**/loading.tsx',
+      'apps/web/src/app/**/error.ts',
+      'apps/web/src/app/**/error.tsx',
+      'apps/web/src/app/**/not-found.ts',
+      'apps/web/src/app/**/not-found.tsx',
+      'apps/web/src/app/**/template.ts',
+      'apps/web/src/app/**/template.tsx',
+      'apps/web/src/app/**/default.ts',
+      'apps/web/src/app/**/default.tsx',
+      'apps/web/src/app/**/route.ts',
+      'apps/web/src/app/**/route.tsx',
+    ],
+    rules: {
+      'import/no-default-export': 'off',
     },
   },
   ...prettier,

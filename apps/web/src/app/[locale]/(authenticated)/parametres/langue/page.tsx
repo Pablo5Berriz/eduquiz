@@ -1,11 +1,12 @@
-import { prismaService as prisma } from '@eduquiz/db';
+import { withUser } from '@eduquiz/db';
 import { getMessages, t } from '@eduquiz/i18n';
 
 import { requireAuthenticated } from '../../../../../lib/auth/server';
-import { resolveLocaleParam, type LocaleRouteParams } from '../../../../../lib/i18n/locale';
+import { resolveLocaleParam } from '../../../../../lib/i18n/locale';
 
 import { LanguageForm } from './LanguageForm';
 
+import type { RlsRole } from '@eduquiz/db';
 import type { Metadata } from 'next';
 import type { JSX } from 'react';
 
@@ -17,9 +18,16 @@ import type { JSX } from 'react';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export function generateMetadata({ params }: { params: LocaleRouteParams }): Metadata {
+interface LanguageSettingsPageProps {
+  readonly params: {
+    readonly locale: string;
+  };
+}
+
+export function generateMetadata({ params }: LanguageSettingsPageProps): Metadata {
   const locale = resolveLocaleParam(params.locale);
   const messages = getMessages(locale);
+
   return {
     title: t(messages, 'account.language.title'),
     robots: { index: false, follow: false },
@@ -28,17 +36,19 @@ export function generateMetadata({ params }: { params: LocaleRouteParams }): Met
 
 export default async function LanguageSettingsPage({
   params,
-}: {
-  readonly params: LocaleRouteParams;
-}): Promise<JSX.Element> {
+}: LanguageSettingsPageProps): Promise<JSX.Element> {
   const locale = resolveLocaleParam(params.locale);
   const messages = getMessages(locale);
   const user = await requireAuthenticated(locale, `/${locale}/parametres/langue`);
+  const ctx = { userId: user.id, role: user.role as RlsRole };
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: { locale: true },
-  });
+  const dbUser = await withUser(ctx).$transaction((tx) =>
+    tx.user.findUnique({
+      where: { id: user.id },
+      select: { locale: true },
+    }),
+  );
+
   const initial = dbUser?.locale ?? 'FR';
 
   return (
@@ -46,6 +56,7 @@ export default async function LanguageSettingsPage({
       <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
         {t(messages, 'account.language.title')}
       </h1>
+
       <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
         {t(messages, 'account.language.subtitle')}
       </p>
@@ -63,4 +74,6 @@ export default async function LanguageSettingsPage({
           }}
         />
       </div>
- 
+    </div>
+  );
+}
