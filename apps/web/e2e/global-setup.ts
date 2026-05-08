@@ -42,10 +42,8 @@ async function globalSetup(): Promise<void> {
   loadEnvFile(resolve(process.cwd(), '../..', '.env'));
   loadEnvFile(resolve(process.cwd(), '.env'));
 
-  const [{ hashPassword }, { ActivityKind, Locale, UserRole, prismaService }] = await Promise.all([
-    import('@eduquiz/auth/password'),
-    import('@eduquiz/db'),
-  ]);
+  const [{ hashPassword }, { ActivityKind, ContentStatus, Locale, UserRole, prismaService }] =
+    await Promise.all([import('@eduquiz/auth/password'), import('@eduquiz/db')]);
 
   // ── Créer / réinitialiser l'utilisateur E2E ──────────────────────────────────
   const passwordHash = await hashPassword(password);
@@ -112,8 +110,11 @@ async function globalSetup(): Promise<void> {
   const firstQuizActivity = await prismaService.activity.findFirst({
     where: {
       kind: ActivityKind.QUIZ,
-      publishedAt: { not: null },
-      lesson: { publishedAt: { not: null } },
+      status: ContentStatus.PUBLISHED,
+      lesson: {
+        status: ContentStatus.PUBLISHED,
+        publishedAt: { not: null },
+      },
       quiz: {
         questions: {
           some: {
@@ -157,9 +158,7 @@ async function globalSetup(): Promise<void> {
   const fixture: E2EQuizFixture = {
     lessonSlug: firstQuizActivity.lesson.slug,
     lessonTitleFr: firstQuizActivity.lesson.titleFr,
-    correctAnswerLabelsFr: firstQuizActivity.quiz.questions.map(
-      (q) => q.answers[0]?.labelFr ?? '',
-    ),
+    correctAnswerLabelsFr: firstQuizActivity.quiz.questions.map((q) => q.answers[0]?.labelFr ?? ''),
   };
 
   // Écrire dans e2e/.cache/ (ignoré par git via .gitignore de apps/web)

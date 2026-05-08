@@ -61,5 +61,24 @@ export default [
       'import/no-default-export': 'off',
     },
   },
+  // Setup/tests E2E hors `src/` : lint-staged appelle ESLint depuis la racine,
+  // donc on fournit un parseur TS explicite et on autorise le default export
+  // Playwright du global setup.
+  {
+    files: ['apps/web/e2e/**/*.{ts,tsx}'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
+    rules: {
+      'import/no-default-export': 'off',
+    },
+  },
   ...prettier,
 ];
