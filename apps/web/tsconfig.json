@@ -3,6 +3,7 @@
   "extends": "@eduquiz/config/tsconfig-nextjs",
   "compilerOptions": {
     "baseUrl": ".",
+    "ignoreDeprecations": "5.0",
     "rootDir": ".",
     "paths": {
       "@/*": ["./src/*"]
