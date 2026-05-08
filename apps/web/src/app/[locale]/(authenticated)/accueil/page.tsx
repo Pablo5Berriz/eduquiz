@@ -1,10 +1,10 @@
-import { prismaService as prisma } from '@eduquiz/db';
+import { withUser } from '@eduquiz/db';
 import { Button, Container, cn } from '@eduquiz/ui';
 import Link from 'next/link';
 
 import { requireAuthenticated } from '../../../../lib/auth/server';
+import { resolveLocaleParam } from '../../../../lib/i18n/locale';
 import { getLearnerLearningOverview } from '../../../../lib/learning/catalog';
-import { resolveLocaleParam, type LocaleRouteParams } from '../../../../lib/i18n/locale';
 
 import type { RlsRole } from '@eduquiz/db';
 import type { Metadata } from 'next';
@@ -23,8 +23,15 @@ import type { JSX } from 'react';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export function generateMetadata({ params }: { params: LocaleRouteParams }): Metadata {
+interface AccueilPageProps {
+  readonly params: {
+    readonly locale: string;
+  };
+}
+
+export function generateMetadata({ params }: AccueilPageProps): Metadata {
   const locale = resolveLocaleParam(params.locale);
+
   return {
     title: locale === 'fr' ? 'Accueil' : 'Home',
     robots: { index: false, follow: false },
@@ -36,7 +43,7 @@ export function generateMetadata({ params }: { params: LocaleRouteParams }): Met
 const COPY = {
   fr: {
     greeting: (name: string) => `Bonjour, ${name} !`,
-    subtitle: "Voici un aperçu de ta progression.",
+    subtitle: 'Voici un aperçu de ta progression.',
     ctaLearn: 'Continuer à apprendre',
     statsAttempts: 'Tentatives',
     statsAvgScore: 'Score moyen',
@@ -44,16 +51,16 @@ const COPY = {
     progressTitle: 'Progression par compétence',
     historyTitle: 'Dernières tentatives',
     emptyProgress: 'Termine un quiz pour voir ta progression ici.',
-    emptyHistory: "Aucune tentative pour le moment — Lance un quiz !",
+    emptyHistory: 'Aucune tentative pour le moment — Lance un quiz !',
     passed: 'réussi',
     failed: 'à reprendre',
     result: 'Voir →',
     attempts: 'tentative(s)',
     viewAll: 'Voir tout →',
     startCta: 'Commencer',
-    noGrade: "Complète ton profil pour voir du contenu adapté à ton niveau.",
+    noGrade: 'Complète ton profil pour voir du contenu adapté à ton niveau.',
     completeProfile: 'Compléter mon profil →',
-    errorFallback: "Impossible de charger tes données pour le moment. Réessaie dans un instant.",
+    errorFallback: 'Impossible de charger tes données pour le moment. Réessaie dans un instant.',
   },
   en: {
     greeting: (name: string) => `Hello, ${name}!`,
@@ -80,19 +87,23 @@ const COPY = {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function AccueilPage({
-  params,
-}: {
-  readonly params: LocaleRouteParams;
-}): Promise<JSX.Element> {
+export default async function AccueilPage({ params }: AccueilPageProps): Promise<JSX.Element> {
   const locale = resolveLocaleParam(params.locale);
   const c = COPY[locale];
   const user = await requireAuthenticated(locale, `/${locale}/accueil`);
+  const ctx = { userId: user.id, role: user.role as RlsRole };
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: user.id },
-    select: { firstName: true, displayName: true, currentGrade: true, avatarUrl: true },
-  });
+  const profile = await withUser(ctx).$transaction((tx) =>
+    tx.profile.findUnique({
+      where: { userId: user.id },
+      select: {
+        firstName: true,
+        displayName: true,
+        currentGrade: true,
+        avatarUrl: true,
+      },
+    }),
+  );
 
   // Nom d'affichage
   const displayName =
@@ -105,6 +116,7 @@ export default async function AccueilPage({
   // Données de progression — on isole les erreurs pour ne pas crasher la page
   let overview: Awaited<ReturnType<typeof getLearnerLearningOverview>> | null = null;
   let overviewError = false;
+
   try {
     overview = await getLearnerLearningOverview(user.id, user.role as RlsRole, locale);
   } catch {
@@ -114,7 +126,9 @@ export default async function AccueilPage({
   const totalAttempts = overview?.recentAttempts.length ?? 0;
   const avgScore =
     totalAttempts > 0 && overview
-      ? Math.round(overview.recentAttempts.reduce((s, a) => s + a.score, 0) / totalAttempts)
+      ? Math.round(
+          overview.recentAttempts.reduce((s, attempt) => s + attempt.score, 0) / totalAttempts,
+        )
       : null;
   const skillsCount = overview?.progressItems.length ?? 0;
   const dateFormatter = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' });
@@ -134,21 +148,27 @@ export default async function AccueilPage({
             </h1>
             <p className="mt-1 text-base text-slate-500 dark:text-slate-400">{c.subtitle}</p>
           </div>
+
           <Link href={`/${locale}/apprendre`} className="inline-flex shrink-0">
-            <Button variant="primary" size="lg">{c.ctaLearn}</Button>
+            <Button variant="primary" size="lg">
+              {c.ctaLearn}
+            </Button>
           </Link>
         </Container>
       </div>
 
-      <Container width="lg" className="py-10 space-y-8">
-
-        {/* ── Profile nudge (si incomplet) ────────────────────────────────── */}
+      <Container width="lg" className="space-y-8 py-10">
+        {/* ── Profile nudge si incomplet ────────────────────────────────── */}
         {profileIncomplete && (
           <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-700/50 dark:bg-amber-950/30">
-            <span className="mt-0.5 text-lg shrink-0" aria-hidden="true">⚠️</span>
+            <span className="mt-0.5 shrink-0 text-lg" aria-hidden="true">
+              ⚠️
+            </span>
+
             <div className="min-w-0 flex-1">
               <p className="text-sm text-amber-800 dark:text-amber-300">{c.noGrade}</p>
             </div>
+
             <Link
               href={`/${locale}/profil/modifier`}
               className="shrink-0 text-xs font-semibold text-amber-800 underline-offset-2 hover:underline dark:text-amber-300"
@@ -177,7 +197,9 @@ export default async function AccueilPage({
                 key={stat.label}
                 className="rounded-xl border border-slate-200 bg-white p-5 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900"
               >
-                <p className="text-3xl font-bold text-brand-700 dark:text-brand-300">{stat.value}</p>
+                <p className="text-3xl font-bold text-brand-700 dark:text-brand-300">
+                  {stat.value}
+                </p>
                 <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   {stat.label}
                 </p>
@@ -189,11 +211,13 @@ export default async function AccueilPage({
         {/* ── Content grid ────────────────────────────────────────────────── */}
         {!overviewError && (
           <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
-
             {/* Skill progress */}
             <section className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
-                <h2 className="font-semibold text-slate-950 dark:text-slate-50">{c.progressTitle}</h2>
+                <h2 className="font-semibold text-slate-950 dark:text-slate-50">
+                  {c.progressTitle}
+                </h2>
+
                 <Link
                   href={`/${locale}/apprendre`}
                   className="text-xs font-semibold text-brand-700 hover:text-brand-800 dark:text-brand-300"
@@ -201,36 +225,45 @@ export default async function AccueilPage({
                   {c.viewAll}
                 </Link>
               </div>
+
               <div className="p-6">
                 {skillsCount === 0 ? (
                   <div className="flex flex-col items-center gap-4 py-6 text-center">
-                    <span className="text-4xl" aria-hidden="true">📈</span>
+                    <span className="text-4xl" aria-hidden="true">
+                      📈
+                    </span>
+
                     <p className="text-sm text-slate-500 dark:text-slate-400">{c.emptyProgress}</p>
+
                     <Link href={`/${locale}/apprendre`} className="inline-flex">
-                      <Button variant="secondary" size="sm">{c.startCta}</Button>
+                      <Button variant="secondary" size="sm">
+                        {c.startCta}
+                      </Button>
                     </Link>
                   </div>
                 ) : (
                   <ul className="space-y-5">
-                    {(overview?.progressItems ?? []).slice(0, 5).map((p) => (
-                      <li key={p.id}>
+                    {(overview?.progressItems ?? []).slice(0, 5).map((progress) => (
+                      <li key={progress.id}>
                         <div className="flex items-center justify-between gap-4">
                           <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-slate-950 dark:text-slate-50">
-                              {p.skillName}
+                              {progress.skillName}
                             </p>
                             <p className="text-xs text-slate-500 dark:text-slate-400">
-                              {p.subjectName} · {String(p.attemptsCount)} {c.attempts}
+                              {progress.subjectName} · {String(progress.attemptsCount)} {c.attempts}
                             </p>
                           </div>
+
                           <span className="shrink-0 text-sm font-bold text-brand-700 dark:text-brand-300">
-                            {String(p.masteryPercent)} %
+                            {String(progress.masteryPercent)} %
                           </span>
                         </div>
+
                         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                           <div
                             className="h-full rounded-full bg-brand-500 transition-all"
-                            style={{ width: `${String(p.masteryPercent)}%` }}
+                            style={{ width: `${String(progress.masteryPercent)}%` }}
                           />
                         </div>
                       </li>
@@ -243,7 +276,10 @@ export default async function AccueilPage({
             {/* Recent attempts */}
             <section className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
-                <h2 className="font-semibold text-slate-950 dark:text-slate-50">{c.historyTitle}</h2>
+                <h2 className="font-semibold text-slate-950 dark:text-slate-50">
+                  {c.historyTitle}
+                </h2>
+
                 <Link
                   href={`/${locale}/apprendre`}
                   className="text-xs font-semibold text-brand-700 hover:text-brand-800 dark:text-brand-300"
@@ -251,13 +287,20 @@ export default async function AccueilPage({
                   {c.viewAll}
                 </Link>
               </div>
+
               <div className="divide-y divide-slate-200 dark:divide-slate-800">
                 {totalAttempts === 0 ? (
                   <div className="flex flex-col items-center gap-4 px-6 py-8 text-center">
-                    <span className="text-4xl" aria-hidden="true">🎯</span>
+                    <span className="text-4xl" aria-hidden="true">
+                      🎯
+                    </span>
+
                     <p className="text-sm text-slate-500 dark:text-slate-400">{c.emptyHistory}</p>
+
                     <Link href={`/${locale}/apprendre`} className="inline-flex">
-                      <Button variant="secondary" size="sm">{c.startCta}</Button>
+                      <Button variant="secondary" size="sm">
+                        {c.startCta}
+                      </Button>
                     </Link>
                   </div>
                 ) : (
@@ -274,6 +317,7 @@ export default async function AccueilPage({
                           {attempt.subjectName} · {dateFormatter.format(attempt.submittedAt)}
                         </p>
                       </div>
+
                       <div className="flex shrink-0 items-center gap-3">
                         <span
                           className={cn(
@@ -285,6 +329,7 @@ export default async function AccueilPage({
                         >
                           {String(attempt.score)} %
                         </span>
+
                         <Link
                           href={`/${locale}/quiz/${attempt.activityId}/resultat/${attempt.id}`}
                           className="text-xs font-semibold text-brand-700 hover:text-brand-800 dark:text-brand-300"
@@ -297,9 +342,9 @@ export default async function AccueilPage({
                 )}
               </div>
             </section>
-
           </div>
         )}
-
       </Container>
- 
+    </div>
+  );
+}
