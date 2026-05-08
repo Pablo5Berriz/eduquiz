@@ -1,4 +1,4 @@
-import { prismaService as prisma } from '@eduquiz/db';
+import { withUser } from '@eduquiz/db';
 import { getMessages, t } from '@eduquiz/i18n';
 import { Container } from '@eduquiz/ui';
 
@@ -41,17 +41,19 @@ export default async function EditProfilePage({
   const user = await requireAuthenticated(locale, `/${locale}/profil/modifier`);
   const isWelcome = searchParams.welcome === '1';
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: user.id },
-    select: {
-      firstName: true,
-      lastName: true,
-      displayName: true,
-      currentGrade: true,
-      preferredLocale: true,
-      avatarUrl: true,
-    },
-  });
+  const profile = await withUser({ userId: user.id, role: user.role }).$transaction((tx) =>
+    tx.profile.findUnique({
+      where: { userId: user.id },
+      select: {
+        firstName: true,
+        lastName: true,
+        displayName: true,
+        currentGrade: true,
+        preferredLocale: true,
+        avatarUrl: true,
+      },
+    }),
+  );
 
   const welcomeCopy =
     locale === 'fr'
@@ -133,4 +135,6 @@ export default async function EditProfilePage({
           />
         </div>
       </div>
-    </C
+    </Container>
+  );
+}

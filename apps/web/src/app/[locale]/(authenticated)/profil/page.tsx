@@ -1,4 +1,4 @@
-import { prismaService as prisma } from '@eduquiz/db';
+import { withUser } from '@eduquiz/db';
 import { getMessages, t } from '@eduquiz/i18n';
 import { Avatar, Button, Card, Container } from '@eduquiz/ui';
 import Link from 'next/link';
@@ -54,17 +54,19 @@ export default async function ProfilePage({
   const messages = getMessages(locale);
   const user = await requireAuthenticated(locale, `/${locale}/profil`);
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: user.id },
-    select: {
-      firstName: true,
-      lastName: true,
-      displayName: true,
-      currentGrade: true,
-      preferredLocale: true,
-      avatarUrl: true,
-    },
-  });
+  const profile = await withUser({ userId: user.id, role: user.role }).$transaction((tx) =>
+    tx.profile.findUnique({
+      where: { userId: user.id },
+      select: {
+        firstName: true,
+        lastName: true,
+        displayName: true,
+        currentGrade: true,
+        preferredLocale: true,
+        avatarUrl: true,
+      },
+    }),
+  );
 
   const noValue = t(messages, 'account.profile.fields.noValue');
 
@@ -127,7 +129,7 @@ export default async function ProfilePage({
           },
         };
 
-  const isIncomplete = !profile?.firstName || !profile?.currentGrade;
+  const isIncomplete = !(profile?.firstName && profile.currentGrade);
 
   return (
     <Container width="lg" className="py-12">
@@ -194,12 +196,12 @@ export default async function ProfilePage({
                 { label: copy.fields.firstName, value: profile?.firstName },
                 { label: copy.fields.lastName, value: profile?.lastName },
                 { label: copy.fields.displayName, value: profile?.displayName },
-              ] as Array<{ label: string; value?: string | null }>
+              ] as { label: string; value?: string | null }[]
             ).map(({ label, value }) => (
               <div key={label} className="flex items-center justify-between py-3">
                 <dt className="text-sm text-slate-500 dark:text-slate-400">{label}</dt>
                 <dd className={`text-sm font-medium ${value ? 'text-slate-900 dark:text-slate-100' : 'text-slate-400 dark:text-slate-600'}`}>
-                  {value || noValue}
+                  {value && value.length > 0 ? value : noValue}
                 </dd>
               </div>
             ))}
@@ -216,7 +218,7 @@ export default async function ProfilePage({
               [
                 { label: copy.fields.currentGrade, value: gradeLabel(profile?.currentGrade) },
                 { label: copy.fields.preferredLocale, value: localeLabel(profile?.preferredLocale) },
-              ] as Array<{ label: string; value: string | null }>
+              ] as { label: string; value: string | null }[]
             ).map(({ label, value }) => (
               <div key={label} className="flex items-center justify-between py-3">
                 <dt className="text-sm text-slate-500 dark:text-slate-400">{label}</dt>
@@ -244,4 +246,6 @@ export default async function ProfilePage({
         </Card>
 
       </div>
-    </C
+    </Container>
+  );
+}
