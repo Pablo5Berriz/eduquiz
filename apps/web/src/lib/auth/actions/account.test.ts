@@ -48,6 +48,7 @@ vi.mock('@eduquiz/db', () => {
   return {
     AuditEventKind: {
       AUTH_PASSWORD_RESET: 'AUTH_PASSWORD_RESET',
+      AUTH_SIGNOUT: 'AUTH_SIGNOUT',
       DATA_DELETION_REQUESTED: 'DATA_DELETION_REQUESTED',
       PROFILE_UPDATED: 'PROFILE_UPDATED',
     },
@@ -84,7 +85,9 @@ vi.mock('../../logger', () => ({
 
 import {
   changePassword,
+  requestEmailChange,
   requestAccountDeletion,
+  revokeAllSessions,
   updateAccessibility,
   updateLocale,
   updateNotifPrefs,
@@ -278,5 +281,142 @@ describe('account actions RLS context', () => {
     expect(result).toEqual({ ok: false, reason: 'invalid' });
     expect(mockWithUser).not.toHaveBeenCalled();
     expect(mockTransaction).not.toHaveBeenCalled();
+  });
+
+  it('revokeAllSessions utilise withUser pour révoquer les sessions', async () => {
+    const result = await revokeAllSessions();
+
+    expect(result).toEqual({ ok: true });
+    expect(mockWithUser).toHaveBeenCalledWith({ userId: USER_ID, role: 'LEARNER_ADULT' });
+    expect(mockTransaction).toHaveBeenCalledTimes(1);
+    expect(mockTx.user.update).toHaveBeenCalledWith({
+      where: { id: USER_ID },
+      data: { sessionVersion: { increment: 1 } },
+    });
+    expect(mockTx.session.deleteMany).toHaveBeenCalledWith({ where: { userId: USER_ID } });
+    expect(mockTx.auditLog.create).toHaveBeenCalledWith({
+      data: {
+        kind: 'AUTH_SIGNOUT',
+        actorId: USER_ID,
+        targetId: USER_ID,
+        targetType: 'user',
+        payload: { trigger: 'revoke-all-sessions' },
+      },
+    });
+    expectServicePrismaUnused();
+  });
+
+  it('revokeAllSessions retourne unknown si la transaction échoue', async () => {
+    mockTransaction.mockRejectedValueOnce(new Error('db down'));
+
+    const result = await revokeAllSessions();
+
+    expect(result).toEqual({ ok: false, reason: 'unknown' });
+    expect(mockWithUser).toHaveBeenCalledWith({ userId: USER_ID, role: 'LEARNER_ADULT' });
+    expectServicePrismaUnused();
+  });
+
+  it('requestEmailChange rejette une entrée invalide sans appeler la DB', async () => {
+    const result = await requestEmailChange({ newEmail: 'invalid', password: '' });
+
+    expect(result).toEqual({ ok: false, fieldErrors: { newEmail: 'emailInvalid' } });
+    expect(mockWithUser).not.toHaveBeenCalled();
+    expectServicePrismaUnused();
+  });
+
+  it('requestEmailChange rejette le même email sans appeler la DB', async () => {
+    const result = await requestEmailChange({
+      newEmail: 'USER@example.com',
+      password: 'OldPassword1',
+    });
+
+    expect(result).toEqual({ ok: false, fieldErrors: { newEmail: 'emailSame' } });
+    expect(mockWithUser).not.toHaveBeenCalled();
+    expectServicePrismaUnused();
+  });
+
+  it('requestEmailChange retourne passwordInvalid si le hash est absent', async () => {
+    mockTx.user.findUnique.mockResolvedValueOnce({ id: USER_ID, passwordHash: null });
+
+    const result = await requestEmailChange({
+      newEmail: 'new@example.com',
+      password: 'OldPassword1',
+    });
+
+    expect(result).toEqual({ ok: false, fieldErrors: { password: 'passwordInvalid' } });
+    expect(mockWithUser).toHaveBeenCalledWith({ userId: USER_ID, role: 'LEARNER_ADULT' });
+    expect(mockTx.user.findUnique).toHaveBeenCalledWith({
+      where: { id: USER_ID },
+      select: { id: true, passwordHash: true, email: true },
+    });
+    expect(mockTransaction).toHaveBeenCalledTimes(1);
+    expect(mockVerifyPassword).not.toHaveBeenCalled();
+    expectServicePrismaUnused();
+  });
+
+  it('requestEmailChange retourne passwordInvalid si le mot de passe est invalide', async () => {
+    mockVerifyPassword.mockResolvedValueOnce(false);
+
+    const result = await requestEmailChange({
+      newEmail: 'new@example.com',
+      password: 'WrongPassword1',
+    });
+
+    expect(result).toEqual({ ok: false, fieldErrors: { password: 'passwordInvalid' } });
+    expect(mockWithUser).toHaveBeenCalledWith({ userId: USER_ID, role: 'LEARNER_ADULT' });
+    expect(mockTx.user.findUnique).toHaveBeenCalledWith({
+      where: { id: USER_ID },
+      select: { id: true, passwordHash: true, email: true },
+    });
+    expect(mockVerifyPassword).toHaveBeenCalledWith('old-hash', 'WrongPassword1');
+    expect(mockTransaction).toHaveBeenCalledTimes(1);
+    expectServicePrismaUnused();
+  });
+
+  it('requestEmailChange utilise withUser pour demander le changement email', async () => {
+    const result = await requestEmailChange({
+      newEmail: 'new@example.com',
+      password: 'OldPassword1',
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(mockWithUser).toHaveBeenCalledWith({ userId: USER_ID, role: 'LEARNER_ADULT' });
+    expect(mockWithUser).toHaveBeenCalledTimes(1);
+    expect(mockTx.user.findUnique).toHaveBeenCalledWith({
+      where: { id: USER_ID },
+      select: { id: true, passwordHash: true, email: true },
+    });
+    expect(mockVerifyPassword).toHaveBeenCalledWith('old-hash', 'OldPassword1');
+    expect(mockTransaction).toHaveBeenCalledTimes(2);
+    expect(mockTx.user.update).toHaveBeenCalledWith({
+      where: { id: USER_ID },
+      data: { pendingEmail: 'new@example.com' },
+    });
+    expect(mockTx.auditLog.create).toHaveBeenCalledWith({
+      data: {
+        kind: 'PROFILE_UPDATED',
+        actorId: USER_ID,
+        targetId: USER_ID,
+        targetType: 'user',
+        payload: { field: 'email', status: 'pending', newEmail: 'new@example.com' },
+      },
+    });
+    expectServicePrismaUnused();
+  });
+
+  it('requestEmailChange retourne form unknown si la transaction échoue', async () => {
+    mockTransaction
+      .mockImplementationOnce((fn: (tx: typeof mockTx) => unknown) => Promise.resolve(fn(mockTx)))
+      .mockRejectedValueOnce(new Error('db down'));
+
+    const result = await requestEmailChange({
+      newEmail: 'new@example.com',
+      password: 'OldPassword1',
+    });
+
+    expect(result).toEqual({ ok: false, fieldErrors: { form: 'unknown' } });
+    expect(mockWithUser).toHaveBeenCalledWith({ userId: USER_ID, role: 'LEARNER_ADULT' });
+    expect(mockVerifyPassword).toHaveBeenCalledWith('old-hash', 'OldPassword1');
+    expectServicePrismaUnused();
   });
 });

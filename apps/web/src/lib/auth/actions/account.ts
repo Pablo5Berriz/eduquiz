@@ -486,3 +486,111 @@ export async function updateNotifPrefs(
     return { ok: false, reason: 'unknown' };
   }
 }
+
+// ─── revokeAllSessions ────────────────────────────────────────────────────────
+
+export type RevokeAllSessionsResult =
+  | { readonly ok: true }
+  | { readonly ok: false; readonly reason: 'unknown' };
+
+export async function revokeAllSessions(): Promise<RevokeAllSessionsResult> {
+  const user = await requireApiUser();
+  const db = withUser(accountRlsContext(user));
+  try {
+    await db.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: user.id },
+        data: { sessionVersion: { increment: 1 } },
+      });
+      await tx.session.deleteMany({ where: { userId: user.id } });
+      await tx.auditLog.create({
+        data: {
+          kind: AuditEventKind.AUTH_SIGNOUT,
+          actorId: user.id,
+          targetId: user.id,
+          targetType: 'user',
+          payload: { trigger: 'revoke-all-sessions' } as never,
+        },
+      });
+    });
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: 'unknown' };
+  }
+}
+
+// ─── requestEmailChange ───────────────────────────────────────────────────────
+
+const emailChangeSchema = z.object({
+  newEmail: z.string().trim().email().max(320),
+  password: z.string().min(1).max(512),
+});
+
+export type RequestEmailChangeInput = z.infer<typeof emailChangeSchema>;
+
+export type EmailChangeFieldErrorCode =
+  | 'emailInvalid'
+  | 'emailSame'
+  | 'passwordRequired'
+  | 'passwordInvalid'
+  | 'unknown';
+
+export type RequestEmailChangeResult =
+  | { readonly ok: true }
+  | {
+      readonly ok: false;
+      readonly fieldErrors: Partial<
+        Record<'newEmail' | 'password' | 'form', EmailChangeFieldErrorCode>
+      >;
+    };
+
+export async function requestEmailChange(
+  input: RequestEmailChangeInput,
+): Promise<RequestEmailChangeResult> {
+  const sessionUser = await requireApiUser();
+  const parsed = emailChangeSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, fieldErrors: { newEmail: 'emailInvalid' } };
+  }
+  const { newEmail, password } = parsed.data;
+
+  if (newEmail.toLowerCase() === sessionUser.email.toLowerCase()) {
+    return { ok: false, fieldErrors: { newEmail: 'emailSame' } };
+  }
+
+  const db = withUser(accountRlsContext(sessionUser));
+  const dbUser = await db.$transaction((tx) =>
+    tx.user.findUnique({
+      where: { id: sessionUser.id },
+      select: { id: true, passwordHash: true, email: true },
+    }),
+  );
+  if (!dbUser?.passwordHash) {
+    return { ok: false, fieldErrors: { password: 'passwordInvalid' } };
+  }
+  const passwordOk = await verifyPassword(dbUser.passwordHash, password);
+  if (!passwordOk) {
+    return { ok: false, fieldErrors: { password: 'passwordInvalid' } };
+  }
+
+  try {
+    await db.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: dbUser.id },
+        data: { pendingEmail: newEmail },
+      });
+      await tx.auditLog.create({
+        data: {
+          kind: AuditEventKind.PROFILE_UPDATED,
+          actorId: dbUser.id,
+          targetId: dbUser.id,
+          targetType: 'user',
+          payload: { field: 'email', status: 'pending', newEmail } as never,
+        },
+      });
+    });
+    return { ok: true };
+  } catch {
+    return { ok: false, fieldErrors: { form: 'unknown' } };
+  }
+}
