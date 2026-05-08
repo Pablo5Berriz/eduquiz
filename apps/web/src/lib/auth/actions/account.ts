@@ -217,11 +217,12 @@ export async function changePassword(input: ChangePasswordInput): Promise<Change
   try {
     const newHash = await hashPassword(data.newPassword);
     await withUser(ctx).$transaction(async (tx) => {
-      await tx.user.update({ where: { id: dbUser.id }, data: { passwordHash: newHash } });
-      // Invalide TOUTES les sessions (y compris l'actuelle — l'utilisateur
-      // sera déconnecté). C'est cohérent avec le flux reset ; pour ne pas
-      // perdre la session courante, on pourrait préserver `sessionToken`
-      // courant, mais la simplicité prime en V1.
+      await tx.user.update({
+        where: { id: dbUser.id },
+        data: { passwordHash: newHash, sessionVersion: { increment: 1 } },
+      });
+      // JWT : la suppression des lignes Session ne révoque pas le cookie.
+      // `sessionVersion` rend les anciens JWT inutilisables côté serveur.
       await tx.session.deleteMany({ where: { userId: dbUser.id } });
       await tx.auditLog.create({
         data: {
@@ -359,7 +360,7 @@ export async function requestAccountDeletion(
       // les helpers serveur refuseront immédiatement le login.
       await tx.user.update({
         where: { id: dbUser.id },
-        data: { disabledAt: now },
+        data: { disabledAt: now, sessionVersion: { increment: 1 } },
       });
       // DataRequest pour audit Loi 25 + déclencheur de la purge cron.
       await tx.dataRequest.create({
@@ -371,7 +372,8 @@ export async function requestAccountDeletion(
           metadata: { trigger: 'self-service' } as never,
         },
       });
-      // Invalide toutes les sessions actives.
+      // Défense en profondeur : utile si une stratégie DB est réactivée.
+      // La révocation réelle en JWT vient de `sessionVersion`.
       await tx.session.deleteMany({ where: { userId: dbUser.id } });
       // Audit append-only.
       await tx.auditLog.create({
