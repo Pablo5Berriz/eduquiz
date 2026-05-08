@@ -3,7 +3,8 @@
   "extends": "@eduquiz/config/tsconfig-node",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "types": ["node"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", ".turbo", "**/*.test.ts", "prisma"]
