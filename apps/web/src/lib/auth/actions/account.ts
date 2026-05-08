@@ -391,3 +391,98 @@ export async function requestAccountDeletion(
     return { ok: false, fieldErrors: { form: 'unknown' } };
   }
 }
+
+// ─── updateTheme ─────────────────────────────────────────────────────────────
+
+const themeSchema = z.object({ theme: z.enum(['light', 'dark', 'system']) });
+
+export type UpdateThemeInput = z.infer<typeof themeSchema>;
+export type UpdateThemeResult =
+  | { readonly ok: true }
+  | { readonly ok: false; readonly reason: 'invalid' | 'unknown' };
+
+export async function updateTheme(input: UpdateThemeInput): Promise<UpdateThemeResult> {
+  const user = await requireApiUser();
+  const parsed = themeSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, reason: 'invalid' };
+  try {
+    await withUser(accountRlsContext(user)).$transaction((tx) =>
+      tx.profile.update({
+        where: { userId: user.id },
+        data: { theme: parsed.data.theme },
+      }),
+    );
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: 'unknown' };
+  }
+}
+
+// ─── updateAccessibility ──────────────────────────────────────────────────────
+
+const accessibilitySchema = z.object({
+  reducedMotion: z.boolean(),
+  highContrast: z.boolean(),
+});
+
+export type UpdateAccessibilityInput = z.infer<typeof accessibilitySchema>;
+export type UpdateAccessibilityResult =
+  | { readonly ok: true }
+  | { readonly ok: false; readonly reason: 'invalid' | 'unknown' };
+
+export async function updateAccessibility(
+  input: UpdateAccessibilityInput,
+): Promise<UpdateAccessibilityResult> {
+  const user = await requireApiUser();
+  const parsed = accessibilitySchema.safeParse(input);
+  if (!parsed.success) return { ok: false, reason: 'invalid' };
+  try {
+    await withUser(accountRlsContext(user)).$transaction((tx) =>
+      tx.profile.update({
+        where: { userId: user.id },
+        data: { reducedMotion: parsed.data.reducedMotion, highContrast: parsed.data.highContrast },
+      }),
+    );
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: 'unknown' };
+  }
+}
+
+// ─── updateNotifPrefs ─────────────────────────────────────────────────────────
+
+const notifPrefsSchema = z.object({
+  notifWeeklyReport: z.boolean(),
+  notifProgressMilestone: z.boolean(),
+  notifContentNew: z.boolean(),
+  notifStreakReminder: z.boolean(),
+});
+
+export type UpdateNotifPrefsInput = z.infer<typeof notifPrefsSchema>;
+export type UpdateNotifPrefsResult =
+  | { readonly ok: true }
+  | { readonly ok: false; readonly reason: 'invalid' | 'unknown' };
+
+export async function updateNotifPrefs(
+  input: UpdateNotifPrefsInput,
+): Promise<UpdateNotifPrefsResult> {
+  const user = await requireApiUser();
+  const parsed = notifPrefsSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, reason: 'invalid' };
+  try {
+    await withUser(accountRlsContext(user)).$transaction((tx) =>
+      tx.profile.update({
+        where: { userId: user.id },
+        data: {
+          notifWeeklyReport: parsed.data.notifWeeklyReport,
+          notifProgressMilestone: parsed.data.notifProgressMilestone,
+          notifContentNew: parsed.data.notifContentNew,
+          notifStreakReminder: parsed.data.notifStreakReminder,
+        },
+      }),
+    );
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: 'unknown' };
+  }
+}

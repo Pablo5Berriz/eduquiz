@@ -82,7 +82,15 @@ vi.mock('../../logger', () => ({
   logger: { warn: mockWarn },
 }));
 
-import { changePassword, requestAccountDeletion, updateLocale, updateProfile } from './account';
+import {
+  changePassword,
+  requestAccountDeletion,
+  updateAccessibility,
+  updateLocale,
+  updateNotifPrefs,
+  updateProfile,
+  updateTheme,
+} from './account';
 
 const USER_ID = '550e8400-e29b-41d4-a716-446655440000';
 const USER = {
@@ -208,5 +216,67 @@ describe('account actions RLS context', () => {
     expect(mockTx.session.deleteMany).toHaveBeenCalled();
     expect(mockTx.auditLog.create).toHaveBeenCalled();
     expectServicePrismaUnused();
+  });
+
+  it('updateTheme utilise withUser avec le contexte RLS', async () => {
+    const result = await updateTheme({ theme: 'dark' });
+
+    expect(result).toEqual({ ok: true });
+    expect(mockWithUser).toHaveBeenCalledWith({ userId: USER_ID, role: 'LEARNER_ADULT' });
+    expect(mockTransaction).toHaveBeenCalledTimes(1);
+    expect(mockTx.profile.update).toHaveBeenCalled();
+    expectServicePrismaUnused();
+  });
+
+  it('updateTheme rejette un thème invalide sans appeler la DB', async () => {
+    // @ts-expect-error test invalid input
+    const result = await updateTheme({ theme: 'invalid' });
+
+    expect(result).toEqual({ ok: false, reason: 'invalid' });
+    expect(mockWithUser).not.toHaveBeenCalled();
+    expect(mockTransaction).not.toHaveBeenCalled();
+  });
+
+  it('updateAccessibility utilise withUser avec le contexte RLS', async () => {
+    const result = await updateAccessibility({ reducedMotion: true, highContrast: false });
+
+    expect(result).toEqual({ ok: true });
+    expect(mockWithUser).toHaveBeenCalledWith({ userId: USER_ID, role: 'LEARNER_ADULT' });
+    expect(mockTransaction).toHaveBeenCalledTimes(1);
+    expect(mockTx.profile.update).toHaveBeenCalled();
+    expectServicePrismaUnused();
+  });
+
+  it('updateAccessibility rejette une entrée invalide sans appeler la DB', async () => {
+    // @ts-expect-error test invalid input
+    const result = await updateAccessibility({ reducedMotion: 'yes', highContrast: false });
+
+    expect(result).toEqual({ ok: false, reason: 'invalid' });
+    expect(mockWithUser).not.toHaveBeenCalled();
+    expect(mockTransaction).not.toHaveBeenCalled();
+  });
+
+  it('updateNotifPrefs utilise withUser avec le contexte RLS', async () => {
+    const result = await updateNotifPrefs({
+      notifWeeklyReport: true,
+      notifProgressMilestone: false,
+      notifContentNew: true,
+      notifStreakReminder: false,
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(mockWithUser).toHaveBeenCalledWith({ userId: USER_ID, role: 'LEARNER_ADULT' });
+    expect(mockTransaction).toHaveBeenCalledTimes(1);
+    expect(mockTx.profile.update).toHaveBeenCalled();
+    expectServicePrismaUnused();
+  });
+
+  it('updateNotifPrefs rejette une entrée invalide sans appeler la DB', async () => {
+    // @ts-expect-error test invalid input
+    const result = await updateNotifPrefs({ notifWeeklyReport: 'yes' });
+
+    expect(result).toEqual({ ok: false, reason: 'invalid' });
+    expect(mockWithUser).not.toHaveBeenCalled();
+    expect(mockTransaction).not.toHaveBeenCalled();
   });
 });
