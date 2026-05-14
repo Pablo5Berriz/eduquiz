@@ -393,6 +393,86 @@ describe('scoreSingleAnswerQuiz', () => {
     expect(result.rawScore).toBe(0);
     expect(result.answers[0]?.isCorrect).toBe(false);
   });
+
+  it('score une question ORDERING avec un ordre exact', () => {
+    const result = scoreSingleAnswerQuiz(
+      [orderingQuestion],
+      new Map([['question-ordering', { orderedAnswerIds: ['step-1', 'step-2', 'step-3'] }]]),
+      100,
+    );
+
+    expect(result).toMatchObject({
+      rawScore: 3,
+      maxScore: 3,
+      score: 100,
+      passed: true,
+    });
+    expect(result.answers[0]).toEqual({
+      questionId: 'question-ordering',
+      answerId: null,
+      answerIds: [],
+      orderedAnswerIds: ['step-1', 'step-2', 'step-3'],
+      isCorrect: true,
+      pointsEarned: 3,
+    });
+  });
+
+  it('refuse une question ORDERING avec le bon ensemble dans le mauvais ordre', () => {
+    const result = scoreSingleAnswerQuiz(
+      [orderingQuestion],
+      new Map([['question-ordering', { orderedAnswerIds: ['step-2', 'step-1', 'step-3'] }]]),
+      50,
+    );
+
+    expect(result.rawScore).toBe(0);
+    expect(result.answers[0]?.isCorrect).toBe(false);
+  });
+
+  it('refuse une question ORDERING avec une réponse vide', () => {
+    const result = scoreSingleAnswerQuiz(
+      [orderingQuestion],
+      new Map([['question-ordering', { orderedAnswerIds: [] }]]),
+      50,
+    );
+
+    expect(result.rawScore).toBe(0);
+    expect(result.answers[0]?.isCorrect).toBe(false);
+  });
+
+  it('refuse une question ORDERING avec un élément manquant', () => {
+    const result = scoreSingleAnswerQuiz(
+      [orderingQuestion],
+      new Map([['question-ordering', { orderedAnswerIds: ['step-1', 'step-2'] }]]),
+      50,
+    );
+
+    expect(result.rawScore).toBe(0);
+    expect(result.answers[0]?.isCorrect).toBe(false);
+  });
+
+  it('refuse une question ORDERING avec un élément en trop', () => {
+    const result = scoreSingleAnswerQuiz(
+      [orderingQuestion],
+      new Map([
+        ['question-ordering', { orderedAnswerIds: ['step-1', 'step-2', 'step-3', 'step-4'] }],
+      ]),
+      50,
+    );
+
+    expect(result.rawScore).toBe(0);
+    expect(result.answers[0]?.isCorrect).toBe(false);
+  });
+
+  it('refuse une question ORDERING avec un doublon', () => {
+    const result = scoreSingleAnswerQuiz(
+      [orderingQuestion],
+      new Map([['question-ordering', { orderedAnswerIds: ['step-1', 'step-1', 'step-3'] }]]),
+      50,
+    );
+
+    expect(result.rawScore).toBe(0);
+    expect(result.answers[0]?.isCorrect).toBe(false);
+  });
 });
 
 const matchingQuestion = {
@@ -402,6 +482,17 @@ const matchingQuestion = {
   answers: [
     { id: 'left-1', pairId: 'right-1', isCorrect: true },
     { id: 'left-2', pairId: 'right-2', isCorrect: true },
+  ],
+} as const;
+
+const orderingQuestion = {
+  id: 'question-ordering',
+  type: 'ORDERING',
+  points: 3,
+  answers: [
+    { id: 'step-1', isCorrect: true },
+    { id: 'step-2', isCorrect: true },
+    { id: 'step-3', isCorrect: true },
   ],
 } as const;
 
