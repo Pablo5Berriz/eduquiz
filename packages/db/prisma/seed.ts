@@ -467,6 +467,23 @@ async function main(): Promise<void> {
               { labelFr: '5/10', labelEn: '5/10', isCorrect: true },
             ],
           },
+          {
+            type: ExerciseType.SHORT_ANSWER,
+            promptFr: 'Explique en une phrase comment comparer 3/4 et 2/3.',
+            promptEn: 'Explain in one sentence how to compare 3/4 and 2/3.',
+            answers: [
+              {
+                labelFr: 'mettre sur un même dénominateur',
+                labelEn: 'find a common denominator',
+                isCorrect: true,
+              },
+              {
+                labelFr: 'trouver un dénominateur commun',
+                labelEn: 'use a common denominator',
+                isCorrect: true,
+              },
+            ],
+          },
         ],
       },
     },
@@ -601,8 +618,23 @@ async function main(): Promise<void> {
             type: ExerciseType.FILL_IN_THE_BLANK,
             promptFr: 'Complète : « Les élèves __ dans la cour. »',
             promptEn: 'Complete: "The students __ in the yard."',
+            answers: [{ labelFr: 'jouent', labelEn: 'play', isCorrect: true }],
+          },
+          {
+            type: ExerciseType.SHORT_ANSWER,
+            promptFr: 'Explique en une phrase le rôle d’un adjectif dans un groupe du nom.',
+            promptEn: 'Explain in one sentence the role of an adjective in a noun group.',
             answers: [
-              { labelFr: 'jouent', labelEn: 'play', isCorrect: true },
+              {
+                labelFr: 'préciser le nom',
+                labelEn: 'describe the noun',
+                isCorrect: true,
+              },
+              {
+                labelFr: 'donner une précision sur le nom',
+                labelEn: 'give more information about the noun',
+                isCorrect: true,
+              },
             ],
           },
         ],
