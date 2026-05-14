@@ -292,6 +292,60 @@ function MatchingAnswerList({
   );
 }
 
+interface OrderingAnswerListProps {
+  readonly questionId: string;
+  readonly answers: readonly MatchingAnswerOption[];
+  readonly disabled: boolean;
+  readonly moveDownLabel: string;
+  readonly moveUpLabel: string;
+  readonly onMove: (index: number, direction: -1 | 1) => void;
+}
+
+function OrderingAnswerList({
+  questionId,
+  answers,
+  disabled,
+  moveDownLabel,
+  moveUpLabel,
+  onMove,
+}: OrderingAnswerListProps): JSX.Element {
+  return (
+    <div className="mt-4 space-y-3">
+      {answers.map((answer, index) => (
+        <div
+          key={answer.id}
+          className="grid gap-3 rounded-md border border-slate-200 p-4 text-sm text-slate-700 dark:border-slate-700 dark:text-slate-200 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+        >
+          <input type="hidden" name={`ordering:${questionId}`} value={answer.id} />
+          <span>{answer.label}</span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={disabled || index === 0}
+              onClick={() => {
+                onMove(index, -1);
+              }}
+              className="rounded-md border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              {moveUpLabel}
+            </button>
+            <button
+              type="button"
+              disabled={disabled || index === answers.length - 1}
+              onClick={() => {
+                onMove(index, 1);
+              }}
+              className="rounded-md border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              {moveDownLabel}
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Composant principal ───────────────────────────────────────────────────────
 
 export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX.Element {
@@ -300,6 +354,14 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
   const [matchingAnswers, setMatchingAnswers] = useState<Record<string, Record<string, string>>>(
     {},
   );
+  const [orderingAnswerIdsByQuestionId, setOrderingAnswerIdsByQuestionId] = useState<
+    Record<string, readonly string[]>
+  >({});
+  const orderingLabels = {
+    hint: 'Mettre dans l’ordre',
+    moveDown: 'Descendre',
+    moveUp: 'Monter',
+  };
   const [checked, setChecked] = useState(false);
   const [showIncomplete, setShowIncomplete] = useState(false);
 
@@ -337,10 +399,27 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
     setShowIncomplete(false);
   }
 
+  function handleOrderingMove(
+    questionId: string,
+    answerIds: readonly string[],
+    index: number,
+    direction: -1 | 1,
+  ): void {
+    setOrderingAnswerIdsByQuestionId((current) => ({
+      ...current,
+      [questionId]: moveAnswerId(answerIds, index, direction),
+    }));
+    setChecked(false);
+    setShowIncomplete(false);
+  }
+
   function check(): void {
     const complete = exercise.questions.every((question) => {
       if (question.type === 'MATCHING') {
         return isMatchingComplete(question.answers, matchingAnswers[question.id] ?? {});
+      }
+      if (question.type === 'ORDERING') {
+        return isOrderingComplete(question.answers, orderingAnswerIdsByQuestionId[question.id]);
       }
       return question.type === 'FILL_IN_THE_BLANK' || question.type === 'SHORT_ANSWER'
         ? (textAnswers[question.id] ?? '').trim().length > 0
@@ -354,6 +433,7 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
     setSelectedAnswerIds({});
     setTextAnswers({});
     setMatchingAnswers({});
+    setOrderingAnswerIdsByQuestionId({});
     setChecked(false);
     setShowIncomplete(false);
   }
@@ -386,12 +466,26 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
             .map((answer) => answer.id);
           const isMulti = question.type === 'MCQ_MULTI';
           const isMatching = question.type === 'MATCHING';
+          const isOrdering = question.type === 'ORDERING';
           const isFillInTheBlank = question.type === 'FILL_IN_THE_BLANK';
           const isShortAnswer = question.type === 'SHORT_ANSWER';
           const isTextAnswer = isFillInTheBlank || isShortAnswer;
+          const isAssociationAnswer = isMatching || isOrdering;
           const questionTextAnswer = textAnswers[question.id] ?? '';
           const questionMatchingAnswers = matchingAnswers[question.id] ?? {};
+          const questionOrderingAnswerIds = getOrderingAnswerIds(
+            question.answers,
+            orderingAnswerIdsByQuestionId[question.id],
+          );
+          const questionOrderingAnswers = getOrderedAnswers(
+            question.answers,
+            questionOrderingAnswerIds,
+          );
           const hasMatchingAnswer = isMatchingComplete(question.answers, questionMatchingAnswers);
+          const hasOrderingAnswer = isOrderingComplete(
+            question.answers,
+            orderingAnswerIdsByQuestionId[question.id],
+          );
           const correctAnswerLabels = question.answers
             .filter((answer) => answer.isCorrect)
             .map((answer) => answer.label);
@@ -436,6 +530,27 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
                     handleTextChange(question.id, value);
                   }}
                 />
+              ) : isOrdering ? (
+                <>
+                  <p className="mt-3 text-sm font-medium text-brand-700 dark:text-brand-300">
+                    {orderingLabels.hint}
+                  </p>
+                  <OrderingAnswerList
+                    questionId={question.id}
+                    answers={questionOrderingAnswers}
+                    disabled={checked}
+                    moveDownLabel={orderingLabels.moveDown}
+                    moveUpLabel={orderingLabels.moveUp}
+                    onMove={(answerIndex, direction) => {
+                      handleOrderingMove(
+                        question.id,
+                        questionOrderingAnswerIds,
+                        answerIndex,
+                        direction,
+                      );
+                    }}
+                  />
+                </>
               ) : isMatching ? (
                 <>
                   <p className="mt-3 text-sm font-medium text-brand-700 dark:text-brand-300">
@@ -485,24 +600,28 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
               )}
 
               {checked &&
-              (isMatching
-                ? hasMatchingAnswer
+              (isAssociationAnswer
+                ? isMatching
+                  ? hasMatchingAnswer
+                  : hasOrderingAnswer
                 : isTextAnswer
                   ? questionTextAnswer.trim().length > 0
                   : questionSelectedAnswerIds.length > 0) ? (
                 <div
                   className={`mt-4 rounded-lg border px-4 py-3 text-sm ${
-                    isMatching
+                    isAssociationAnswer
                       ? 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
                       : isCorrect
                         ? 'border-success-200 bg-success-50 text-success-700 dark:border-success-900 dark:bg-success-950/20 dark:text-success-500'
                         : 'border-warning-200 bg-warning-50 text-warning-700 dark:border-warning-900 dark:bg-warning-950/20 dark:text-warning-500'
                   }`}
                 >
-                  {isMatching ? null : (
+                  {isAssociationAnswer ? null : (
                     <p className="font-semibold">{isCorrect ? copy.correct : copy.incorrect}</p>
                   )}
-                  {feedbackText ? <p className={isMatching ? '' : 'mt-1'}>{feedbackText}</p> : null}
+                  {feedbackText ? (
+                    <p className={isAssociationAnswer ? '' : 'mt-1'}>{feedbackText}</p>
+                  ) : null}
                   {isTextAnswer && correctAnswerLabels.length > 0 ? (
                     <p className="mt-2">
                       <span className="font-semibold">{copy.correct} : </span>
@@ -562,6 +681,49 @@ function isMatchingComplete(
     leftAnswers.length > 0 &&
     leftAnswers.every((leftAnswer) => (selectedMatches[leftAnswer.id] ?? '').trim().length > 0)
   );
+}
+
+function getOrderingAnswerIds(
+  answers: readonly MatchingAnswerOption[],
+  storedAnswerIds: readonly string[] | undefined,
+): readonly string[] {
+  return storedAnswerIds?.length === answers.length
+    ? storedAnswerIds
+    : answers.map((answer) => answer.id);
+}
+
+function getOrderedAnswers(
+  answers: readonly MatchingAnswerOption[],
+  answerIds: readonly string[],
+): readonly MatchingAnswerOption[] {
+  const answersById = new Map(answers.map((answer) => [answer.id, answer]));
+  return answerIds
+    .map((answerId) => answersById.get(answerId))
+    .filter((answer) => answer !== undefined);
+}
+
+function isOrderingComplete(
+  answers: readonly MatchingAnswerOption[],
+  storedAnswerIds: readonly string[] | undefined,
+): boolean {
+  const orderingAnswerIds = getOrderingAnswerIds(answers, storedAnswerIds);
+  return answers.length > 0 && orderingAnswerIds.length === answers.length;
+}
+
+function moveAnswerId(
+  answerIds: readonly string[],
+  index: number,
+  direction: -1 | 1,
+): readonly string[] {
+  const targetIndex = index + direction;
+  if (targetIndex < 0 || targetIndex >= answerIds.length) return answerIds;
+
+  const nextAnswerIds = [...answerIds];
+  [nextAnswerIds[index], nextAnswerIds[targetIndex]] = [
+    nextAnswerIds[targetIndex],
+    nextAnswerIds[index],
+  ];
+  return nextAnswerIds;
 }
 
 function firstNonEmptyText(...values: readonly (string | undefined)[]): string {

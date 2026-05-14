@@ -53,6 +53,13 @@ export function QuizForm({
 }: QuizFormProps): JSX.Element {
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<SubmitQuizResult>({ ok: true });
+  const [orderingAnswerIdsByQuestionId, setOrderingAnswerIdsByQuestionId] = useState<
+    Record<string, readonly string[]>
+  >({});
+  const orderingLabels =
+    locale === 'en'
+      ? { hint: 'Put in order', moveDown: 'Move down', moveUp: 'Move up' }
+      : { hint: 'Mettre dans l’ordre', moveDown: 'Descendre', moveUp: 'Monter' };
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>): void {
     event.preventDefault();
@@ -67,6 +74,18 @@ export function QuizForm({
   const missingQuestionIds = new Set(!result.ok ? (result.missingQuestionIds ?? []) : []);
   const formError = !result.ok ? copy.errors[result.error] : undefined;
 
+  function moveOrderingAnswer(
+    questionId: string,
+    answerIds: readonly string[],
+    index: number,
+    direction: -1 | 1,
+  ): void {
+    setOrderingAnswerIdsByQuestionId((current) => ({
+      ...current,
+      [questionId]: moveAnswerId(answerIds, index, direction),
+    }));
+  }
+
   return (
     <form onSubmit={onSubmit} noValidate className="mt-10 space-y-6">
       <input type="hidden" name="activityId" value={activityId} />
@@ -77,11 +96,17 @@ export function QuizForm({
 
       {questions.map((question, index) => {
         const hasError = missingQuestionIds.has(question.id);
+        const isOrdering = question.type === 'ORDERING';
         const isMatching = question.type === 'MATCHING';
         const isFillInTheBlank = question.type === 'FILL_IN_THE_BLANK';
         const isShortAnswer = question.type === 'SHORT_ANSWER';
         const inputType = question.type === 'MCQ_MULTI' ? 'checkbox' : 'radio';
         const matchingAnswers = getMatchingAnswerGroups(question.answers);
+        const orderingAnswerIds = getOrderingAnswerIds(
+          question.answers,
+          orderingAnswerIdsByQuestionId[question.id],
+        );
+        const orderingAnswers = getOrderedAnswers(question.answers, orderingAnswerIds);
 
         return (
           <fieldset
@@ -105,7 +130,22 @@ export function QuizForm({
                 {copy.matchingHint}
               </p>
             ) : null}
-            {isMatching ? (
+            {isOrdering ? (
+              <>
+                <p className="mt-2 text-sm font-medium text-brand-700 dark:text-brand-300">
+                  {orderingLabels.hint}
+                </p>
+                <OrderingAnswerList
+                  questionId={question.id}
+                  answers={orderingAnswers}
+                  moveDownLabel={orderingLabels.moveDown}
+                  moveUpLabel={orderingLabels.moveUp}
+                  onMove={(answerIndex, direction) => {
+                    moveOrderingAnswer(question.id, orderingAnswerIds, answerIndex, direction);
+                  }}
+                />
+              </>
+            ) : isMatching ? (
               <div className="mt-5 space-y-3">
                 {matchingAnswers.leftAnswers.map((leftAnswer) => (
                   <label
@@ -194,6 +234,58 @@ interface MatchingAnswerOption {
   readonly pairId?: string | null;
 }
 
+interface OrderingAnswerListProps {
+  readonly questionId: string;
+  readonly answers: readonly MatchingAnswerOption[];
+  readonly moveDownLabel: string;
+  readonly moveUpLabel: string;
+  readonly onMove: (index: number, direction: -1 | 1) => void;
+}
+
+function OrderingAnswerList({
+  questionId,
+  answers,
+  moveDownLabel,
+  moveUpLabel,
+  onMove,
+}: OrderingAnswerListProps): JSX.Element {
+  return (
+    <div className="mt-5 space-y-3">
+      {answers.map((answer, index) => (
+        <div
+          key={answer.id}
+          className="grid gap-3 rounded-md border border-slate-200 p-4 text-sm text-slate-700 dark:border-slate-700 dark:text-slate-200 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+        >
+          <input type="hidden" name={`ordering:${questionId}`} value={answer.id} />
+          <span>{answer.label}</span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={index === 0}
+              onClick={() => {
+                onMove(index, -1);
+              }}
+              className="rounded-md border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              {moveUpLabel}
+            </button>
+            <button
+              type="button"
+              disabled={index === answers.length - 1}
+              onClick={() => {
+                onMove(index, 1);
+              }}
+              className="rounded-md border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              {moveDownLabel}
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function getMatchingAnswerGroups(answers: readonly MatchingAnswerOption[]): {
   readonly leftAnswers: readonly MatchingAnswerOption[];
   readonly rightAnswers: readonly MatchingAnswerOption[];
@@ -208,4 +300,39 @@ function getMatchingAnswerGroups(answers: readonly MatchingAnswerOption[]): {
   );
 
   return { leftAnswers, rightAnswers };
+}
+
+function getOrderingAnswerIds(
+  answers: readonly MatchingAnswerOption[],
+  storedAnswerIds: readonly string[] | undefined,
+): readonly string[] {
+  return storedAnswerIds?.length === answers.length
+    ? storedAnswerIds
+    : answers.map((answer) => answer.id);
+}
+
+function getOrderedAnswers(
+  answers: readonly MatchingAnswerOption[],
+  answerIds: readonly string[],
+): readonly MatchingAnswerOption[] {
+  const answersById = new Map(answers.map((answer) => [answer.id, answer]));
+  return answerIds
+    .map((answerId) => answersById.get(answerId))
+    .filter((answer) => answer !== undefined);
+}
+
+function moveAnswerId(
+  answerIds: readonly string[],
+  index: number,
+  direction: -1 | 1,
+): readonly string[] {
+  const targetIndex = index + direction;
+  if (targetIndex < 0 || targetIndex >= answerIds.length) return answerIds;
+
+  const nextAnswerIds = [...answerIds];
+  [nextAnswerIds[index], nextAnswerIds[targetIndex]] = [
+    nextAnswerIds[targetIndex],
+    nextAnswerIds[index],
+  ];
+  return nextAnswerIds;
 }
