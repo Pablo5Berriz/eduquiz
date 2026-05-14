@@ -78,40 +78,64 @@ export default async function QuizResultPage({
       <section className="mt-8">
         <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-50">{c('answers')}</h2>
         <div className="mt-4 space-y-4">
-          {result.answers.map((answer) => (
-            <article
-              key={answer.questionId}
-              className="rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
-            >
-              <h3 className="font-semibold text-slate-950 dark:text-slate-50">{answer.prompt}</h3>
-              <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-                {c('selected')} :{' '}
-                <span className="font-medium">
-                  {answer.selectedMatchLabels.length > 0
-                    ? answer.selectedMatchLabels.join(', ')
-                    : (answer.selectedText ??
-                      (answer.selectedAnswerLabels.length > 0
-                        ? answer.selectedAnswerLabels.join(', ')
-                        : '—'))}
-                </span>
-              </p>
-              <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-                {c('correct')} :{' '}
-                <span className="font-medium">
-                  {(answer.correctMatchLabels.length > 0
-                    ? answer.correctMatchLabels
-                    : answer.correctAnswerLabels
-                  ).join(', ')}
-                </span>
-              </p>
-              <p className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-                {answer.isCorrect ? `+${String(answer.pointsEarned)}` : '+0'} {c('point')}
-                {answer.pointsEarned > 1 ? 's' : ''}
-              </p>
-            </article>
-          ))}
+          {result.answers.map((answer) => {
+            const isOrdering = answer.questionType === 'ORDERING';
+
+            return (
+              <article
+                key={answer.questionId}
+                className="rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
+              >
+                <h3 className="font-semibold text-slate-950 dark:text-slate-50">{answer.prompt}</h3>
+                <div className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                  {c('selected')} :{' '}
+                  {isOrdering ? (
+                    <OrderedAnswerLabels labels={answer.selectedOrderingLabels} />
+                  ) : (
+                    <span className="font-medium">
+                      {answer.selectedMatchLabels.length > 0
+                        ? answer.selectedMatchLabels.join(', ')
+                        : (answer.selectedText ??
+                          (answer.selectedAnswerLabels.length > 0
+                            ? answer.selectedAnswerLabels.join(', ')
+                            : '—'))}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                  {c('correct')} :{' '}
+                  {isOrdering ? (
+                    <OrderedAnswerLabels labels={answer.correctOrderingLabels} />
+                  ) : (
+                    <span className="font-medium">
+                      {(answer.correctMatchLabels.length > 0
+                        ? answer.correctMatchLabels
+                        : answer.correctAnswerLabels
+                      ).join(', ')}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+                  {answer.isCorrect ? `+${String(answer.pointsEarned)}` : '+0'} {c('point')}
+                  {answer.pointsEarned > 1 ? 's' : ''}
+                </p>
+              </article>
+            );
+          })}
         </div>
       </section>
     </Container>
+  );
+}
+
+function OrderedAnswerLabels({ labels }: { readonly labels: readonly string[] }): JSX.Element {
+  return labels.length > 0 ? (
+    <ol className="mt-2 list-decimal space-y-1 pl-5 font-medium">
+      {labels.map((label, index) => (
+        <li key={`${label}-${String(index)}`}>{label}</li>
+      ))}
+    </ol>
+  ) : (
+    <span className="font-medium">—</span>
   );
 }

@@ -59,6 +59,22 @@ function extractTextAnswer(response: unknown): string | null {
   return null;
 }
 
+function extractOrderedAnswerIds(response: unknown): readonly string[] {
+  if (typeof response !== 'object' || response === null || Array.isArray(response)) {
+    return [];
+  }
+
+  const orderedAnswerIds = 'orderedAnswerIds' in response ? response.orderedAnswerIds : undefined;
+  if (
+    Array.isArray(orderedAnswerIds) &&
+    orderedAnswerIds.every((answerId) => typeof answerId === 'string')
+  ) {
+    return orderedAnswerIds;
+  }
+
+  return [];
+}
+
 function extractSubmittedMatches(response: unknown): readonly SubmittedMatch[] {
   if (typeof response !== 'object' || response === null || Array.isArray(response)) {
     return [];
@@ -469,6 +485,7 @@ export async function getAttemptResult(params: {
     answers: attempt.answers.map((answer) => {
       const selectedAnswerIds = extractSelectedAnswerIds(answer.response);
       const selectedText = extractTextAnswer(answer.response);
+      const selectedOrderedAnswerIds = extractOrderedAnswerIds(answer.response);
       const selectedMatches = extractSubmittedMatches(answer.response);
       const answersById = new Map(answer.question.answers.map((choice) => [choice.id, choice]));
       const formatAnswerLabel = (answerId: string): string => {
@@ -490,18 +507,23 @@ export async function getAttemptResult(params: {
         const pairId = getAnswerPairId(choice);
         return pairId ? [formatMatchLabel({ leftId: choice.id, rightId: pairId })] : [];
       });
+      const selectedOrderingLabels = selectedOrderedAnswerIds.map(formatAnswerLabel);
+      const correctOrderingLabels = correctAnswerLabels;
 
       return {
         questionId: answer.questionId,
+        questionType: answer.question.type,
         prompt: localized(params.locale, answer.question.promptFr, answer.question.promptEn),
         selectedAnswerId: selectedAnswerIds[0] ?? null,
         selectedAnswerIds,
         selectedText,
         selectedAnswerLabels,
         selectedMatchLabels,
+        selectedOrderingLabels,
         correctAnswerLabel: correctAnswerLabels[0] ?? '',
         correctAnswerLabels,
         correctMatchLabels,
+        correctOrderingLabels,
         isCorrect: answer.isCorrect,
         pointsEarned: answer.pointsEarned,
       };
