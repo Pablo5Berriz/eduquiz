@@ -10,7 +10,7 @@
  *   • 3 matières publiées (Mathématiques, Français, Anglais).
  *   • 5 compétences MEQ (2 en maths, 2 en français, 1 en anglais).
  *   • 2 cours d'exemple (maths P5, français P4) avec 1 leçon publiée chacun.
- *   • 1 exercice MCQ_SINGLE et 1 quiz (1 question) par leçon.
+ *   • 1 exercice MCQ_SINGLE et 1 quiz multi-question par leçon.
  *   • 5 badges de progression.
  *
  * Idempotent : toutes les opérations utilisent `upsert` sur des champs
@@ -23,8 +23,8 @@ import { createHash } from 'node:crypto';
 import {
   BadgeKind,
   ContentStatus,
-  GradeCode,
   ExerciseType,
+  GradeCode,
   Locale,
   PrismaClient,
   SchoolCycle,
@@ -291,6 +291,22 @@ async function main(): Promise<void> {
   }
 
   // ─── 5. Cours + Leçons + Activités + Questions ────────────────────────────
+  type QuestionSpec = {
+    type?: ExerciseType;
+    promptFr: string;
+    promptEn: string;
+    answers: Array<{ labelFr: string; labelEn: string; isCorrect: boolean }>;
+  };
+
+  type LessonBody = {
+    blocks: Array<
+      | { type: 'paragraph'; text: string }
+      | { type: 'list'; items: string[] }
+      | { type: 'example'; title: string; text: string }
+      | { type: 'callout'; title: string; text: string }
+    >;
+  };
+
   type CourseSpec = {
     slug: string;
     subjectCode: 'math' | 'fr' | 'en';
@@ -301,21 +317,19 @@ async function main(): Promise<void> {
       slug: string;
       titleFr: string;
       titleEn: string;
+      summaryFr: string;
+      summaryEn: string;
+      objectivesFr: string[];
+      objectivesEn: string[];
+      bodyFr: LessonBody;
+      bodyEn: LessonBody;
+      exerciseHintFr: string;
+      exerciseHintEn: string;
+      exerciseExplanationFr: string;
+      exerciseExplanationEn: string;
       skillCodes: string[];
-      exerciseQuestion: {
-        type?: ExerciseType;
-        promptFr: string;
-        promptEn: string;
-        answers: Array<{ labelFr: string; labelEn: string; isCorrect: boolean }>;
-      };
-      exerciseExplanationFr?: string;
-      exerciseExplanationEn?: string;
-      quizQuestion: {
-        type?: ExerciseType;
-        promptFr: string;
-        promptEn: string;
-        answers: Array<{ labelFr: string; labelEn: string; isCorrect: boolean }>;
-      };
+      exerciseQuestion: QuestionSpec;
+      quizQuestions: QuestionSpec[];
     };
   };
 
@@ -330,10 +344,78 @@ async function main(): Promise<void> {
         slug: 'math-p5-comparer-fractions',
         titleFr: 'Comparer deux fractions',
         titleEn: 'Comparing two fractions',
-        skillCodes: ['math.fractions.compare'],
+        summaryFr:
+          'Apprends à comparer deux fractions avec des dénominateurs différents sans te fier seulement à leur apparence.',
+        summaryEn:
+          'Learn how to compare two fractions with different denominators without relying only on how they look.',
+        objectivesFr: [
+          'Comprendre que le dénominateur indique le nombre de parts égales.',
+          'Comparer deux fractions en les mettant sur un dénominateur commun.',
+          'Vérifier une réponse avec un produit croisé simple.',
+        ],
+        objectivesEn: [
+          'Understand that the denominator shows how many equal parts are used.',
+          'Compare two fractions by rewriting them with a common denominator.',
+          'Check an answer with a simple cross product.',
+        ],
+        bodyFr: {
+          blocks: [
+            {
+              type: 'paragraph',
+              text: 'Une fraction représente une partie d’un tout. Pour comparer deux fractions, il faut comparer des parts de même taille. Si les dénominateurs sont différents, les parts ne sont pas directement comparables.',
+            },
+            {
+              type: 'list',
+              items: [
+                'Trouve un dénominateur commun.',
+                'Transforme chaque fraction sans changer sa valeur.',
+                'Compare ensuite les numérateurs.',
+              ],
+            },
+            {
+              type: 'example',
+              title: 'Exemple',
+              text: 'Pour comparer 5/8 et 3/5, utilise 40 comme dénominateur commun. 5/8 devient 25/40 et 3/5 devient 24/40. Donc 3/5 est la plus petite.',
+            },
+            {
+              type: 'callout',
+              title: 'Point de vigilance',
+              text: 'Un plus grand dénominateur ne signifie pas automatiquement une plus grande fraction. 1/8 est plus petit que 1/5, car le tout est coupé en plus de parts.',
+            },
+          ],
+        },
+        bodyEn: {
+          blocks: [
+            {
+              type: 'paragraph',
+              text: 'A fraction represents part of a whole. To compare two fractions, you need to compare parts of the same size. If the denominators are different, the parts cannot be compared directly.',
+            },
+            {
+              type: 'list',
+              items: [
+                'Find a common denominator.',
+                'Rewrite each fraction without changing its value.',
+                'Compare the numerators.',
+              ],
+            },
+            {
+              type: 'example',
+              title: 'Example',
+              text: 'To compare 5/8 and 3/5, use 40 as the common denominator. 5/8 becomes 25/40 and 3/5 becomes 24/40. So 3/5 is smaller.',
+            },
+            {
+              type: 'callout',
+              title: 'Watch out',
+              text: 'A bigger denominator does not automatically mean a bigger fraction. 1/8 is smaller than 1/5 because the whole is split into more parts.',
+            },
+          ],
+        },
+        exerciseHintFr: 'Mets les deux fractions sur le même dénominateur avant de comparer.',
+        exerciseHintEn: 'Rewrite both fractions with the same denominator before comparing.',
         exerciseExplanationFr:
           '3/4 et 2/3 sont plus grandes que 1/2. 1/3 et 2/5 sont plus petites que 1/2.',
         exerciseExplanationEn: '3/4 and 2/3 are greater than 1/2. 1/3 and 2/5 are less than 1/2.',
+        skillCodes: ['math.fractions.compare'],
         exerciseQuestion: {
           type: ExerciseType.MCQ_MULTI,
           promptFr: 'Sélectionne toutes les fractions plus grandes que 1/2.',
@@ -345,14 +427,36 @@ async function main(): Promise<void> {
             { labelFr: '2/5', labelEn: '2/5', isCorrect: false },
           ],
         },
-        quizQuestion: {
-          promptFr: 'Entre 5/8 et 3/5, laquelle est la plus petite ?',
-          promptEn: 'Between 5/8 and 3/5, which one is smaller?',
-          answers: [
-            { labelFr: '3/5', labelEn: '3/5', isCorrect: true },
-            { labelFr: '5/8', labelEn: '5/8', isCorrect: false },
-          ],
-        },
+        quizQuestions: [
+          {
+            promptFr: 'Entre 5/8 et 3/5, laquelle est la plus petite ?',
+            promptEn: 'Between 5/8 and 3/5, which one is smaller?',
+            answers: [
+              { labelFr: '3/5', labelEn: '3/5', isCorrect: true },
+              { labelFr: '5/8', labelEn: '5/8', isCorrect: false },
+            ],
+          },
+          {
+            type: ExerciseType.TRUE_FALSE,
+            promptFr: 'Vrai ou faux : 1/8 est plus grand que 1/5.',
+            promptEn: 'True or false: 1/8 is greater than 1/5.',
+            answers: [
+              { labelFr: 'Vrai', labelEn: 'True', isCorrect: false },
+              { labelFr: 'Faux', labelEn: 'False', isCorrect: true },
+            ],
+          },
+          {
+            type: ExerciseType.MCQ_MULTI,
+            promptFr: 'Sélectionne toutes les fractions équivalentes à 1/2.',
+            promptEn: 'Select all fractions equivalent to 1/2.',
+            answers: [
+              { labelFr: '2/4', labelEn: '2/4', isCorrect: true },
+              { labelFr: '3/6', labelEn: '3/6', isCorrect: true },
+              { labelFr: '4/6', labelEn: '4/6', isCorrect: false },
+              { labelFr: '5/10', labelEn: '5/10', isCorrect: true },
+            ],
+          },
+        ],
       },
     },
     {
@@ -366,6 +470,80 @@ async function main(): Promise<void> {
         titleFr: 'Accord sujet-verbe',
         titleEn: 'Subject-verb agreement',
         skillCodes: ['fr.grammar.verbs'],
+        summaryFr:
+          'Repère le sujet d’une phrase et choisis la forme du verbe qui correspond à ce sujet.',
+        summaryEn:
+          'Find the subject of a sentence and choose the verb form that matches that subject.',
+        objectivesFr: [
+          'Identifier le sujet dans une phrase simple.',
+          'Distinguer un sujet singulier d’un sujet pluriel.',
+          'Choisir une terminaison verbale cohérente avec le sujet.',
+        ],
+        objectivesEn: [
+          'Identify the subject in a simple sentence.',
+          'Tell whether a subject is singular or plural.',
+          'Choose a verb ending that matches the subject.',
+        ],
+        bodyFr: {
+          blocks: [
+            {
+              type: 'paragraph',
+              text: 'Dans une phrase, le verbe doit s’accorder avec son sujet. Pour bien accorder, commence par poser la question “qui est-ce qui ?” devant le verbe.',
+            },
+            {
+              type: 'list',
+              items: [
+                'Trouve le verbe conjugué.',
+                'Pose la question pour trouver le sujet.',
+                'Regarde si le sujet est singulier ou pluriel.',
+                'Choisis la forme du verbe qui convient.',
+              ],
+            },
+            {
+              type: 'example',
+              title: 'Exemple',
+              text: 'Dans “Le chat et le chien jouent ensemble”, le sujet est “Le chat et le chien”. Il y a deux animaux : le sujet est pluriel, donc on écrit “jouent”.',
+            },
+            {
+              type: 'callout',
+              title: 'Point de vigilance',
+              text: 'Le sujet peut être loin du verbe. Ne choisis pas la forme du verbe seulement avec le mot placé juste avant.',
+            },
+          ],
+        },
+        bodyEn: {
+          blocks: [
+            {
+              type: 'paragraph',
+              text: 'In a sentence, the verb must agree with its subject. To choose the right form, first ask who or what is doing the action.',
+            },
+            {
+              type: 'list',
+              items: [
+                'Find the conjugated verb.',
+                'Ask who or what is doing the action.',
+                'Check whether the subject is singular or plural.',
+                'Choose the matching verb form.',
+              ],
+            },
+            {
+              type: 'example',
+              title: 'Example',
+              text: 'In “The cat and the dog play together”, the subject is “The cat and the dog”. There are two animals, so the subject is plural and the verb is “play”.',
+            },
+            {
+              type: 'callout',
+              title: 'Watch out',
+              text: 'The subject can be far from the verb. Do not choose the verb form only from the word that appears just before it.',
+            },
+          ],
+        },
+        exerciseHintFr: 'Cherche d’abord le sujet : qui fait l’action ?',
+        exerciseHintEn: 'Find the subject first: who is doing the action?',
+        exerciseExplanationFr:
+          'Le sujet est “Les élèves”, donc il est pluriel. Le verbe doit aussi être au pluriel : “vont”.',
+        exerciseExplanationEn:
+          'The subject is “The students”, so it is plural. The verb must also be plural: “go”.',
         exerciseQuestion: {
           promptFr: '« Les élèves ___ au tableau. » Quel est le verbe correctement accordé ?',
           promptEn: '"The students ___ to the board." Which verb form is correct?',
@@ -375,14 +553,40 @@ async function main(): Promise<void> {
             { labelFr: 'allez', labelEn: 'are going (you)', isCorrect: false },
           ],
         },
-        quizQuestion: {
-          promptFr: 'Choisis la bonne forme : « Le chat et le chien ___ ensemble. »',
-          promptEn: 'Pick the right form: "The cat and the dog ___ together."',
-          answers: [
-            { labelFr: 'jouent', labelEn: 'play', isCorrect: true },
-            { labelFr: 'joue', labelEn: 'plays', isCorrect: false },
-          ],
-        },
+        quizQuestions: [
+          {
+            promptFr: 'Choisis la bonne forme : « Le chat et le chien ___ ensemble. »',
+            promptEn: 'Pick the right form: "The cat and the dog ___ together."',
+            answers: [
+              { labelFr: 'jouent', labelEn: 'play', isCorrect: true },
+              { labelFr: 'joue', labelEn: 'plays', isCorrect: false },
+            ],
+          },
+          {
+            type: ExerciseType.TRUE_FALSE,
+            promptFr: 'Vrai ou faux : dans « Les élèves vont », le sujet est pluriel.',
+            promptEn: 'True or false: in "The students go", the subject is plural.',
+            answers: [
+              { labelFr: 'Vrai', labelEn: 'True', isCorrect: true },
+              { labelFr: 'Faux', labelEn: 'False', isCorrect: false },
+            ],
+          },
+          {
+            type: ExerciseType.MCQ_MULTI,
+            promptFr: 'Sélectionne tous les sujets pluriels.',
+            promptEn: 'Select all plural subjects.',
+            answers: [
+              { labelFr: 'Les élèves', labelEn: 'The students', isCorrect: true },
+              {
+                labelFr: 'Le chat et le chien',
+                labelEn: 'The cat and the dog',
+                isCorrect: true,
+              },
+              { labelFr: 'Ma sœur', labelEn: 'My sister', isCorrect: false },
+              { labelFr: 'Un enfant', labelEn: 'A child', isCorrect: false },
+            ],
+          },
+        ],
       },
     },
   ];
@@ -420,6 +624,12 @@ async function main(): Promise<void> {
         titleFr: courseSpec.lesson.titleFr,
         titleEn: courseSpec.lesson.titleEn,
         status: ContentStatus.PUBLISHED,
+        summaryFr: courseSpec.lesson.summaryFr,
+        summaryEn: courseSpec.lesson.summaryEn,
+        objectivesFr: courseSpec.lesson.objectivesFr,
+        objectivesEn: courseSpec.lesson.objectivesEn,
+        bodyFr: courseSpec.lesson.bodyFr,
+        bodyEn: courseSpec.lesson.bodyEn,
         publishedAt: new Date(),
       },
       create: {
@@ -428,6 +638,12 @@ async function main(): Promise<void> {
         titleFr: courseSpec.lesson.titleFr,
         titleEn: courseSpec.lesson.titleEn,
         status: ContentStatus.PUBLISHED,
+        summaryFr: courseSpec.lesson.summaryFr,
+        summaryEn: courseSpec.lesson.summaryEn,
+        objectivesFr: courseSpec.lesson.objectivesFr,
+        objectivesEn: courseSpec.lesson.objectivesEn,
+        bodyFr: courseSpec.lesson.bodyFr,
+        bodyEn: courseSpec.lesson.bodyEn,
         publishedAt: new Date(),
       },
       select: { id: true },
@@ -476,12 +692,10 @@ async function main(): Promise<void> {
         type: courseSpec.lesson.exerciseQuestion.type ?? ExerciseType.MCQ_SINGLE,
         instructionsFr: 'Choisis la bonne réponse.',
         instructionsEn: 'Pick the correct answer.',
-        ...(courseSpec.lesson.exerciseExplanationFr
-          ? { explanationFr: courseSpec.lesson.exerciseExplanationFr }
-          : {}),
-        ...(courseSpec.lesson.exerciseExplanationEn
-          ? { explanationEn: courseSpec.lesson.exerciseExplanationEn }
-          : {}),
+        hintFr: courseSpec.lesson.exerciseHintFr,
+        hintEn: courseSpec.lesson.exerciseHintEn,
+        explanationFr: courseSpec.lesson.exerciseExplanationFr,
+        explanationEn: courseSpec.lesson.exerciseExplanationEn,
       },
       create: {
         activityId: exerciseActivity.id,
@@ -490,12 +704,10 @@ async function main(): Promise<void> {
         titleEn: courseSpec.lesson.titleEn,
         instructionsFr: 'Choisis la bonne réponse.',
         instructionsEn: 'Pick the correct answer.',
-        ...(courseSpec.lesson.exerciseExplanationFr
-          ? { explanationFr: courseSpec.lesson.exerciseExplanationFr }
-          : {}),
-        ...(courseSpec.lesson.exerciseExplanationEn
-          ? { explanationEn: courseSpec.lesson.exerciseExplanationEn }
-          : {}),
+        hintFr: courseSpec.lesson.exerciseHintFr,
+        hintEn: courseSpec.lesson.exerciseHintEn,
+        explanationFr: courseSpec.lesson.exerciseExplanationFr,
+        explanationEn: courseSpec.lesson.exerciseExplanationEn,
       },
       select: { id: true },
     });
@@ -541,55 +753,15 @@ async function main(): Promise<void> {
       select: { id: true },
     });
 
-    await seedQuestionWithAnswers({
-      questionId: deterministicUuid(`${courseSpec.lesson.slug}:quiz:q1`),
-      exerciseId: null,
-      quizId: quiz.id,
-      spec: courseSpec.lesson.quizQuestion,
-      lessonSlug: `${courseSpec.lesson.slug}:quiz:q1`,
-    });
-
-    if (courseSpec.lesson.slug === 'math-p5-comparer-fractions') {
+    for (const [index, question] of courseSpec.lesson.quizQuestions.entries()) {
+      const questionKey = `${courseSpec.lesson.slug}:quiz:q${index + 1}`;
       await seedQuestionWithAnswers({
-        questionId: deterministicUuid(`${courseSpec.lesson.slug}:quiz:q2`),
+        questionId: deterministicUuid(questionKey),
         exerciseId: null,
         quizId: quiz.id,
-        spec: {
-          type: ExerciseType.MCQ_MULTI,
-          promptFr: 'Sélectionne toutes les fractions équivalentes à 1/2.',
-          promptEn: 'Select all fractions equivalent to 1/2.',
-          answers: [
-            { labelFr: '2/4', labelEn: '2/4', isCorrect: true },
-            { labelFr: '3/6', labelEn: '3/6', isCorrect: true },
-            { labelFr: '4/6', labelEn: '4/6', isCorrect: false },
-            { labelFr: '5/10', labelEn: '5/10', isCorrect: true },
-          ],
-        },
-        lessonSlug: `${courseSpec.lesson.slug}:quiz:q2`,
-      });
-    }
-
-    if (courseSpec.lesson.slug === 'fr-p4-accord-sujet-verbe') {
-      await seedQuestionWithAnswers({
-        questionId: deterministicUuid(`${courseSpec.lesson.slug}:quiz:q2`),
-        exerciseId: null,
-        quizId: quiz.id,
-        spec: {
-          type: ExerciseType.MCQ_MULTI,
-          promptFr: 'Sélectionne tous les sujets pluriels.',
-          promptEn: 'Select all plural subjects.',
-          answers: [
-            { labelFr: 'Les élèves', labelEn: 'The students', isCorrect: true },
-            {
-              labelFr: 'Le chat et le chien',
-              labelEn: 'The cat and the dog',
-              isCorrect: true,
-            },
-            { labelFr: 'Ma sœur', labelEn: 'My sister', isCorrect: false },
-            { labelFr: 'Un enfant', labelEn: 'A child', isCorrect: false },
-          ],
-        },
-        lessonSlug: `${courseSpec.lesson.slug}:quiz:q2`,
+        spec: question,
+        lessonSlug: questionKey,
+        ordinal: index,
       });
     }
   }
@@ -693,14 +865,16 @@ async function seedQuestionWithAnswers(params: {
     answers: Array<{ labelFr: string; labelEn: string; isCorrect: boolean }>;
   };
   lessonSlug: string;
+  ordinal?: number;
 }): Promise<void> {
-  const { questionId, exerciseId, quizId, spec, lessonSlug } = params;
+  const { questionId, exerciseId, quizId, spec, lessonSlug, ordinal = 0 } = params;
   await prisma.question.upsert({
     where: { id: questionId },
     update: {
       exerciseId,
       quizId,
       type: spec.type ?? ExerciseType.MCQ_SINGLE,
+      ordinal,
       promptFr: spec.promptFr,
       promptEn: spec.promptEn,
     },
@@ -709,6 +883,7 @@ async function seedQuestionWithAnswers(params: {
       exerciseId,
       quizId,
       type: spec.type ?? ExerciseType.MCQ_SINGLE,
+      ordinal,
       promptFr: spec.promptFr,
       promptEn: spec.promptEn,
     },
