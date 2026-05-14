@@ -456,6 +456,17 @@ async function main(): Promise<void> {
               { labelFr: '5/10', labelEn: '5/10', isCorrect: true },
             ],
           },
+          {
+            type: ExerciseType.FILL_IN_THE_BLANK,
+            promptFr: 'Complète : une fraction équivalente à 1/2 est __.',
+            promptEn: 'Complete: a fraction equivalent to 1/2 is __.',
+            answers: [
+              { labelFr: '2/4', labelEn: '2/4', isCorrect: true },
+              { labelFr: '3/6', labelEn: '3/6', isCorrect: true },
+              { labelFr: '4/8', labelEn: '4/8', isCorrect: true },
+              { labelFr: '5/10', labelEn: '5/10', isCorrect: true },
+            ],
+          },
         ],
       },
     },
@@ -584,6 +595,14 @@ async function main(): Promise<void> {
               },
               { labelFr: 'Ma sœur', labelEn: 'My sister', isCorrect: false },
               { labelFr: 'Un enfant', labelEn: 'A child', isCorrect: false },
+            ],
+          },
+          {
+            type: ExerciseType.FILL_IN_THE_BLANK,
+            promptFr: 'Complète : « Les élèves __ dans la cour. »',
+            promptEn: 'Complete: "The students __ in the yard."',
+            answers: [
+              { labelFr: 'jouent', labelEn: 'play', isCorrect: true },
             ],
           },
         ],
