@@ -295,7 +295,13 @@ async function main(): Promise<void> {
     type?: ExerciseType;
     promptFr: string;
     promptEn: string;
-    answers: Array<{ labelFr: string; labelEn: string; isCorrect: boolean }>;
+    answers: Array<{
+      id?: string;
+      labelFr: string;
+      labelEn: string;
+      isCorrect: boolean;
+      pairId?: string;
+    }>;
   };
 
   type LessonBody = {
@@ -484,6 +490,37 @@ async function main(): Promise<void> {
               },
             ],
           },
+          {
+            type: ExerciseType.MATCHING,
+            promptFr: 'Associe chaque fraction à sa forme décimale.',
+            promptEn: 'Match each fraction with its decimal form.',
+            answers: [
+              {
+                labelFr: '1/2',
+                labelEn: '1/2',
+                isCorrect: true,
+                pairId: 'math-matching-decimal-0-5',
+              },
+              {
+                id: 'math-matching-decimal-0-5',
+                labelFr: '0,5',
+                labelEn: '0.5',
+                isCorrect: false,
+              },
+              {
+                labelFr: '1/4',
+                labelEn: '1/4',
+                isCorrect: true,
+                pairId: 'math-matching-decimal-0-25',
+              },
+              {
+                id: 'math-matching-decimal-0-25',
+                labelFr: '0,25',
+                labelEn: '0.25',
+                isCorrect: false,
+              },
+            ],
+          },
         ],
       },
     },
@@ -634,6 +671,37 @@ async function main(): Promise<void> {
                 labelFr: 'donner une précision sur le nom',
                 labelEn: 'give more information about the noun',
                 isCorrect: true,
+              },
+            ],
+          },
+          {
+            type: ExerciseType.MATCHING,
+            promptFr: 'Associe chaque mot à sa classe grammaticale.',
+            promptEn: 'Match each word with its grammatical class.',
+            answers: [
+              {
+                labelFr: 'rapidement',
+                labelEn: 'quickly',
+                isCorrect: true,
+                pairId: 'fr-matching-class-adverb',
+              },
+              {
+                id: 'fr-matching-class-adverb',
+                labelFr: 'adverbe',
+                labelEn: 'adverb',
+                isCorrect: false,
+              },
+              {
+                labelFr: 'maison',
+                labelEn: 'house',
+                isCorrect: true,
+                pairId: 'fr-matching-class-noun',
+              },
+              {
+                id: 'fr-matching-class-noun',
+                labelFr: 'nom',
+                labelEn: 'noun',
+                isCorrect: false,
               },
             ],
           },
@@ -913,7 +981,13 @@ async function seedQuestionWithAnswers(params: {
     type?: ExerciseType;
     promptFr: string;
     promptEn: string;
-    answers: Array<{ labelFr: string; labelEn: string; isCorrect: boolean }>;
+    answers: Array<{
+      id?: string;
+      labelFr: string;
+      labelEn: string;
+      isCorrect: boolean;
+      pairId?: string;
+    }>;
   };
   lessonSlug: string;
   ordinal?: number;
@@ -941,7 +1015,8 @@ async function seedQuestionWithAnswers(params: {
   });
 
   for (const [index, answer] of spec.answers.entries()) {
-    const answerId = deterministicUuid(`${lessonSlug}:a${index}`);
+    const answerId = deterministicUuid(`${lessonSlug}:${answer.id ?? `a${index}`}`);
+    const pairId = answer.pairId ? deterministicUuid(`${lessonSlug}:${answer.pairId}`) : null;
     await prisma.answer.upsert({
       where: { id: answerId },
       update: {
@@ -950,6 +1025,7 @@ async function seedQuestionWithAnswers(params: {
         labelFr: answer.labelFr,
         labelEn: answer.labelEn,
         isCorrect: answer.isCorrect,
+        pairId,
       },
       create: {
         id: answerId,
@@ -958,6 +1034,7 @@ async function seedQuestionWithAnswers(params: {
         labelFr: answer.labelFr,
         labelEn: answer.labelEn,
         isCorrect: answer.isCorrect,
+        pairId,
       },
     });
   }
