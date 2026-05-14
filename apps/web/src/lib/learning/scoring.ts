@@ -1,6 +1,7 @@
 export interface ScorableAnswer {
   readonly id: string;
   readonly label?: string;
+  readonly pairId?: string;
   readonly isCorrect: boolean;
 }
 
@@ -16,6 +17,7 @@ export interface ScoredAnswer {
   readonly answerId: string | null;
   readonly answerIds: readonly string[];
   readonly text?: string;
+  readonly matches?: readonly SubmittedMatch[];
   readonly isCorrect: boolean;
   readonly pointsEarned: number;
 }
@@ -32,7 +34,16 @@ export interface SubmittedTextAnswer {
   readonly text: string;
 }
 
-export type SubmittedQuizAnswer = readonly string[] | SubmittedTextAnswer;
+export interface SubmittedMatch {
+  readonly leftId: string;
+  readonly rightId: string;
+}
+
+export interface SubmittedMatchingAnswer {
+  readonly matches: readonly SubmittedMatch[];
+}
+
+export type SubmittedQuizAnswer = readonly string[] | SubmittedTextAnswer | SubmittedMatchingAnswer;
 
 export function scoreSingleAnswerQuiz(
   questions: readonly ScorableQuestion[],
@@ -42,21 +53,32 @@ export function scoreSingleAnswerQuiz(
   const answers = questions.map((question) => {
     const submittedAnswer = submittedAnswers.get(question.id);
     const answerIds = extractSubmittedAnswerIds(submittedAnswer);
+    const matches = extractSubmittedMatches(submittedAnswer);
     const correctAnswerIds = question.answers
       .filter((answer) => answer.isCorrect)
       .map((answer) => answer.id);
     const text = extractSubmittedText(submittedAnswer);
     const isTextAnswer = question.type === 'FILL_IN_THE_BLANK' || question.type === 'SHORT_ANSWER';
-    const isCorrect = isTextAnswer
-      ? scoreTextAnswer(
-          text,
-          question.answers.filter((answer) => answer.isCorrect).map((answer) => answer.label ?? ''),
+    const isMatching = question.type === 'MATCHING';
+    const isCorrect = isMatching
+      ? sameMatchSet(
+          matches,
+          question.answers
+            .filter((answer) => answer.isCorrect && answer.pairId !== undefined)
+            .map((answer) => ({ leftId: answer.id, rightId: answer.pairId ?? '' })),
         )
-      : question.type === 'MCQ_MULTI'
-        ? sameAnswerSet(answerIds, correctAnswerIds)
-        : answerIds.length === 1 &&
-          correctAnswerIds.length > 0 &&
-          correctAnswerIds[0] === answerIds[0];
+      : isTextAnswer
+        ? scoreTextAnswer(
+            text,
+            question.answers
+              .filter((answer) => answer.isCorrect)
+              .map((answer) => answer.label ?? ''),
+          )
+        : question.type === 'MCQ_MULTI'
+          ? sameAnswerSet(answerIds, correctAnswerIds)
+          : answerIds.length === 1 &&
+            correctAnswerIds.length > 0 &&
+            correctAnswerIds[0] === answerIds[0];
 
     const scoredAnswer = {
       questionId: question.id,
@@ -66,6 +88,7 @@ export function scoreSingleAnswerQuiz(
       pointsEarned: isCorrect ? question.points : 0,
     };
 
+    if (isMatching) return { ...scoredAnswer, matches };
     return isTextAnswer ? { ...scoredAnswer, text } : scoredAnswer;
   });
 
@@ -99,12 +122,33 @@ function sameAnswerSet(left: readonly string[], right: readonly string[]): boole
   return left.every((id) => rightSet.has(id));
 }
 
+function sameMatchSet(
+  submittedMatches: readonly SubmittedMatch[],
+  expectedMatches: readonly SubmittedMatch[],
+): boolean {
+  if (submittedMatches.length === 0 || submittedMatches.length !== expectedMatches.length) {
+    return false;
+  }
+
+  const submittedKeys = submittedMatches.map(matchKey);
+  if (new Set(submittedKeys).size !== submittedKeys.length) return false;
+
+  const expectedKeys = new Set(expectedMatches.map(matchKey));
+  return submittedKeys.every((key) => expectedKeys.has(key));
+}
+
 function extractSubmittedAnswerIds(answer: SubmittedQuizAnswer | undefined): readonly string[] {
   return isSubmittedAnswerIdList(answer) ? answer : [];
 }
 
 function extractSubmittedText(answer: SubmittedQuizAnswer | undefined): string {
   return isSubmittedTextAnswer(answer) ? answer.text : '';
+}
+
+function extractSubmittedMatches(
+  answer: SubmittedQuizAnswer | undefined,
+): readonly SubmittedMatch[] {
+  return isSubmittedMatchingAnswer(answer) ? answer.matches : [];
 }
 
 function isSubmittedAnswerIdList(
@@ -116,7 +160,17 @@ function isSubmittedAnswerIdList(
 function isSubmittedTextAnswer(
   answer: SubmittedQuizAnswer | undefined,
 ): answer is SubmittedTextAnswer {
-  return answer !== undefined && !Array.isArray(answer);
+  return answer !== undefined && !Array.isArray(answer) && 'text' in answer;
+}
+
+function isSubmittedMatchingAnswer(
+  answer: SubmittedQuizAnswer | undefined,
+): answer is SubmittedMatchingAnswer {
+  return answer !== undefined && !Array.isArray(answer) && 'matches' in answer;
+}
+
+function matchKey(match: SubmittedMatch): string {
+  return `${match.leftId}\u0000${match.rightId}`;
 }
 
 function normalizeTextAnswer(value: string): string {

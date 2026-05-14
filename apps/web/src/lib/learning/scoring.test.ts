@@ -262,7 +262,148 @@ describe('scoreSingleAnswerQuiz', () => {
       pointsEarned: 0,
     });
   });
+
+  it('score une question MATCHING quand les paires sont dans le bon ordre', () => {
+    const result = scoreSingleAnswerQuiz(
+      [matchingQuestion],
+      new Map([
+        [
+          'question-matching',
+          {
+            matches: [
+              { leftId: 'left-1', rightId: 'right-1' },
+              { leftId: 'left-2', rightId: 'right-2' },
+            ],
+          },
+        ],
+      ]),
+      100,
+    );
+
+    expect(result).toMatchObject({
+      rawScore: 2,
+      maxScore: 2,
+      score: 100,
+      passed: true,
+    });
+    expect(result.answers[0]).toEqual({
+      questionId: 'question-matching',
+      answerId: null,
+      answerIds: [],
+      matches: [
+        { leftId: 'left-1', rightId: 'right-1' },
+        { leftId: 'left-2', rightId: 'right-2' },
+      ],
+      isCorrect: true,
+      pointsEarned: 2,
+    });
+  });
+
+  it('score une question MATCHING quand les paires sont dans un ordre différent', () => {
+    const result = scoreSingleAnswerQuiz(
+      [matchingQuestion],
+      new Map([
+        [
+          'question-matching',
+          {
+            matches: [
+              { leftId: 'left-2', rightId: 'right-2' },
+              { leftId: 'left-1', rightId: 'right-1' },
+            ],
+          },
+        ],
+      ]),
+      100,
+    );
+
+    expect(result.rawScore).toBe(2);
+    expect(result.score).toBe(100);
+    expect(result.answers[0]?.isCorrect).toBe(true);
+  });
+
+  it('refuse une question MATCHING avec une mauvaise association', () => {
+    const result = scoreSingleAnswerQuiz(
+      [matchingQuestion],
+      new Map([
+        [
+          'question-matching',
+          {
+            matches: [
+              { leftId: 'left-1', rightId: 'right-2' },
+              { leftId: 'left-2', rightId: 'right-1' },
+            ],
+          },
+        ],
+      ]),
+      50,
+    );
+
+    expect(result.rawScore).toBe(0);
+    expect(result.score).toBe(0);
+    expect(result.answers[0]?.isCorrect).toBe(false);
+  });
+
+  it('refuse une question MATCHING avec une paire manquante', () => {
+    const result = scoreSingleAnswerQuiz(
+      [matchingQuestion],
+      new Map([
+        [
+          'question-matching',
+          {
+            matches: [{ leftId: 'left-1', rightId: 'right-1' }],
+          },
+        ],
+      ]),
+      50,
+    );
+
+    expect(result.rawScore).toBe(0);
+    expect(result.answers[0]?.isCorrect).toBe(false);
+  });
+
+  it('refuse une question MATCHING avec une paire en trop', () => {
+    const result = scoreSingleAnswerQuiz(
+      [matchingQuestion],
+      new Map([
+        [
+          'question-matching',
+          {
+            matches: [
+              { leftId: 'left-1', rightId: 'right-1' },
+              { leftId: 'left-2', rightId: 'right-2' },
+              { leftId: 'left-3', rightId: 'right-3' },
+            ],
+          },
+        ],
+      ]),
+      50,
+    );
+
+    expect(result.rawScore).toBe(0);
+    expect(result.answers[0]?.isCorrect).toBe(false);
+  });
+
+  it('refuse une question MATCHING avec une réponse vide', () => {
+    const result = scoreSingleAnswerQuiz(
+      [matchingQuestion],
+      new Map([['question-matching', { matches: [] }]]),
+      50,
+    );
+
+    expect(result.rawScore).toBe(0);
+    expect(result.answers[0]?.isCorrect).toBe(false);
+  });
 });
+
+const matchingQuestion = {
+  id: 'question-matching',
+  type: 'MATCHING',
+  points: 2,
+  answers: [
+    { id: 'left-1', pairId: 'right-1', isCorrect: true },
+    { id: 'left-2', pairId: 'right-2', isCorrect: true },
+  ],
+} as const;
 
 describe('scoreTextAnswer', () => {
   const variants = ['réponse correcte', 'bonne réponse'];
