@@ -76,8 +76,50 @@ function RadioAnswerList({
             value={answer.id}
             checked={selectedAnswerId === answer.id}
             disabled={disabled}
-            onChange={() => onSelect(answer.id)}
+            onChange={() => {
+              onSelect(answer.id);
+            }}
             className="mt-1 h-4 w-4 border-slate-300 text-brand-700 focus:ring-brand-500"
+          />
+          <span>{answer.label}</span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
+interface MultiAnswerInputProps {
+  readonly questionId: string;
+  readonly answers: PracticeExercise['questions'][number]['answers'];
+  readonly selectedAnswerIds: readonly string[];
+  readonly disabled: boolean;
+  readonly onToggle: (answerId: string) => void;
+}
+
+function CheckboxAnswerList({
+  questionId,
+  answers,
+  selectedAnswerIds,
+  disabled,
+  onToggle,
+}: MultiAnswerInputProps): JSX.Element {
+  return (
+    <div className="mt-4 space-y-3">
+      {answers.map((answer) => (
+        <label
+          key={answer.id}
+          className="flex cursor-pointer items-start gap-3 rounded-md border border-slate-200 p-4 text-sm text-slate-700 hover:border-brand-300 hover:bg-brand-50 dark:border-slate-700 dark:text-slate-200 dark:hover:border-brand-800 dark:hover:bg-slate-900"
+        >
+          <input
+            type="checkbox"
+            name={`exercise:${questionId}`}
+            value={answer.id}
+            checked={selectedAnswerIds.includes(answer.id)}
+            disabled={disabled}
+            onChange={() => {
+              onToggle(answer.id);
+            }}
+            className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-700 focus:ring-brand-500"
           />
           <span>{answer.label}</span>
         </label>
@@ -93,7 +135,6 @@ function RadioAnswerList({
  * ce qui correspond toujours à [Vrai, Faux] dans le seed courant.
  */
 function TrueFalseButtons({
-  questionId,
   answers,
   selectedAnswerId,
   disabled,
@@ -111,7 +152,9 @@ function TrueFalseButtons({
             aria-checked={isSelected}
             aria-label={answer.label}
             disabled={disabled}
-            onClick={() => onSelect(answer.id)}
+            onClick={() => {
+              onSelect(answer.id);
+            }}
             className={[
               'flex min-h-[72px] items-center justify-center rounded-xl border-2 px-6 py-4',
               'text-lg font-semibold transition-all',
@@ -133,18 +176,31 @@ function TrueFalseButtons({
 // ── Composant principal ───────────────────────────────────────────────────────
 
 export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX.Element {
-  const [selectedAnswerIds, setSelectedAnswerIds] = useState<Record<string, string>>({});
+  const [selectedAnswerIds, setSelectedAnswerIds] = useState<Record<string, readonly string[]>>({});
   const [checked, setChecked] = useState(false);
   const [showIncomplete, setShowIncomplete] = useState(false);
 
   function handleSelect(questionId: string, answerId: string): void {
-    setSelectedAnswerIds((current) => ({ ...current, [questionId]: answerId }));
+    setSelectedAnswerIds((current) => ({ ...current, [questionId]: [answerId] }));
+    setChecked(false);
+    setShowIncomplete(false);
+  }
+
+  function handleToggle(questionId: string, answerId: string): void {
+    setSelectedAnswerIds((current) => {
+      const currentAnswerIds = current[questionId] ?? [];
+      const nextAnswerIds = currentAnswerIds.includes(answerId)
+        ? currentAnswerIds.filter((id) => id !== answerId)
+        : [...currentAnswerIds, answerId];
+
+      return { ...current, [questionId]: nextAnswerIds };
+    });
     setChecked(false);
     setShowIncomplete(false);
   }
 
   function check(): void {
-    const complete = exercise.questions.every((question) => selectedAnswerIds[question.id]);
+    const complete = exercise.questions.every((question) => selectedAnswerIds[question.id]?.length);
     setShowIncomplete(!complete);
     setChecked(complete);
   }
@@ -175,10 +231,22 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
 
       <div className="mt-5 space-y-5">
         {exercise.questions.map((question, index) => {
-          const selectedAnswerId = selectedAnswerIds[question.id];
+          const questionSelectedAnswerIds = selectedAnswerIds[question.id] ?? [];
+          const selectedAnswerId = questionSelectedAnswerIds[0];
           const selectedAnswer = question.answers.find((answer) => answer.id === selectedAnswerId);
-          const isCorrect = Boolean(selectedAnswer?.isCorrect);
+          const correctAnswerIds = question.answers
+            .filter((answer) => answer.isCorrect)
+            .map((answer) => answer.id);
+          const isMulti = question.type === 'MCQ_MULTI';
+          const isCorrect = isMulti
+            ? sameAnswerSet(questionSelectedAnswerIds, correctAnswerIds)
+            : Boolean(selectedAnswer?.isCorrect);
           const isTrueFalse = question.type === 'TRUE_FALSE';
+          const feedbackText = firstNonEmptyText(
+            selectedAnswer?.feedback,
+            question.explanation,
+            exercise.explanation,
+          );
 
           return (
             <fieldset
@@ -189,13 +257,25 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
                 {String(index + 1)}. {question.prompt}
               </legend>
 
-              {isTrueFalse ? (
+              {isMulti ? (
+                <CheckboxAnswerList
+                  questionId={question.id}
+                  answers={question.answers}
+                  selectedAnswerIds={questionSelectedAnswerIds}
+                  disabled={checked}
+                  onToggle={(answerId) => {
+                    handleToggle(question.id, answerId);
+                  }}
+                />
+              ) : isTrueFalse ? (
                 <TrueFalseButtons
                   questionId={question.id}
                   answers={question.answers}
                   selectedAnswerId={selectedAnswerId}
                   disabled={checked}
-                  onSelect={(answerId) => handleSelect(question.id, answerId)}
+                  onSelect={(answerId) => {
+                    handleSelect(question.id, answerId);
+                  }}
                 />
               ) : (
                 <RadioAnswerList
@@ -203,11 +283,13 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
                   answers={question.answers}
                   selectedAnswerId={selectedAnswerId}
                   disabled={checked}
-                  onSelect={(answerId) => handleSelect(question.id, answerId)}
+                  onSelect={(answerId) => {
+                    handleSelect(question.id, answerId);
+                  }}
                 />
               )}
 
-              {checked && selectedAnswer ? (
+              {checked && questionSelectedAnswerIds.length > 0 ? (
                 <div
                   className={`mt-4 rounded-lg border px-4 py-3 text-sm ${
                     isCorrect
@@ -216,9 +298,7 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
                   }`}
                 >
                   <p className="font-semibold">{isCorrect ? copy.correct : copy.incorrect}</p>
-                  <p className="mt-1">
-                    {selectedAnswer.feedback || question.explanation || exercise.explanation}
-                  </p>
+                  <p className="mt-1">{feedbackText}</p>
                 </div>
               ) : null}
             </fieldset>
@@ -238,4 +318,15 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
       </div>
     </div>
   );
+}
+
+function sameAnswerSet(left: readonly string[], right: readonly string[]): boolean {
+  if (left.length === 0 || left.length !== right.length) return false;
+  if (new Set(left).size !== left.length) return false;
+  const rightSet = new Set(right);
+  return left.every((id) => rightSet.has(id));
+}
+
+function firstNonEmptyText(...values: readonly (string | undefined)[]): string {
+  return values.find((value) => value !== undefined && value.length > 0) ?? '';
 }

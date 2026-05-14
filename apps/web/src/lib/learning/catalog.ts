@@ -2,14 +2,34 @@ import { ActivityKind, ContentStatus, prismaService as prisma, withUser } from '
 
 import { parseLessonContent } from './content';
 
-import type { RlsRole } from '@eduquiz/db';
 import type { Locale } from '../i18n/locale';
+import type { RlsRole } from '@eduquiz/db';
 
 const localized = (
   locale: Locale,
   valueFr: string | null | undefined,
   valueEn: string | null | undefined,
 ): string => (locale === 'fr' ? valueFr : valueEn) ?? valueFr ?? valueEn ?? '';
+
+function extractSelectedAnswerIds(response: unknown): readonly string[] {
+  if (typeof response !== 'object' || response === null || Array.isArray(response)) {
+    return [];
+  }
+
+  if (
+    'answerIds' in response &&
+    Array.isArray(response.answerIds) &&
+    response.answerIds.every((answerId) => typeof answerId === 'string')
+  ) {
+    return response.answerIds;
+  }
+
+  if ('answerId' in response && typeof response.answerId === 'string') {
+    return [response.answerId];
+  }
+
+  return [];
+}
 
 export async function getPublishedLearningCatalog(locale: Locale) {
   const courses = await prisma.course.findMany({
@@ -396,24 +416,26 @@ export async function getAttemptResult(params: {
       attempt.activity.quiz.titleFr,
       attempt.activity.quiz.titleEn,
     ),
-    answers: attempt.answers.map((answer) => ({
-      questionId: answer.questionId,
-      prompt: localized(params.locale, answer.question.promptFr, answer.question.promptEn),
-      selectedAnswerId:
-        typeof answer.response === 'object' &&
-        answer.response !== null &&
-        !Array.isArray(answer.response) &&
-        'answerId' in answer.response &&
-        typeof answer.response.answerId === 'string'
-          ? answer.response.answerId
-          : null,
-      correctAnswerLabel: localized(
-        params.locale,
-        answer.question.answers.find((choice) => choice.isCorrect)?.labelFr,
-        answer.question.answers.find((choice) => choice.isCorrect)?.labelEn,
-      ),
-      isCorrect: answer.isCorrect,
-      pointsEarned: answer.pointsEarned,
-    })),
+    answers: attempt.answers.map((answer) => {
+      const selectedAnswerIds = extractSelectedAnswerIds(answer.response);
+      const selectedAnswerLabels = answer.question.answers
+        .filter((choice) => selectedAnswerIds.includes(choice.id))
+        .map((choice) => localized(params.locale, choice.labelFr, choice.labelEn));
+      const correctAnswerLabels = answer.question.answers
+        .filter((choice) => choice.isCorrect)
+        .map((choice) => localized(params.locale, choice.labelFr, choice.labelEn));
+
+      return {
+        questionId: answer.questionId,
+        prompt: localized(params.locale, answer.question.promptFr, answer.question.promptEn),
+        selectedAnswerId: selectedAnswerIds[0] ?? null,
+        selectedAnswerIds,
+        selectedAnswerLabels,
+        correctAnswerLabel: correctAnswerLabels[0] ?? '',
+        correctAnswerLabels,
+        isCorrect: answer.isCorrect,
+        pointsEarned: answer.pointsEarned,
+      };
+    }),
   };
 }

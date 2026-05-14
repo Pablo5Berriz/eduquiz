@@ -89,6 +89,36 @@
           "unknown": "Something went wrong. Please try again in a moment.",
           "rateLimited": "Too many recent signups from this address. Try again in a few minutes."
         }
+      },
+      "minor": {
+        "heroKicker": "Minor signup",
+        "title": "Create your student account",
+        "subtitle": "Your account will be created with a student role. You can link your parent's account afterwards.",
+        "emailLabel": "Email address",
+        "emailHint": "Use an email address you check regularly.",
+        "passwordLabel": "Password",
+        "passwordHint": "At least 8 characters with 1 digit and 1 uppercase letter.",
+        "birthDateLabel": "Date of birth",
+        "birthDateHint": "Used to verify you are under 18.",
+        "termsLabel": "I have read and accept the {terms} and the {privacy}.",
+        "termsLink": "Terms",
+        "privacyLink": "Privacy Policy",
+        "submit": "Create my account",
+        "submitting": "Creating account…",
+        "alreadyHaveAccount": "Already registered?",
+        "signInCta": "Sign in",
+        "errors": {
+          "emailInvalid": "Invalid email address.",
+          "emailTaken": "This email address is already in use.",
+          "passwordTooShort": "Password must be at least 8 characters.",
+          "passwordWeak": "Password must contain at least 1 digit and 1 uppercase letter.",
+          "birthDateInvalid": "Invalid date of birth.",
+          "notMinor": "This form is for users under 18. Please use the adult signup form.",
+          "tooYoung": "You must be at least 6 years old to create an account.",
+          "termsRequired": "You must accept the Terms and Privacy Policy.",
+          "unknown": "Something went wrong. Please try again in a moment.",
+          "rateLimited": "Too many recent signups from this address. Try again in a few minutes."
+        }
       }
     },
     "verifyEmail": {
@@ -222,12 +252,7 @@
     "ctaSecondary": "Explore the subjects",
     "trust": {
       "title": "Built with and for Quebec families",
-      "items": [
-        "PFEQ-aligned",
-        "Hosted in Montreal",
-        "Law 25 compliant",
-        "Bilingual FR + EN"
-      ]
+      "items": ["PFEQ-aligned", "Hosted in Montreal", "Law 25 compliant", "Bilingual FR + EN"]
     },
     "features": {
       "kicker": "Features",
@@ -466,12 +491,7 @@
         "shortDescription": "Oral communication, reading and writing in second language.",
         "levels": "Grade 3 – Secondary 5",
         "image": "/images/subjects/anglais.svg",
-        "topics": [
-          "Oral interactions",
-          "Reading and texts",
-          "Written production",
-          "Anglophone culture"
-        ],
+        "topics": ["Oral interactions", "Reading and texts", "Written production", "Anglophone culture"],
         "skills": [
           "Interact orally in English",
           "Reinvest understanding of texts read or heard",
@@ -536,12 +556,7 @@
         "shortDescription": "Natural sciences and technology, from Cycle 2 of primary through secondary.",
         "levels": "Grade 5 – Secondary 5",
         "image": "/images/subjects/sciences-technologie.svg",
-        "topics": [
-          "Material world",
-          "Living world",
-          "Earth and space",
-          "Technology"
-        ],
+        "topics": ["Material world", "Living world", "Earth and space", "Technology"],
         "skills": [
           "Explore the world of science and technology",
           "Make use of tools, objects and processes",
@@ -599,12 +614,7 @@
         "shortDescription": "From early societies to the present day, with a Quebec perspective.",
         "levels": "Grade 3 – Secondary 4",
         "image": "/images/subjects/histoire-quebec-canada.svg",
-        "topics": [
-          "Early societies",
-          "New France",
-          "British regime",
-          "Modern Quebec"
-        ],
+        "topics": ["Early societies", "New France", "British regime", "Modern Quebec"],
         "skills": [
           "Examine social realities from a historical perspective",
           "Interpret social realities using the historical method",
@@ -648,12 +658,7 @@
         "shortDescription": "Territories, landscapes and contemporary issues.",
         "levels": "Grade 3 – Secondary 2",
         "image": "/images/subjects/geographie.svg",
-        "topics": [
-          "Map reading",
-          "Human territories",
-          "Environmental issues",
-          "Regions of the world"
-        ],
+        "topics": ["Map reading", "Human territories", "Environmental issues", "Regions of the world"],
         "skills": [
           "Read the organization of a territory",
           "Interpret a territorial issue",
@@ -697,12 +702,7 @@
         "shortDescription": "Budget, consumption, taxation and life projects.",
         "levels": "Secondary 5",
         "image": "/images/subjects/education-financiere.svg",
-        "topics": [
-          "Consumption",
-          "Work and income",
-          "Savings and credit",
-          "Taxation and projects"
-        ],
+        "topics": ["Consumption", "Work and income", "Savings and credit", "Taxation and projects"],
         "skills": [
           "Take a position on a financial issue",
           "Analyze a consumption choice",
@@ -725,12 +725,7 @@
         "shortDescription": "Varied physical activities, fitness and healthy habits.",
         "levels": "Grade 3 – Secondary 5",
         "image": "/images/subjects/education-physique-sante.svg",
-        "topics": [
-          "Individual activities",
-          "Team activities",
-          "Healthy lifestyle habits",
-          "Mental and social health"
-        ],
+        "topics": ["Individual activities", "Team activities", "Healthy lifestyle habits", "Mental and social health"],
         "skills": [
           "Perform movement skills in different physical activity settings",
           "Interact with others in different physical activity settings",
@@ -795,12 +790,7 @@
         "shortDescription": "Identity, diversity, democracy and culture in Quebec.",
         "levels": "Grade 3 – Secondary 5",
         "image": "/images/subjects/culture-citoyennete-quebecoise.svg",
-        "topics": [
-          "Democratic citizenship",
-          "Identity and diversity",
-          "Quebec culture",
-          "Ethics and society"
-        ],
+        "topics": ["Democratic citizenship", "Identity and diversity", "Quebec culture", "Ethics and society"],
         "skills": [
           "Deliberate on ethical and cultural issues",
           "Engage in dialogue in a pluralistic society",
@@ -865,12 +855,7 @@
         "shortDescription": "Global issues of population, wealth, power and environment.",
         "levels": "Secondary 5",
         "image": "/images/subjects/monde-contemporain.svg",
-        "topics": [
-          "Population and settlement",
-          "Environment",
-          "Wealth",
-          "Power and tensions"
-        ],
+        "topics": ["Population and settlement", "Environment", "Wealth", "Power and tensions"],
         "skills": [
           "Interpret a contemporary world problem",
           "Take a position on a contemporary world issue",
@@ -1379,6 +1364,9 @@
       },
       "formatLabel": "Format",
       "formatJson": "JSON",
+      "formatPdf": "PDF",
+      "downloadCtaJson": "Download as JSON",
+      "downloadCtaPdf": "Download as PDF",
       "downloadCta": "Download my export",
       "note": "Download starts immediately. The file includes the data available at click time."
     },
@@ -1408,5 +1396,133 @@
         "rateLimited": "Too many attempts. Try again tomorrow."
       }
     }
+  },
+  "family": {
+    "parentDashboard": {
+      "title": "My children",
+      "subtitle": "Manage the student accounts linked to your parent profile.",
+      "addChild": "Add a child",
+      "childEmailLabel": "Student email address",
+      "childEmailHint": "The student must have already created their EduQuiz account.",
+      "submit": "Generate code",
+      "submitting": "Generating…",
+      "codeGenerated": "Code generated",
+      "codeInstruction": "Share this code with your child. They will enter it in their EduQuiz account to complete the link.",
+      "codeExpiry": "This code expires in 24 hours.",
+      "close": "Close",
+      "children": "Linked children",
+      "noChildren": "No children linked yet.",
+      "statePending": "Pending",
+      "stateVerified": "Active",
+      "stateRevoked": "Revoked",
+      "errors": {
+        "childNotFound": "No student account found with that email address.",
+        "notMinor": "That account is not a minor student account.",
+        "alreadyLinked": "That account is already linked to your profile.",
+        "maxChildren": "You have reached the 4-child limit.",
+        "unknown": "Something went wrong. Try again in a moment.",
+        "rateLimited": "Too many attempts. Try again in a few minutes."
+      }
+    },
+    "linkParent": {
+      "title": "Link my parent",
+      "subtitle": "Ask your parent to generate a code in their EduQuiz account, then enter it here.",
+      "codeLabel": "Invitation code",
+      "codeHint": "6-digit code provided by your parent.",
+      "submit": "Validate code",
+      "submitting": "Checking…",
+      "success": "Code accepted! Your parent will receive an email to confirm the link.",
+      "alreadyLinked": "Your parent account is already linked.",
+      "skipCta": "Continue without linking",
+      "errors": {
+        "codeInvalid": "Invalid or expired code.",
+        "codeNotForYou": "This code is not intended for your account.",
+        "alreadyRedeemed": "This code has already been used.",
+        "unknown": "Something went wrong. Please try again.",
+        "rateLimited": "Too many attempts. Try again in a few minutes."
+      }
+    },
+    "confirmLink": {
+      "title": "Link confirmed",
+      "body": "The student account is now linked to your profile. You can view their progress from your dashboard.",
+      "dashboardCta": "View my children",
+      "invalidTitle": "Invalid link",
+      "invalidBody": "This confirmation link is not recognised or has already been used.",
+      "expiredTitle": "Expired link",
+      "expiredBody": "This confirmation link is no longer valid. Ask the student to enter the code again.",
+      "backCta": "Back to home"
+    }
+  },
+  "learn": {
+    "eyebrow": "Learner path",
+    "title": "Pick a lesson and validate your progress.",
+    "subtitle": "Each path connects a published lesson, a scored quiz, a saved attempt, and skill progress.",
+    "empty": "No published lesson yet.",
+    "lessons": "Lessons",
+    "quiz": "quiz",
+    "start": "Start",
+    "continue": "Continue",
+    "result": "Result",
+    "progress": "Skill progress",
+    "progressEmpty": "No progress saved yet. Complete a quiz to fill this card.",
+    "history": "Recent attempts",
+    "historyEmpty": "No saved attempt yet.",
+    "attempts": "attempt(s)",
+    "lastAttempt": "Last attempt",
+    "minutes": "min",
+    "passed": "passed",
+    "failed": "try again"
+  },
+  "lesson": {
+    "back": "Back to lessons",
+    "skills": "Targeted skills",
+    "objectives": "Objectives",
+    "lessonContent": "Concept to remember",
+    "exercise": "Guided exercise",
+    "noObjectives": "Read the concept, answer the quiz, then review the saved result.",
+    "noContent": "The detailed content for this lesson will be expanded soon.",
+    "noExercise": "No guided exercise is published for this lesson.",
+    "checkExercise": "Check my answer",
+    "retryExercise": "Try again",
+    "exerciseIncomplete": "Choose an answer before checking.",
+    "exerciseCorrect": "Correct answer",
+    "exerciseIncorrect": "Needs correction",
+    "hint": "Hint",
+    "quiz": "Validation quiz",
+    "history": "This quiz history",
+    "noHistory": "No saved attempt for this quiz yet.",
+    "result": "View",
+    "passed": "passed",
+    "failed": "try again",
+    "duration": "duration",
+    "seconds": "s",
+    "questions": "question(s)",
+    "startQuiz": "Start quiz",
+    "unavailable": "No published quiz for this lesson.",
+    "minutes": "min"
+  },
+  "quiz": {
+    "back": "Back to lesson",
+    "score": "Passing score",
+    "submit": "Score and save",
+    "submitting": "Scoring…",
+    "points": "point(s)",
+    "multiSelectHint": "Select all correct answers.",
+    "errors": {
+      "invalid": "The form is invalid. Reload the page and try again.",
+      "notFound": "This quiz is no longer available.",
+      "incomplete": "Answer every question before scoring.",
+      "unknown": "The attempt could not be saved. Try again shortly."
+    }
+  },
+  "quizResult": {
+    "title": "Saved result",
+    "passed": "Passed",
+    "retry": "Review lesson",
+    "catalog": "Back to paths",
+    "answers": "Correction",
+    "selected": "Your answer",
+    "correct": "Correct answer",
+    "point": "point"
   }
 }

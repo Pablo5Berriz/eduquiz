@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment,
+   @typescript-eslint/no-unsafe-call,
+   @typescript-eslint/no-unsafe-member-access */
 /**
  * Tests unitaires — submitQuizAttempt
  *
@@ -15,24 +18,105 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { submitQuizAttempt } from './actions';
+
 // ── Mocks déclarés avant les imports du module testé ─────────────────────────
 
-const mockRequireApiUser = vi.fn();
+type ScoreMockCall = [readonly unknown[], ReadonlyMap<string, readonly string[]>, number | null];
+
+interface AttemptCreateInput {
+  readonly data: {
+    readonly userId: string;
+    readonly activityId: string;
+    readonly score: number;
+    readonly rawScore: number;
+    readonly maxScore: number;
+    readonly passed: boolean;
+    readonly [key: string]: unknown;
+  };
+}
+
+interface AttemptAnswerCreateManyInput {
+  readonly data: readonly {
+    readonly attemptId: string;
+    readonly questionId: string;
+    readonly response: unknown;
+    readonly isCorrect: boolean;
+    readonly [key: string]: unknown;
+  }[];
+}
+
+interface ProgressUpsertInput {
+  readonly where: { readonly userId_skillId: { readonly skillId: string } };
+  readonly create: { readonly mastery: number; readonly attemptsCount: number };
+  readonly update: { readonly mastery: number; readonly attemptsCount: number };
+}
+
+interface AuditCreateInput {
+  readonly data: {
+    readonly actorId: string;
+    readonly targetId: string;
+    readonly targetType: string;
+    readonly [key: string]: unknown;
+  };
+}
+
+interface ExistingProgress {
+  readonly skillId: string;
+  readonly mastery: number;
+  readonly attemptsCount: number;
+}
+
+interface TxCalls {
+  readonly attemptCreate: AttemptCreateInput[];
+  readonly attemptAnswerCreateMany: AttemptAnswerCreateManyInput[];
+  readonly progressUpsert: ProgressUpsertInput[];
+  readonly auditCreate: AuditCreateInput[];
+}
+
+interface TxProxy {
+  readonly calls: TxCalls;
+  readonly attempt: {
+    readonly create: (args: AttemptCreateInput) => Promise<{ id: string }>;
+  };
+  readonly attemptAnswer: {
+    readonly createMany: (args: AttemptAnswerCreateManyInput) => Promise<{ count: number }>;
+  };
+  readonly progress: {
+    findMany: () => Promise<ExistingProgress[]>;
+    readonly upsert: (args: ProgressUpsertInput) => Promise<void>;
+  };
+  readonly auditLog: {
+    readonly create: (args: AuditCreateInput) => Promise<void>;
+  };
+}
+
+const {
+  mockGetPublishedQuizByActivityId,
+  mockRedirect,
+  mockRequireApiUser,
+  mockScoreSingleAnswerQuiz,
+  mockTransaction,
+} = vi.hoisted(() => ({
+  mockGetPublishedQuizByActivityId: vi.fn(),
+  mockRedirect: vi.fn(),
+  mockRequireApiUser: vi.fn(),
+  mockScoreSingleAnswerQuiz: vi.fn(),
+  mockTransaction: vi.fn(),
+}));
+
 vi.mock('../auth/server', () => ({
   requireApiUser: mockRequireApiUser,
 }));
 
-const mockGetPublishedQuizByActivityId = vi.fn();
 vi.mock('./catalog', () => ({
   getPublishedQuizByActivityId: mockGetPublishedQuizByActivityId,
 }));
 
-const mockScoreSingleAnswerQuiz = vi.fn();
 vi.mock('./scoring', () => ({
   scoreSingleAnswerQuiz: mockScoreSingleAnswerQuiz,
 }));
 
-const mockTransaction = vi.fn();
 vi.mock('@eduquiz/db', async (importOriginal) => {
   const original = await importOriginal<typeof import('@eduquiz/db')>();
   return {
@@ -42,7 +126,6 @@ vi.mock('@eduquiz/db', async (importOriginal) => {
   };
 });
 
-const mockRedirect = vi.fn();
 vi.mock('next/navigation', () => ({
   redirect: mockRedirect,
 }));
@@ -51,16 +134,13 @@ vi.mock('../i18n/locale', () => ({
   safeResolveLocale: vi.fn((v?: string) => (v === 'en' ? 'en' : 'fr')),
 }));
 
-// ── Subject (importé APRÈS les mocks) ────────────────────────────────────────
-
-import { submitQuizAttempt } from './actions';
-
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 
 const MOCK_USER = { id: 'user-1', role: 'LEARNER_ADULT' as const };
+const ACTIVITY_ID = '11111111-1111-4111-8111-111111111111';
 
 const MOCK_QUIZ = {
-  id: 'activity-1',
+  id: ACTIVITY_ID,
   passingScore: 60,
   lesson: {
     id: 'lesson-1',
@@ -95,17 +175,36 @@ const MOCK_QUIZ = {
         { id: 'a4', label: 'Faux', isCorrect: true },
       ],
     },
+    {
+      id: 'q3',
+      prompt: 'Q3',
+      explanation: '',
+      type: 'MCQ_MULTI',
+      points: 2,
+      answers: [
+        { id: 'a5', label: 'Deux', isCorrect: true },
+        { id: 'a6', label: 'Trois', isCorrect: true },
+        { id: 'a7', label: 'Quatre', isCorrect: false },
+      ],
+    },
   ],
 };
 
 const MOCK_SCORE = {
   score: 100,
-  rawScore: 2,
-  maxScore: 2,
+  rawScore: 4,
+  maxScore: 4,
   passed: true,
   answers: [
-    { questionId: 'q1', answerId: 'a1', isCorrect: true, pointsEarned: 1 },
-    { questionId: 'q2', answerId: 'a4', isCorrect: true, pointsEarned: 1 },
+    { questionId: 'q1', answerId: 'a1', answerIds: ['a1'], isCorrect: true, pointsEarned: 1 },
+    { questionId: 'q2', answerId: 'a4', answerIds: ['a4'], isCorrect: true, pointsEarned: 1 },
+    {
+      questionId: 'q3',
+      answerId: 'a5',
+      answerIds: ['a5', 'a6'],
+      isCorrect: true,
+      pointsEarned: 2,
+    },
   ],
 };
 
@@ -121,27 +220,72 @@ function makeFormData(fields: Record<string, string>): FormData {
 
 /** FormData valide avec les bonnes réponses aux deux questions du MOCK_QUIZ. */
 function makeValidFormData(overrides: Record<string, string> = {}): FormData {
-  return makeFormData({
-    activityId: 'activity-1',
+  const fd = makeFormData({
+    activityId: ACTIVITY_ID,
     locale: 'fr',
     startedAt: new Date(Date.now() - 5000).toISOString(),
     'question:q1': 'a1',
     'question:q2': 'a4',
+    'question:q3': 'a5',
     ...overrides,
   });
+  if (!('question:q3' in overrides)) {
+    fd.append('question:q3', 'a6');
+  }
+  return fd;
 }
 
 /** Tx proxy minimaliste pour les assertions dans la transaction. */
-function makeTxProxy() {
-  return {
-    attempt: { create: vi.fn().mockResolvedValue({ id: 'attempt-1' }) },
-    attemptAnswer: { createMany: vi.fn().mockResolvedValue({ count: 2 }) },
-    progress: {
-      findMany: vi.fn().mockResolvedValue([]),
-      upsert: vi.fn().mockResolvedValue(undefined),
-    },
-    auditLog: { create: vi.fn().mockResolvedValue(undefined) },
+function makeTxProxy(): TxProxy {
+  const calls = {
+    attemptCreate: [] as AttemptCreateInput[],
+    attemptAnswerCreateMany: [] as AttemptAnswerCreateManyInput[],
+    progressUpsert: [] as ProgressUpsertInput[],
+    auditCreate: [] as AuditCreateInput[],
   };
+
+  return {
+    calls,
+    attempt: {
+      create: (args: AttemptCreateInput): Promise<{ id: string }> => {
+        calls.attemptCreate.push(args);
+        return Promise.resolve({ id: 'attempt-1' });
+      },
+    },
+    attemptAnswer: {
+      createMany: (args: AttemptAnswerCreateManyInput): Promise<{ count: number }> => {
+        calls.attemptAnswerCreateMany.push(args);
+        return Promise.resolve({ count: 3 });
+      },
+    },
+    progress: {
+      findMany: (): Promise<ExistingProgress[]> => Promise.resolve([]),
+      upsert: (args: ProgressUpsertInput): Promise<void> => {
+        calls.progressUpsert.push(args);
+        return Promise.resolve();
+      },
+    },
+    auditLog: {
+      create: (args: AuditCreateInput): Promise<void> => {
+        calls.auditCreate.push(args);
+        return Promise.resolve();
+      },
+    },
+  };
+}
+
+function expectPresent<T>(value: T | null | undefined): T {
+  expect(value).toBeDefined();
+  if (value === null || value === undefined) {
+    throw new Error('Expected test value to be defined');
+  }
+  return value;
+}
+
+function firstMockCall<T extends readonly unknown[]>(mock: {
+  readonly mock: { readonly calls: readonly T[] };
+}): T {
+  return expectPresent(mock.mock.calls[0]);
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -152,7 +296,7 @@ describe('submitQuizAttempt', () => {
     mockRequireApiUser.mockResolvedValue(MOCK_USER);
     mockGetPublishedQuizByActivityId.mockResolvedValue(MOCK_QUIZ);
     mockScoreSingleAnswerQuiz.mockReturnValue(MOCK_SCORE);
-    mockTransaction.mockImplementation(async (cb: (tx: ReturnType<typeof makeTxProxy>) => Promise<unknown>) => {
+    mockTransaction.mockImplementation(async (cb: (tx: TxProxy) => Promise<unknown>) => {
       const tx = makeTxProxy();
       return cb(tx);
     });
@@ -186,11 +330,13 @@ describe('submitQuizAttempt', () => {
   it('retourne incomplete si une réponse est absente', async () => {
     // On ne soumet que q1, pas q2.
     const fd = makeFormData({
-      activityId: 'activity-1',
+      activityId: ACTIVITY_ID,
       locale: 'fr',
       'question:q1': 'a1',
+      'question:q3': 'a5',
       // 'question:q2' absent
     });
+    fd.append('question:q3', 'a6');
     const result = await submitQuizAttempt(fd);
     expect(result).toEqual({
       ok: false,
@@ -209,13 +355,24 @@ describe('submitQuizAttempt', () => {
     });
   });
 
-  it('retourne incomplete avec tous les ids manquants si aucune réponse soumise', async () => {
-    const fd = makeFormData({ activityId: 'activity-1', locale: 'fr' });
+  it('retourne incomplete si une réponse MCQ_MULTI contient une option invalide', async () => {
+    const fd = makeValidFormData({ 'question:q3': 'a5' });
+    fd.append('question:q3', 'invalid-answer-id');
     const result = await submitQuizAttempt(fd);
     expect(result).toEqual({
       ok: false,
       error: 'incomplete',
-      missingQuestionIds: ['q1', 'q2'],
+      missingQuestionIds: ['q3'],
+    });
+  });
+
+  it('retourne incomplete avec tous les ids manquants si aucune réponse soumise', async () => {
+    const fd = makeFormData({ activityId: ACTIVITY_ID, locale: 'fr' });
+    const result = await submitQuizAttempt(fd);
+    expect(result).toEqual({
+      ok: false,
+      error: 'incomplete',
+      missingQuestionIds: ['q1', 'q2', 'q3'],
     });
   });
 
@@ -225,29 +382,33 @@ describe('submitQuizAttempt', () => {
     await submitQuizAttempt(makeValidFormData());
 
     expect(mockScoreSingleAnswerQuiz).toHaveBeenCalledOnce();
-    const [questions, submittedAnswers, passingScore] = mockScoreSingleAnswerQuiz.mock.calls[0];
+    const [questions, submittedAnswers, passingScore] =
+      firstMockCall<ScoreMockCall>(mockScoreSingleAnswerQuiz);
     expect(questions).toBe(MOCK_QUIZ.questions);
-    expect(submittedAnswers.get('q1')).toBe('a1');
-    expect(submittedAnswers.get('q2')).toBe('a4');
+    expect(submittedAnswers.get('q1')).toEqual(['a1']);
+    expect(submittedAnswers.get('q2')).toEqual(['a4']);
+    expect(submittedAnswers.get('q3')).toEqual(['a5', 'a6']);
     expect(passingScore).toBe(MOCK_QUIZ.passingScore);
   });
 
   // ── Transaction DB ──────────────────────────────────────────────────────────
 
   it('crée une tentative dans la transaction', async () => {
-    let capturedTx: ReturnType<typeof makeTxProxy> | null = null;
-    mockTransaction.mockImplementation(async (cb: (tx: ReturnType<typeof makeTxProxy>) => Promise<unknown>) => {
+    let capturedCalls: TxCalls | null = null;
+    mockTransaction.mockImplementation(async (cb: (tx: TxProxy) => Promise<unknown>) => {
       const tx = makeTxProxy();
-      capturedTx = tx;
+      capturedCalls = tx.calls;
       return cb(tx);
     });
 
     await submitQuizAttempt(makeValidFormData());
 
-    expect(capturedTx!.attempt.create).toHaveBeenCalledOnce();
-    const data = capturedTx!.attempt.create.mock.calls[0][0].data;
+    const calls = expectPresent(capturedCalls);
+    expect(calls.attemptCreate).toHaveLength(1);
+    const createInput = expectPresent(calls.attemptCreate[0]);
+    const { data } = createInput;
     expect(data.userId).toBe('user-1');
-    expect(data.activityId).toBe('activity-1');
+    expect(data.activityId).toBe(ACTIVITY_ID);
     expect(data.score).toBe(MOCK_SCORE.score);
     expect(data.rawScore).toBe(MOCK_SCORE.rawScore);
     expect(data.maxScore).toBe(MOCK_SCORE.maxScore);
@@ -255,65 +416,68 @@ describe('submitQuizAttempt', () => {
   });
 
   it('crée les réponses de tentative via createMany', async () => {
-    let capturedTx: ReturnType<typeof makeTxProxy> | null = null;
-    mockTransaction.mockImplementation(async (cb: (tx: ReturnType<typeof makeTxProxy>) => Promise<unknown>) => {
+    let capturedCalls: TxCalls | null = null;
+    mockTransaction.mockImplementation(async (cb: (tx: TxProxy) => Promise<unknown>) => {
       const tx = makeTxProxy();
-      capturedTx = tx;
+      capturedCalls = tx.calls;
       return cb(tx);
     });
 
     await submitQuizAttempt(makeValidFormData());
 
-    expect(capturedTx!.attemptAnswer.createMany).toHaveBeenCalledOnce();
-    const { data } = capturedTx!.attemptAnswer.createMany.mock.calls[0][0];
+    const calls = expectPresent(capturedCalls);
+    expect(calls.attemptAnswerCreateMany).toHaveLength(1);
+    const createManyInput = expectPresent(calls.attemptAnswerCreateMany[0]);
+    const { data } = createManyInput;
     expect(data).toHaveLength(MOCK_SCORE.answers.length);
     expect(data[0].attemptId).toBe('attempt-1');
     expect(data[0].questionId).toBe('q1');
+    expect(data[0].response).toEqual({ answerId: 'a1', answerIds: ['a1'] });
     expect(data[0].isCorrect).toBe(true);
+    expect(data[2].response).toEqual({ answerId: 'a5', answerIds: ['a5', 'a6'] });
   });
 
   it('crée/met à jour la progression pour chaque compétence de la leçon', async () => {
-    let capturedTx: ReturnType<typeof makeTxProxy> | null = null;
-    mockTransaction.mockImplementation(async (cb: (tx: ReturnType<typeof makeTxProxy>) => Promise<unknown>) => {
+    let capturedCalls: TxCalls | null = null;
+    mockTransaction.mockImplementation(async (cb: (tx: TxProxy) => Promise<unknown>) => {
       const tx = makeTxProxy();
-      capturedTx = tx;
+      capturedCalls = tx.calls;
       return cb(tx);
     });
 
     await submitQuizAttempt(makeValidFormData());
 
     // Deux compétences dans MOCK_QUIZ.lesson.skillIds
-    expect(capturedTx!.progress.upsert).toHaveBeenCalledTimes(
-      MOCK_QUIZ.lesson.skillIds.length,
-    );
+    const calls = expectPresent(capturedCalls);
+    expect(calls.progressUpsert).toHaveLength(MOCK_QUIZ.lesson.skillIds.length);
   });
 
   it('initialise la maîtrise au scoreRatio brut pour une première tentative (EMA)', async () => {
-    let capturedTx: ReturnType<typeof makeTxProxy> | null = null;
-    mockTransaction.mockImplementation(async (cb: (tx: ReturnType<typeof makeTxProxy>) => Promise<unknown>) => {
+    let capturedCalls: TxCalls | null = null;
+    mockTransaction.mockImplementation(async (cb: (tx: TxProxy) => Promise<unknown>) => {
       const tx = makeTxProxy();
-      capturedTx = tx;
+      capturedCalls = tx.calls;
       return cb(tx);
     });
 
-    // MOCK_SCORE: rawScore=2, maxScore=2 → scoreRatio=1.0, première tentative → mastery=1.0
+    // MOCK_SCORE: rawScore=4, maxScore=4 → scoreRatio=1.0, première tentative → mastery=1.0
     await submitQuizAttempt(makeValidFormData());
 
-    const upsertCall = capturedTx!.progress.upsert.mock.calls[0][0];
-    expect(upsertCall.create.mastery).toBe(1.0);
-    expect(upsertCall.create.attemptsCount).toBe(1);
+    const calls = expectPresent(capturedCalls);
+    const upsertData = expectPresent(calls.progressUpsert[0]);
+    expect(upsertData.create.mastery).toBe(1.0);
+    expect(upsertData.create.attemptsCount).toBe(1);
   });
 
   it("applique l'EMA (α=0.3) quand une progression existe déjà", async () => {
     // Progression existante à 0.4 pour skill-1
     const EXISTING_MASTERY = 0.4;
-    let capturedTx: ReturnType<typeof makeTxProxy> | null = null;
-    mockTransaction.mockImplementation(async (cb: (tx: ReturnType<typeof makeTxProxy>) => Promise<unknown>) => {
+    let capturedCalls: TxCalls | null = null;
+    mockTransaction.mockImplementation(async (cb: (tx: TxProxy) => Promise<unknown>) => {
       const tx = makeTxProxy();
-      tx.progress.findMany = vi.fn().mockResolvedValue([
-        { skillId: 'skill-1', mastery: EXISTING_MASTERY, attemptsCount: 3 },
-      ]);
-      capturedTx = tx;
+      tx.progress.findMany = () =>
+        Promise.resolve([{ skillId: 'skill-1', mastery: EXISTING_MASTERY, attemptsCount: 3 }]);
+      capturedCalls = tx.calls;
       return cb(tx);
     });
 
@@ -322,27 +486,29 @@ describe('submitQuizAttempt', () => {
     await submitQuizAttempt(makeValidFormData());
 
     // Trouver le call pour skill-1
-    const skill1Call = capturedTx!.progress.upsert.mock.calls.find(
-      (call) => call[0].where.userId_skillId.skillId === 'skill-1',
+    const calls = expectPresent(capturedCalls);
+    const skill1UpsertData = expectPresent(
+      calls.progressUpsert.find((call) => call.where.userId_skillId.skillId === 'skill-1'),
     );
-    expect(skill1Call).toBeDefined();
-    const newMastery = skill1Call![0].update.mastery;
+    const newMastery = skill1UpsertData.update.mastery;
     expect(newMastery).toBeCloseTo(0.3 * 1.0 + 0.7 * EXISTING_MASTERY, 10);
-    expect(skill1Call![0].update.attemptsCount).toBe(4);
+    expect(skill1UpsertData.update.attemptsCount).toBe(4);
   });
 
   it('écrit un AuditLog ATTEMPT_SUBMITTED dans la transaction', async () => {
-    let capturedTx: ReturnType<typeof makeTxProxy> | null = null;
-    mockTransaction.mockImplementation(async (cb: (tx: ReturnType<typeof makeTxProxy>) => Promise<unknown>) => {
+    let capturedCalls: TxCalls | null = null;
+    mockTransaction.mockImplementation(async (cb: (tx: TxProxy) => Promise<unknown>) => {
       const tx = makeTxProxy();
-      capturedTx = tx;
+      capturedCalls = tx.calls;
       return cb(tx);
     });
 
     await submitQuizAttempt(makeValidFormData());
 
-    expect(capturedTx!.auditLog.create).toHaveBeenCalledOnce();
-    const { data } = capturedTx!.auditLog.create.mock.calls[0][0];
+    const calls = expectPresent(capturedCalls);
+    expect(calls.auditCreate).toHaveLength(1);
+    const auditInput = expectPresent(calls.auditCreate[0]);
+    const { data } = auditInput;
     expect(data.actorId).toBe('user-1');
     expect(data.targetId).toBe('attempt-1');
     expect(data.targetType).toBe('attempt');
@@ -354,8 +520,8 @@ describe('submitQuizAttempt', () => {
     await submitQuizAttempt(makeValidFormData());
 
     expect(mockRedirect).toHaveBeenCalledOnce();
-    const url: string = mockRedirect.mock.calls[0][0];
-    expect(url).toMatch(/^\/fr\/quiz\/activity-1\/resultat\/attempt-1$/);
+    const [url] = firstMockCall<[string]>(mockRedirect);
+    expect(url).toBe(`/fr/quiz/${ACTIVITY_ID}/resultat/attempt-1`);
   });
 
   // ── Erreur DB ───────────────────────────────────────────────────────────────

@@ -1,7 +1,6 @@
 'use server';
 
 import { AuditEventKind, withUser } from '@eduquiz/db';
-import type { RlsRole } from '@eduquiz/db';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
@@ -11,6 +10,8 @@ import { safeResolveLocale } from '../i18n/locale';
 import { getPublishedQuizByActivityId } from './catalog';
 import { computeMastery } from './mastery';
 import { scoreSingleAnswerQuiz } from './scoring';
+
+import type { RlsRole } from '@eduquiz/db';
 
 const hiddenFieldSchema = z.object({
   activityId: z.string().uuid(),
@@ -45,13 +46,20 @@ export async function submitQuizAttempt(formData: FormData): Promise<SubmitQuizR
     return { ok: false, error: 'notFound' };
   }
 
-  const submittedAnswers = new Map<string, string>();
+  const submittedAnswers = new Map<string, readonly string[]>();
   const missingQuestionIds: string[] = [];
   for (const question of quiz.questions) {
-    const answerId = formData.get(`question:${question.id}`);
+    const rawAnswerIds =
+      question.type === 'MCQ_MULTI'
+        ? formData.getAll(`question:${question.id}`)
+        : [formData.get(`question:${question.id}`)];
     const validAnswerIds = new Set(question.answers.map((answer) => answer.id));
-    if (typeof answerId === 'string' && validAnswerIds.has(answerId)) {
-      submittedAnswers.set(question.id, answerId);
+    const answerIds = rawAnswerIds.filter(
+      (answerId): answerId is string =>
+        typeof answerId === 'string' && validAnswerIds.has(answerId),
+    );
+    if (answerIds.length > 0 && answerIds.length === rawAnswerIds.length) {
+      submittedAnswers.set(question.id, answerIds);
     } else {
       missingQuestionIds.push(question.id);
     }
@@ -88,7 +96,10 @@ export async function submitQuizAttempt(formData: FormData): Promise<SubmitQuizR
           data: score.answers.map((answer) => ({
             attemptId: createdAttempt.id,
             questionId: answer.questionId,
-            response: { answerId: answer.answerId } as never,
+            response: {
+              answerId: answer.answerId,
+              answerIds: answer.answerIds,
+            } as never,
             isCorrect: answer.isCorrect,
             pointsEarned: answer.pointsEarned,
             durationMs: 0,

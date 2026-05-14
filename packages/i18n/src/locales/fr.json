@@ -89,6 +89,36 @@
           "unknown": "Une erreur est survenue. Réessayez dans un instant.",
           "rateLimited": "Trop d’inscriptions récentes depuis cette adresse. Réessaie dans quelques minutes."
         }
+      },
+      "minor": {
+        "heroKicker": "Inscription mineur",
+        "title": "Crée ton compte élève",
+        "subtitle": "Ton compte sera créé avec le rôle élève. Tu pourras relier le compte de ton parent ensuite.",
+        "emailLabel": "Adresse courriel",
+        "emailHint": "Utilise un courriel que tu consultes régulièrement.",
+        "passwordLabel": "Mot de passe",
+        "passwordHint": "8 caractères minimum, dont 1 chiffre et 1 majuscule.",
+        "birthDateLabel": "Date de naissance",
+        "birthDateHint": "Sert à vérifier que tu as moins de 18 ans.",
+        "termsLabel": "J’ai lu et j’accepte les {terms} et la {privacy}.",
+        "termsLink": "CGU",
+        "privacyLink": "Politique de confidentialité",
+        "submit": "Créer mon compte",
+        "submitting": "Création en cours…",
+        "alreadyHaveAccount": "Déjà inscrit ?",
+        "signInCta": "Se connecter",
+        "errors": {
+          "emailInvalid": "Adresse courriel invalide.",
+          "emailTaken": "Cette adresse courriel est déjà utilisée.",
+          "passwordTooShort": "Le mot de passe doit faire au moins 8 caractères.",
+          "passwordWeak": "Le mot de passe doit contenir au moins 1 chiffre et 1 majuscule.",
+          "birthDateInvalid": "Date de naissance invalide.",
+          "notMinor": "Ce formulaire est réservé aux moins de 18 ans. Utilise le formulaire adulte.",
+          "tooYoung": "Tu dois avoir au moins 6 ans pour créer un compte.",
+          "termsRequired": "Tu dois accepter les CGU et la politique de confidentialité.",
+          "unknown": "Une erreur est survenue. Réessaie dans un instant.",
+          "rateLimited": "Trop d’inscriptions récentes depuis cette adresse. Réessaie dans quelques minutes."
+        }
       }
     },
     "verifyEmail": {
@@ -222,12 +252,7 @@
     "ctaSecondary": "Découvrir les matières",
     "trust": {
       "title": "Conçu avec et pour les familles du Québec",
-      "items": [
-        "Aligné PFEQ",
-        "Hébergé à Montréal",
-        "Conforme Loi 25",
-        "Bilingue FR + EN"
-      ]
+      "items": ["Aligné PFEQ", "Hébergé à Montréal", "Conforme Loi 25", "Bilingue FR + EN"]
     },
     "features": {
       "kicker": "Fonctionnalités",
@@ -466,12 +491,7 @@
         "shortDescription": "Communication orale, lecture et écriture en langue seconde.",
         "levels": "Primaire 3 – Secondaire 5",
         "image": "/images/subjects/anglais.svg",
-        "topics": [
-          "Interactions orales",
-          "Lecture et textes",
-          "Production écrite",
-          "Culture anglophone"
-        ],
+        "topics": ["Interactions orales", "Lecture et textes", "Production écrite", "Culture anglophone"],
         "skills": [
           "Interagir oralement en anglais",
           "Comprendre des textes lus ou entendus",
@@ -536,12 +556,7 @@
         "shortDescription": "Sciences de la nature et technologie, du 2ᵉ cycle primaire au secondaire.",
         "levels": "Primaire 5 – Secondaire 5",
         "image": "/images/subjects/sciences-technologie.svg",
-        "topics": [
-          "Univers matériel",
-          "Univers vivant",
-          "Terre et espace",
-          "Technologie"
-        ],
+        "topics": ["Univers matériel", "Univers vivant", "Terre et espace", "Technologie"],
         "skills": [
           "Explorer le monde de la science et de la technologie",
           "Mettre à profit des outils, objets et procédés",
@@ -599,12 +614,7 @@
         "shortDescription": "Des premières sociétés à nos jours, avec un regard québécois.",
         "levels": "Primaire 3 – Secondaire 4",
         "image": "/images/subjects/histoire-quebec-canada.svg",
-        "topics": [
-          "Premières sociétés",
-          "Nouvelle-France",
-          "Régime britannique",
-          "Québec moderne"
-        ],
+        "topics": ["Premières sociétés", "Nouvelle-France", "Régime britannique", "Québec moderne"],
         "skills": [
           "Interroger les réalités sociales dans une perspective historique",
           "Interpréter les réalités sociales à l'aide de la méthode historique",
@@ -648,12 +658,7 @@
         "shortDescription": "Territoires, paysages et enjeux contemporains.",
         "levels": "Primaire 3 – Secondaire 2",
         "image": "/images/subjects/geographie.svg",
-        "topics": [
-          "Lecture de cartes",
-          "Territoires humains",
-          "Enjeux environnementaux",
-          "Régions du monde"
-        ],
+        "topics": ["Lecture de cartes", "Territoires humains", "Enjeux environnementaux", "Régions du monde"],
         "skills": [
           "Lire l'organisation d'un territoire",
           "Interpréter un enjeu territorial",
@@ -697,12 +702,7 @@
         "shortDescription": "Budget, consommation, fiscalité et projets de vie.",
         "levels": "Secondaire 5",
         "image": "/images/subjects/education-financiere.svg",
-        "topics": [
-          "Consommation",
-          "Travail et revenu",
-          "Épargne et crédit",
-          "Fiscalité et projets"
-        ],
+        "topics": ["Consommation", "Travail et revenu", "Épargne et crédit", "Fiscalité et projets"],
         "skills": [
           "Prendre position sur un enjeu financier",
           "Analyser un choix de consommation",
@@ -795,12 +795,7 @@
         "shortDescription": "Identité, diversité, démocratie et culture au Québec.",
         "levels": "Primaire 3 – Secondaire 5",
         "image": "/images/subjects/culture-citoyennete-quebecoise.svg",
-        "topics": [
-          "Citoyenneté démocratique",
-          "Identité et diversité",
-          "Culture québécoise",
-          "Éthique et société"
-        ],
+        "topics": ["Citoyenneté démocratique", "Identité et diversité", "Culture québécoise", "Éthique et société"],
         "skills": [
           "Délibérer sur des enjeux éthiques et culturels",
           "Dialoguer dans une société pluraliste",
@@ -865,12 +860,7 @@
         "shortDescription": "Enjeux mondiaux de population, richesse, pouvoir et environnement.",
         "levels": "Secondaire 5",
         "image": "/images/subjects/monde-contemporain.svg",
-        "topics": [
-          "Population et peuplement",
-          "Environnement",
-          "Richesse",
-          "Pouvoir et tensions"
-        ],
+        "topics": ["Population et peuplement", "Environnement", "Richesse", "Pouvoir et tensions"],
         "skills": [
           "Interpréter un problème du monde contemporain",
           "Prendre position sur un enjeu du monde contemporain",
@@ -1379,6 +1369,9 @@
       },
       "formatLabel": "Format",
       "formatJson": "JSON",
+      "formatPdf": "PDF",
+      "downloadCtaJson": "Télécharger en JSON",
+      "downloadCtaPdf": "Télécharger en PDF",
       "downloadCta": "Télécharger mon export",
       "note": "Le téléchargement démarre immédiatement. Le fichier inclut les données présentes au moment du clic."
     },
@@ -1408,5 +1401,133 @@
         "rateLimited": "Trop de tentatives. Réessaie demain."
       }
     }
+  },
+  "family": {
+    "parentDashboard": {
+      "title": "Mes enfants",
+      "subtitle": "Gérez les comptes élèves rattachés à votre profil parent.",
+      "addChild": "Ajouter un enfant",
+      "childEmailLabel": "Adresse courriel de l'élève",
+      "childEmailHint": "L'élève doit déjà avoir créé son compte sur EduQuiz.",
+      "submit": "Générer le code",
+      "submitting": "Génération…",
+      "codeGenerated": "Code généré",
+      "codeInstruction": "Communique ce code à ton enfant. Il saisira ce code dans son espace EduQuiz pour finaliser le rattachement.",
+      "codeExpiry": "Ce code expire dans 24 heures.",
+      "close": "Fermer",
+      "children": "Enfants rattachés",
+      "noChildren": "Aucun enfant rattaché pour le moment.",
+      "statePending": "En attente",
+      "stateVerified": "Actif",
+      "stateRevoked": "Révoqué",
+      "errors": {
+        "childNotFound": "Aucun compte élève trouvé avec cette adresse courriel.",
+        "notMinor": "Ce compte n'est pas un compte élève mineur.",
+        "alreadyLinked": "Ce compte est déjà rattaché à votre profil.",
+        "maxChildren": "Vous avez atteint la limite de 4 enfants rattachés.",
+        "unknown": "Une erreur est survenue. Réessayez dans un instant.",
+        "rateLimited": "Trop de tentatives. Réessayez dans quelques minutes."
+      }
+    },
+    "linkParent": {
+      "title": "Relier mon parent",
+      "subtitle": "Demande à ton parent de générer un code depuis son espace EduQuiz, puis saisis-le ici.",
+      "codeLabel": "Code de rattachement",
+      "codeHint": "Code à 6 chiffres fourni par ton parent.",
+      "submit": "Valider le code",
+      "submitting": "Vérification…",
+      "success": "Code accepté ! Ton parent recevra un courriel pour confirmer le rattachement.",
+      "alreadyLinked": "Ton compte parent est déjà rattaché.",
+      "skipCta": "Continuer sans relier",
+      "errors": {
+        "codeInvalid": "Code invalide ou expiré.",
+        "codeNotForYou": "Ce code n'est pas destiné à ton compte.",
+        "alreadyRedeemed": "Ce code a déjà été utilisé.",
+        "unknown": "Une erreur est survenue. Réessaie dans un instant.",
+        "rateLimited": "Trop de tentatives. Réessaie dans quelques minutes."
+      }
+    },
+    "confirmLink": {
+      "title": "Rattachement confirmé",
+      "body": "Le compte élève est maintenant rattaché à votre profil. Vous pouvez consulter sa progression depuis votre tableau de bord.",
+      "dashboardCta": "Voir mes enfants",
+      "invalidTitle": "Lien invalide",
+      "invalidBody": "Ce lien de confirmation n'est pas reconnu ou a déjà été utilisé.",
+      "expiredTitle": "Lien expiré",
+      "expiredBody": "Ce lien de confirmation n'est plus valide. Demandez à l'élève de saisir à nouveau le code.",
+      "backCta": "Retour à l'accueil"
+    }
+  },
+  "learn": {
+    "eyebrow": "Parcours apprenant",
+    "title": "Choisis une leçon et valide ta progression.",
+    "subtitle": "Chaque parcours relie une leçon publiée, un quiz noté, une tentative enregistrée et une progression par compétence.",
+    "empty": "Aucune leçon publiée pour le moment.",
+    "lessons": "Leçons",
+    "quiz": "quiz",
+    "start": "Commencer",
+    "continue": "Continuer",
+    "result": "Résultat",
+    "progress": "Progression par compétence",
+    "progressEmpty": "Aucune progression enregistrée. Termine un quiz pour remplir cette carte.",
+    "history": "Dernières tentatives",
+    "historyEmpty": "Aucune tentative enregistrée pour le moment.",
+    "attempts": "tentative(s)",
+    "lastAttempt": "Dernière tentative",
+    "minutes": "min",
+    "passed": "réussi",
+    "failed": "à reprendre"
+  },
+  "lesson": {
+    "back": "Retour aux leçons",
+    "skills": "Compétences travaillées",
+    "objectives": "Objectifs",
+    "lessonContent": "Notion à retenir",
+    "exercise": "Exercice guidé",
+    "noObjectives": "Lire la notion, répondre au quiz, puis consulter le résultat enregistré.",
+    "noContent": "Le contenu détaillé de cette leçon sera enrichi prochainement.",
+    "noExercise": "Aucun exercice guidé publié pour cette leçon.",
+    "checkExercise": "Vérifier ma réponse",
+    "retryExercise": "Réessayer",
+    "exerciseIncomplete": "Choisis une réponse avant de vérifier.",
+    "exerciseCorrect": "Bonne réponse",
+    "exerciseIncorrect": "À corriger",
+    "hint": "Indice",
+    "quiz": "Quiz de validation",
+    "history": "Historique de ce quiz",
+    "noHistory": "Aucune tentative enregistrée pour ce quiz.",
+    "result": "Voir",
+    "passed": "réussi",
+    "failed": "à reprendre",
+    "duration": "durée",
+    "seconds": "s",
+    "questions": "question(s)",
+    "startQuiz": "Lancer le quiz",
+    "unavailable": "Aucun quiz publié pour cette leçon.",
+    "minutes": "min"
+  },
+  "quiz": {
+    "back": "Retour à la leçon",
+    "score": "Seuil",
+    "submit": "Corriger et enregistrer",
+    "submitting": "Correction…",
+    "points": "point(s)",
+    "multiSelectHint": "Sélectionne toutes les bonnes réponses.",
+    "errors": {
+      "invalid": "Le formulaire est invalide. Recharge la page puis réessaie.",
+      "notFound": "Ce quiz n'est plus disponible.",
+      "incomplete": "Réponds à toutes les questions avant de corriger.",
+      "unknown": "La tentative n'a pas pu être enregistrée. Réessaie dans un instant."
+    }
+  },
+  "quizResult": {
+    "title": "Résultat enregistré",
+    "passed": "Réussi",
+    "retry": "Reprendre la leçon",
+    "catalog": "Retour aux parcours",
+    "answers": "Correction",
+    "selected": "Ta réponse",
+    "correct": "Bonne réponse",
+    "point": "point"
   }
 }
