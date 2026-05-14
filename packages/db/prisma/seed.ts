@@ -24,6 +24,7 @@ import {
   BadgeKind,
   ContentStatus,
   GradeCode,
+  ExerciseType,
   Locale,
   PrismaClient,
   SchoolCycle,
@@ -302,11 +303,15 @@ async function main(): Promise<void> {
       titleEn: string;
       skillCodes: string[];
       exerciseQuestion: {
+        type?: ExerciseType;
         promptFr: string;
         promptEn: string;
         answers: Array<{ labelFr: string; labelEn: string; isCorrect: boolean }>;
       };
+      exerciseExplanationFr?: string;
+      exerciseExplanationEn?: string;
       quizQuestion: {
+        type?: ExerciseType;
         promptFr: string;
         promptEn: string;
         answers: Array<{ labelFr: string; labelEn: string; isCorrect: boolean }>;
@@ -326,13 +331,18 @@ async function main(): Promise<void> {
         titleFr: 'Comparer deux fractions',
         titleEn: 'Comparing two fractions',
         skillCodes: ['math.fractions.compare'],
+        exerciseExplanationFr:
+          '3/4 et 2/3 sont plus grandes que 1/2. 1/3 et 2/5 sont plus petites que 1/2.',
+        exerciseExplanationEn: '3/4 and 2/3 are greater than 1/2. 1/3 and 2/5 are less than 1/2.',
         exerciseQuestion: {
-          promptFr: 'Quelle fraction est la plus grande : 3/4 ou 2/3 ?',
-          promptEn: 'Which fraction is larger: 3/4 or 2/3?',
+          type: ExerciseType.MCQ_MULTI,
+          promptFr: 'Sélectionne toutes les fractions plus grandes que 1/2.',
+          promptEn: 'Select all fractions greater than 1/2.',
           answers: [
             { labelFr: '3/4', labelEn: '3/4', isCorrect: true },
-            { labelFr: '2/3', labelEn: '2/3', isCorrect: false },
-            { labelFr: 'Elles sont égales', labelEn: 'They are equal', isCorrect: false },
+            { labelFr: '2/3', labelEn: '2/3', isCorrect: true },
+            { labelFr: '1/3', labelEn: '1/3', isCorrect: false },
+            { labelFr: '2/5', labelEn: '2/5', isCorrect: false },
           ],
         },
         quizQuestion: {
@@ -463,16 +473,29 @@ async function main(): Promise<void> {
       update: {
         titleFr: courseSpec.lesson.titleFr,
         titleEn: courseSpec.lesson.titleEn,
+        type: courseSpec.lesson.exerciseQuestion.type ?? ExerciseType.MCQ_SINGLE,
         instructionsFr: 'Choisis la bonne réponse.',
         instructionsEn: 'Pick the correct answer.',
+        ...(courseSpec.lesson.exerciseExplanationFr
+          ? { explanationFr: courseSpec.lesson.exerciseExplanationFr }
+          : {}),
+        ...(courseSpec.lesson.exerciseExplanationEn
+          ? { explanationEn: courseSpec.lesson.exerciseExplanationEn }
+          : {}),
       },
       create: {
         activityId: exerciseActivity.id,
-        type: 'MCQ_SINGLE',
+        type: courseSpec.lesson.exerciseQuestion.type ?? ExerciseType.MCQ_SINGLE,
         titleFr: courseSpec.lesson.titleFr,
         titleEn: courseSpec.lesson.titleEn,
         instructionsFr: 'Choisis la bonne réponse.',
         instructionsEn: 'Pick the correct answer.',
+        ...(courseSpec.lesson.exerciseExplanationFr
+          ? { explanationFr: courseSpec.lesson.exerciseExplanationFr }
+          : {}),
+        ...(courseSpec.lesson.exerciseExplanationEn
+          ? { explanationEn: courseSpec.lesson.exerciseExplanationEn }
+          : {}),
       },
       select: { id: true },
     });
@@ -525,6 +548,50 @@ async function main(): Promise<void> {
       spec: courseSpec.lesson.quizQuestion,
       lessonSlug: `${courseSpec.lesson.slug}:quiz:q1`,
     });
+
+    if (courseSpec.lesson.slug === 'math-p5-comparer-fractions') {
+      await seedQuestionWithAnswers({
+        questionId: deterministicUuid(`${courseSpec.lesson.slug}:quiz:q2`),
+        exerciseId: null,
+        quizId: quiz.id,
+        spec: {
+          type: ExerciseType.MCQ_MULTI,
+          promptFr: 'Sélectionne toutes les fractions équivalentes à 1/2.',
+          promptEn: 'Select all fractions equivalent to 1/2.',
+          answers: [
+            { labelFr: '2/4', labelEn: '2/4', isCorrect: true },
+            { labelFr: '3/6', labelEn: '3/6', isCorrect: true },
+            { labelFr: '4/6', labelEn: '4/6', isCorrect: false },
+            { labelFr: '5/10', labelEn: '5/10', isCorrect: true },
+          ],
+        },
+        lessonSlug: `${courseSpec.lesson.slug}:quiz:q2`,
+      });
+    }
+
+    if (courseSpec.lesson.slug === 'fr-p4-accord-sujet-verbe') {
+      await seedQuestionWithAnswers({
+        questionId: deterministicUuid(`${courseSpec.lesson.slug}:quiz:q2`),
+        exerciseId: null,
+        quizId: quiz.id,
+        spec: {
+          type: ExerciseType.MCQ_MULTI,
+          promptFr: 'Sélectionne tous les sujets pluriels.',
+          promptEn: 'Select all plural subjects.',
+          answers: [
+            { labelFr: 'Les élèves', labelEn: 'The students', isCorrect: true },
+            {
+              labelFr: 'Le chat et le chien',
+              labelEn: 'The cat and the dog',
+              isCorrect: true,
+            },
+            { labelFr: 'Ma sœur', labelEn: 'My sister', isCorrect: false },
+            { labelFr: 'Un enfant', labelEn: 'A child', isCorrect: false },
+          ],
+        },
+        lessonSlug: `${courseSpec.lesson.slug}:quiz:q2`,
+      });
+    }
   }
 
   // ─── 6. Badges ─────────────────────────────────────────────────────────────
@@ -620,6 +687,7 @@ async function seedQuestionWithAnswers(params: {
   exerciseId: string | null;
   quizId: string | null;
   spec: {
+    type?: ExerciseType;
     promptFr: string;
     promptEn: string;
     answers: Array<{ labelFr: string; labelEn: string; isCorrect: boolean }>;
@@ -632,6 +700,7 @@ async function seedQuestionWithAnswers(params: {
     update: {
       exerciseId,
       quizId,
+      type: spec.type ?? ExerciseType.MCQ_SINGLE,
       promptFr: spec.promptFr,
       promptEn: spec.promptEn,
     },
@@ -639,7 +708,7 @@ async function seedQuestionWithAnswers(params: {
       id: questionId,
       exerciseId,
       quizId,
-      type: 'MCQ_SINGLE',
+      type: spec.type ?? ExerciseType.MCQ_SINGLE,
       promptFr: spec.promptFr,
       promptEn: spec.promptEn,
     },
