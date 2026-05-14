@@ -203,13 +203,25 @@ const MOCK_QUIZ = {
         { id: 'left-2', label: '2/3', pairId: 'right-2', isCorrect: true },
       ],
     },
+    {
+      id: 'q6',
+      prompt: 'Q6',
+      explanation: '',
+      type: 'ORDERING',
+      points: 3,
+      answers: [
+        { id: 'step-1', label: 'Un', isCorrect: true },
+        { id: 'step-2', label: 'Deux', isCorrect: true },
+        { id: 'step-3', label: 'Trois', isCorrect: true },
+      ],
+    },
   ],
 };
 
 const MOCK_SCORE = {
   score: 100,
-  rawScore: 7,
-  maxScore: 7,
+  rawScore: 10,
+  maxScore: 10,
   passed: true,
   answers: [
     { questionId: 'q1', answerId: 'a1', answerIds: ['a1'], isCorrect: true, pointsEarned: 1 },
@@ -240,6 +252,14 @@ const MOCK_SCORE = {
       isCorrect: true,
       pointsEarned: 2,
     },
+    {
+      questionId: 'q6',
+      answerId: null,
+      answerIds: [],
+      orderedAnswerIds: ['step-1', 'step-2', 'step-3'],
+      isCorrect: true,
+      pointsEarned: 3,
+    },
   ],
 };
 
@@ -265,10 +285,15 @@ function makeValidFormData(overrides: Record<string, string> = {}): FormData {
     'question:q4': 'dénominateur commun',
     'matching:q5:left-1': 'right-1',
     'matching:q5:left-2': 'right-2',
+    'ordering:q6': 'step-1',
     ...overrides,
   });
   if (!('question:q3' in overrides)) {
     fd.append('question:q3', 'a6');
+  }
+  if (!('ordering:q6' in overrides)) {
+    fd.append('ordering:q6', 'step-2');
+    fd.append('ordering:q6', 'step-3');
   }
   return fd;
 }
@@ -468,7 +493,68 @@ describe('submitQuizAttempt', () => {
         { leftId: 'left-2', rightId: 'right-2' },
       ],
     });
+    expect(submittedAnswers.get('q6')).toEqual({
+      orderedAnswerIds: ['step-1', 'step-2', 'step-3'],
+    });
     expect(passingScore).toBe(MOCK_QUIZ.passingScore);
+  });
+
+  it('transmet une réponse ORDERING dans l’ordre exact', async () => {
+    await submitQuizAttempt(makeValidFormData());
+
+    const [, submittedAnswers] = firstMockCall(mockScoreSingleAnswerQuiz) as ScoreMockCall;
+    expect(submittedAnswers.get('q6')).toEqual({
+      orderedAnswerIds: ['step-1', 'step-2', 'step-3'],
+    });
+  });
+
+  it('transmet une réponse ORDERING dans le mauvais ordre sans la corriger', async () => {
+    const fd = makeValidFormData({ 'ordering:q6': 'step-2' });
+    fd.append('ordering:q6', 'step-1');
+    fd.append('ordering:q6', 'step-3');
+
+    await submitQuizAttempt(fd);
+
+    const [, submittedAnswers] = firstMockCall(mockScoreSingleAnswerQuiz) as ScoreMockCall;
+    expect(submittedAnswers.get('q6')).toEqual({
+      orderedAnswerIds: ['step-2', 'step-1', 'step-3'],
+    });
+  });
+
+  it('transmet une réponse ORDERING vide au scoring', async () => {
+    const fd = makeValidFormData({ 'ordering:q6': '' });
+
+    await submitQuizAttempt(fd);
+
+    const [, submittedAnswers] = firstMockCall(mockScoreSingleAnswerQuiz) as ScoreMockCall;
+    expect(submittedAnswers.get('q6')).toEqual({ orderedAnswerIds: [] });
+  });
+
+  it('ignore les valeurs vides dans une réponse ORDERING', async () => {
+    const fd = makeValidFormData({ 'ordering:q6': 'step-1' });
+    fd.append('ordering:q6', '');
+    fd.append('ordering:q6', 'step-2');
+    fd.append('ordering:q6', '   ');
+    fd.append('ordering:q6', 'step-3');
+
+    await submitQuizAttempt(fd);
+
+    const [, submittedAnswers] = firstMockCall(mockScoreSingleAnswerQuiz) as ScoreMockCall;
+    expect(submittedAnswers.get('q6')).toEqual({
+      orderedAnswerIds: ['step-1', 'step-2', 'step-3'],
+    });
+  });
+
+  it('transmet une réponse ORDERING avec un élément manquant', async () => {
+    const fd = makeValidFormData({ 'ordering:q6': 'step-1' });
+    fd.append('ordering:q6', 'step-2');
+
+    await submitQuizAttempt(fd);
+
+    const [, submittedAnswers] = firstMockCall(mockScoreSingleAnswerQuiz) as ScoreMockCall;
+    expect(submittedAnswers.get('q6')).toEqual({
+      orderedAnswerIds: ['step-1', 'step-2'],
+    });
   });
 
   it('transmet une réponse MATCHING même si les paires arrivent dans un ordre différent', async () => {
@@ -551,6 +637,7 @@ describe('submitQuizAttempt', () => {
     const q3Answer = expectPresent(data[2]);
     const q4Answer = expectPresent(data[3]);
     const q5Answer = expectPresent(data[4]);
+    const q6Answer = expectPresent(data[5]);
     expect(data).toHaveLength(MOCK_SCORE.answers.length);
     expect(q1Answer.attemptId).toBe('attempt-1');
     expect(q1Answer.questionId).toBe('q1');
@@ -563,6 +650,9 @@ describe('submitQuizAttempt', () => {
         { leftId: 'left-1', rightId: 'right-1' },
         { leftId: 'left-2', rightId: 'right-2' },
       ],
+    });
+    expect(q6Answer.response).toEqual({
+      orderedAnswerIds: ['step-1', 'step-2', 'step-3'],
     });
   });
 
@@ -589,7 +679,7 @@ describe('submitQuizAttempt', () => {
       return cb(tx);
     });
 
-    // MOCK_SCORE: rawScore=7, maxScore=7 → scoreRatio=1.0, première tentative → mastery=1.0
+    // MOCK_SCORE: rawScore=10, maxScore=10 → scoreRatio=1.0, première tentative → mastery=1.0
     await submitQuizAttempt(makeValidFormData());
 
     const calls = expectPresent<TxCalls>(capturedCalls);
