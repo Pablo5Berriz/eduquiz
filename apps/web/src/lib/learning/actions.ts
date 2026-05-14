@@ -50,6 +50,22 @@ export async function submitQuizAttempt(formData: FormData): Promise<SubmitQuizR
   const submittedAnswers = new Map<string, SubmittedQuizAnswer>();
   const missingQuestionIds: string[] = [];
   for (const question of quiz.questions) {
+    if (question.type === 'MATCHING') {
+      const matches = question.answers.flatMap((answer) => {
+        const rawRightId = formData.get(`matching:${question.id}:${answer.id}`);
+        return typeof rawRightId === 'string' && rawRightId.trim().length > 0
+          ? [{ leftId: answer.id, rightId: rawRightId }]
+          : [];
+      });
+
+      if (matches.length > 0 && matches.length === question.answers.length) {
+        submittedAnswers.set(question.id, { matches });
+      } else {
+        missingQuestionIds.push(question.id);
+      }
+      continue;
+    }
+
     if (question.type === 'FILL_IN_THE_BLANK' || question.type === 'SHORT_ANSWER') {
       const rawText = formData.get(`question:${question.id}`);
       if (typeof rawText === 'string' && rawText.trim().length > 0) {
@@ -108,12 +124,14 @@ export async function submitQuizAttempt(formData: FormData): Promise<SubmitQuizR
             attemptId: createdAttempt.id,
             questionId: answer.questionId,
             response:
-              answer.text !== undefined
-                ? ({ text: answer.text } as never)
-                : ({
-                    answerId: answer.answerId,
-                    answerIds: answer.answerIds,
-                  } as never),
+              answer.matches !== undefined
+                ? ({ matches: answer.matches } as never)
+                : answer.text !== undefined
+                  ? ({ text: answer.text } as never)
+                  : ({
+                      answerId: answer.answerId,
+                      answerIds: answer.answerIds,
+                    } as never),
             isCorrect: answer.isCorrect,
             pointsEarned: answer.pointsEarned,
             durationMs: 0,
