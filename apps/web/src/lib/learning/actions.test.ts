@@ -22,7 +22,7 @@ import { submitQuizAttempt } from './actions';
 
 // ── Mocks déclarés avant les imports du module testé ─────────────────────────
 
-type ScoreMockCall = [readonly unknown[], ReadonlyMap<string, readonly string[]>, number | null];
+type ScoreMockCall = [readonly unknown[], ReadonlyMap<string, unknown>, number | null];
 
 interface AttemptCreateInput {
   readonly data: {
@@ -187,13 +187,21 @@ const MOCK_QUIZ = {
         { id: 'a7', label: 'Quatre', isCorrect: false },
       ],
     },
+    {
+      id: 'q4',
+      prompt: 'Q4',
+      explanation: '',
+      type: 'FILL_IN_THE_BLANK',
+      points: 1,
+      answers: [{ id: 'a8', label: 'dénominateur commun', isCorrect: true }],
+    },
   ],
 };
 
 const MOCK_SCORE = {
   score: 100,
-  rawScore: 4,
-  maxScore: 4,
+  rawScore: 5,
+  maxScore: 5,
   passed: true,
   answers: [
     { questionId: 'q1', answerId: 'a1', answerIds: ['a1'], isCorrect: true, pointsEarned: 1 },
@@ -204,6 +212,14 @@ const MOCK_SCORE = {
       answerIds: ['a5', 'a6'],
       isCorrect: true,
       pointsEarned: 2,
+    },
+    {
+      questionId: 'q4',
+      answerId: null,
+      answerIds: [],
+      text: 'dénominateur commun',
+      isCorrect: true,
+      pointsEarned: 1,
     },
   ],
 };
@@ -227,6 +243,7 @@ function makeValidFormData(overrides: Record<string, string> = {}): FormData {
     'question:q1': 'a1',
     'question:q2': 'a4',
     'question:q3': 'a5',
+    'question:q4': 'dénominateur commun',
     ...overrides,
   });
   if (!('question:q3' in overrides)) {
@@ -255,7 +272,7 @@ function makeTxProxy(): TxProxy {
     attemptAnswer: {
       createMany: (args: AttemptAnswerCreateManyInput): Promise<{ count: number }> => {
         calls.attemptAnswerCreateMany.push(args);
-        return Promise.resolve({ count: 3 });
+        return Promise.resolve({ count: args.data.length });
       },
     },
     progress: {
@@ -283,9 +300,9 @@ function expectPresent<T>(value: T | null | undefined): T {
 }
 
 function firstMockCall<T extends readonly unknown[]>(mock: {
-  readonly mock: { readonly calls: readonly T[] };
+  readonly mock: { readonly calls: readonly unknown[][] };
 }): T {
-  return expectPresent(mock.mock.calls[0]);
+  return expectPresent(mock.mock.calls[0]) as unknown as T;
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -334,6 +351,7 @@ describe('submitQuizAttempt', () => {
       locale: 'fr',
       'question:q1': 'a1',
       'question:q3': 'a5',
+      'question:q4': 'dénominateur commun',
       // 'question:q2' absent
     });
     fd.append('question:q3', 'a6');
@@ -366,13 +384,23 @@ describe('submitQuizAttempt', () => {
     });
   });
 
+  it('retourne incomplete si une réponse FILL_IN_THE_BLANK est vide', async () => {
+    const fd = makeValidFormData({ 'question:q4': '   ' });
+    const result = await submitQuizAttempt(fd);
+    expect(result).toEqual({
+      ok: false,
+      error: 'incomplete',
+      missingQuestionIds: ['q4'],
+    });
+  });
+
   it('retourne incomplete avec tous les ids manquants si aucune réponse soumise', async () => {
     const fd = makeFormData({ activityId: ACTIVITY_ID, locale: 'fr' });
     const result = await submitQuizAttempt(fd);
     expect(result).toEqual({
       ok: false,
       error: 'incomplete',
-      missingQuestionIds: ['q1', 'q2', 'q3'],
+      missingQuestionIds: ['q1', 'q2', 'q3', 'q4'],
     });
   });
 
@@ -388,6 +416,7 @@ describe('submitQuizAttempt', () => {
     expect(submittedAnswers.get('q1')).toEqual(['a1']);
     expect(submittedAnswers.get('q2')).toEqual(['a4']);
     expect(submittedAnswers.get('q3')).toEqual(['a5', 'a6']);
+    expect(submittedAnswers.get('q4')).toEqual({ text: 'dénominateur commun' });
     expect(passingScore).toBe(MOCK_QUIZ.passingScore);
   });
 
@@ -403,7 +432,7 @@ describe('submitQuizAttempt', () => {
 
     await submitQuizAttempt(makeValidFormData());
 
-    const calls = expectPresent(capturedCalls);
+    const calls = expectPresent<TxCalls>(capturedCalls);
     expect(calls.attemptCreate).toHaveLength(1);
     const createInput = expectPresent(calls.attemptCreate[0]);
     const { data } = createInput;
@@ -425,16 +454,20 @@ describe('submitQuizAttempt', () => {
 
     await submitQuizAttempt(makeValidFormData());
 
-    const calls = expectPresent(capturedCalls);
+    const calls = expectPresent<TxCalls>(capturedCalls);
     expect(calls.attemptAnswerCreateMany).toHaveLength(1);
     const createManyInput = expectPresent(calls.attemptAnswerCreateMany[0]);
     const { data } = createManyInput;
+    const q1Answer = expectPresent(data[0]);
+    const q3Answer = expectPresent(data[2]);
+    const q4Answer = expectPresent(data[3]);
     expect(data).toHaveLength(MOCK_SCORE.answers.length);
-    expect(data[0].attemptId).toBe('attempt-1');
-    expect(data[0].questionId).toBe('q1');
-    expect(data[0].response).toEqual({ answerId: 'a1', answerIds: ['a1'] });
-    expect(data[0].isCorrect).toBe(true);
-    expect(data[2].response).toEqual({ answerId: 'a5', answerIds: ['a5', 'a6'] });
+    expect(q1Answer.attemptId).toBe('attempt-1');
+    expect(q1Answer.questionId).toBe('q1');
+    expect(q1Answer.response).toEqual({ answerId: 'a1', answerIds: ['a1'] });
+    expect(q1Answer.isCorrect).toBe(true);
+    expect(q3Answer.response).toEqual({ answerId: 'a5', answerIds: ['a5', 'a6'] });
+    expect(q4Answer.response).toEqual({ text: 'dénominateur commun' });
   });
 
   it('crée/met à jour la progression pour chaque compétence de la leçon', async () => {
@@ -448,7 +481,7 @@ describe('submitQuizAttempt', () => {
     await submitQuizAttempt(makeValidFormData());
 
     // Deux compétences dans MOCK_QUIZ.lesson.skillIds
-    const calls = expectPresent(capturedCalls);
+    const calls = expectPresent<TxCalls>(capturedCalls);
     expect(calls.progressUpsert).toHaveLength(MOCK_QUIZ.lesson.skillIds.length);
   });
 
@@ -460,10 +493,10 @@ describe('submitQuizAttempt', () => {
       return cb(tx);
     });
 
-    // MOCK_SCORE: rawScore=4, maxScore=4 → scoreRatio=1.0, première tentative → mastery=1.0
+    // MOCK_SCORE: rawScore=5, maxScore=5 → scoreRatio=1.0, première tentative → mastery=1.0
     await submitQuizAttempt(makeValidFormData());
 
-    const calls = expectPresent(capturedCalls);
+    const calls = expectPresent<TxCalls>(capturedCalls);
     const upsertData = expectPresent(calls.progressUpsert[0]);
     expect(upsertData.create.mastery).toBe(1.0);
     expect(upsertData.create.attemptsCount).toBe(1);
@@ -486,7 +519,7 @@ describe('submitQuizAttempt', () => {
     await submitQuizAttempt(makeValidFormData());
 
     // Trouver le call pour skill-1
-    const calls = expectPresent(capturedCalls);
+    const calls = expectPresent<TxCalls>(capturedCalls);
     const skill1UpsertData = expectPresent(
       calls.progressUpsert.find((call) => call.where.userId_skillId.skillId === 'skill-1'),
     );
@@ -505,7 +538,7 @@ describe('submitQuizAttempt', () => {
 
     await submitQuizAttempt(makeValidFormData());
 
-    const calls = expectPresent(capturedCalls);
+    const calls = expectPresent<TxCalls>(capturedCalls);
     expect(calls.auditCreate).toHaveLength(1);
     const auditInput = expectPresent(calls.auditCreate[0]);
     const { data } = auditInput;

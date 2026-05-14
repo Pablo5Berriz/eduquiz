@@ -86,9 +86,10 @@ export default async function QuizResultPage({
               <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
                 {c('selected')} :{' '}
                 <span className="font-medium">
-                  {answer.selectedAnswerLabels.length > 0
-                    ? answer.selectedAnswerLabels.join(', ')
-                    : '—'}
+                  {answer.selectedText ??
+                    (answer.selectedAnswerLabels.length > 0
+                      ? answer.selectedAnswerLabels.join(', ')
+                      : '—')}
                 </span>
               </p>
               <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">

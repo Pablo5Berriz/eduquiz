@@ -11,6 +11,7 @@ import { getPublishedQuizByActivityId } from './catalog';
 import { computeMastery } from './mastery';
 import { scoreSingleAnswerQuiz } from './scoring';
 
+import type { SubmittedQuizAnswer } from './scoring';
 import type { RlsRole } from '@eduquiz/db';
 
 const hiddenFieldSchema = z.object({
@@ -46,9 +47,19 @@ export async function submitQuizAttempt(formData: FormData): Promise<SubmitQuizR
     return { ok: false, error: 'notFound' };
   }
 
-  const submittedAnswers = new Map<string, readonly string[]>();
+  const submittedAnswers = new Map<string, SubmittedQuizAnswer>();
   const missingQuestionIds: string[] = [];
   for (const question of quiz.questions) {
+    if (question.type === 'FILL_IN_THE_BLANK') {
+      const rawText = formData.get(`question:${question.id}`);
+      if (typeof rawText === 'string' && rawText.trim().length > 0) {
+        submittedAnswers.set(question.id, { text: rawText });
+      } else {
+        missingQuestionIds.push(question.id);
+      }
+      continue;
+    }
+
     const rawAnswerIds =
       question.type === 'MCQ_MULTI'
         ? formData.getAll(`question:${question.id}`)
@@ -96,10 +107,13 @@ export async function submitQuizAttempt(formData: FormData): Promise<SubmitQuizR
           data: score.answers.map((answer) => ({
             attemptId: createdAttempt.id,
             questionId: answer.questionId,
-            response: {
-              answerId: answer.answerId,
-              answerIds: answer.answerIds,
-            } as never,
+            response:
+              answer.text !== undefined
+                ? ({ text: answer.text } as never)
+                : ({
+                    answerId: answer.answerId,
+                    answerIds: answer.answerIds,
+                  } as never),
             isCorrect: answer.isCorrect,
             pointsEarned: answer.pointsEarned,
             durationMs: 0,

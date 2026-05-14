@@ -1513,6 +1513,8 @@
     "submitting": "Correction…",
     "points": "point(s)",
     "multiSelectHint": "Sélectionne toutes les bonnes réponses.",
+    "fillBlankHint": "Complète la réponse dans le champ.",
+    "textAnswerPlaceholder": "Écris ta réponse",
     "errors": {
       "invalid": "Le formulaire est invalide. Recharge la page puis réessaie.",
       "notFound": "Ce quiz n'est plus disponible.",

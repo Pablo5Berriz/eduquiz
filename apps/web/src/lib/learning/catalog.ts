@@ -31,6 +31,18 @@ function extractSelectedAnswerIds(response: unknown): readonly string[] {
   return [];
 }
 
+function extractTextAnswer(response: unknown): string | null {
+  if (typeof response !== 'object' || response === null || Array.isArray(response)) {
+    return null;
+  }
+
+  if ('text' in response && typeof response.text === 'string') {
+    return response.text;
+  }
+
+  return null;
+}
+
 export async function getPublishedLearningCatalog(locale: Locale) {
   const courses = await prisma.course.findMany({
     where: {
@@ -418,6 +430,7 @@ export async function getAttemptResult(params: {
     ),
     answers: attempt.answers.map((answer) => {
       const selectedAnswerIds = extractSelectedAnswerIds(answer.response);
+      const selectedText = extractTextAnswer(answer.response);
       const selectedAnswerLabels = answer.question.answers
         .filter((choice) => selectedAnswerIds.includes(choice.id))
         .map((choice) => localized(params.locale, choice.labelFr, choice.labelEn));
@@ -430,6 +443,7 @@ export async function getAttemptResult(params: {
         prompt: localized(params.locale, answer.question.promptFr, answer.question.promptEn),
         selectedAnswerId: selectedAnswerIds[0] ?? null,
         selectedAnswerIds,
+        selectedText,
         selectedAnswerLabels,
         correctAnswerLabel: correctAnswerLabels[0] ?? '',
         correctAnswerLabels,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { scoreSingleAnswerQuiz } from './scoring';
+import { scoreSingleAnswerQuiz, scoreTextAnswer } from './scoring';
 
 const questions = [
   {
@@ -165,5 +165,66 @@ describe('scoreSingleAnswerQuiz', () => {
     expect(result.rawScore).toBe(0);
     expect(result.score).toBe(0);
     expect(result.passed).toBe(false);
+  });
+
+  it('score une question FILL_IN_THE_BLANK avec une réponse textuelle correcte', () => {
+    const result = scoreSingleAnswerQuiz(
+      [
+        {
+          id: 'question-fill',
+          type: 'FILL_IN_THE_BLANK',
+          points: 2,
+          answers: [
+            { id: 'a', label: 'dénominateur commun', isCorrect: true },
+            { id: 'b', label: 'denominateur commun', isCorrect: true },
+          ],
+        },
+      ],
+      new Map([['question-fill', { text: 'Dénominateur commun' }]]),
+      100,
+    );
+
+    expect(result).toMatchObject({
+      rawScore: 2,
+      maxScore: 2,
+      score: 100,
+      passed: true,
+    });
+    expect(result.answers[0]).toEqual({
+      questionId: 'question-fill',
+      answerId: null,
+      answerIds: [],
+      text: 'Dénominateur commun',
+      isCorrect: true,
+      pointsEarned: 2,
+    });
+  });
+});
+
+describe('scoreTextAnswer', () => {
+  const variants = ['réponse correcte', 'bonne réponse'];
+
+  it('accepte une réponse exacte', () => {
+    expect(scoreTextAnswer('réponse correcte', variants)).toBe(true);
+  });
+
+  it('accepte une casse différente', () => {
+    expect(scoreTextAnswer('RÉPONSE CORRECTE', variants)).toBe(true);
+  });
+
+  it('accepte une variante sans accents', () => {
+    expect(scoreTextAnswer('reponse correcte', variants)).toBe(true);
+  });
+
+  it('réduit les espaces multiples', () => {
+    expect(scoreTextAnswer('  réponse   correcte  ', variants)).toBe(true);
+  });
+
+  it('refuse une réponse vide', () => {
+    expect(scoreTextAnswer('   ', variants)).toBe(false);
+  });
+
+  it('refuse une réponse absente des variantes', () => {
+    expect(scoreTextAnswer('autre réponse', variants)).toBe(false);
   });
 });

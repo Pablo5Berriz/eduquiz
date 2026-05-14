@@ -3,6 +3,8 @@
 import { Alert, Button } from '@eduquiz/ui';
 import { useState } from 'react';
 
+import { scoreTextAnswer } from '../../../../../lib/learning/scoring';
+
 import type { JSX } from 'react';
 
 export interface PracticeExercise {
@@ -36,6 +38,7 @@ export interface ExercisePracticeCopy {
   readonly correct: string;
   readonly incorrect: string;
   readonly hint: string;
+  readonly textAnswerPlaceholder?: string;
 }
 
 export interface ExercisePracticeProps {
@@ -173,10 +176,44 @@ function TrueFalseButtons({
   );
 }
 
+interface TextAnswerInputProps {
+  readonly questionId: string;
+  readonly value: string;
+  readonly disabled: boolean;
+  readonly placeholder?: string | undefined;
+  readonly onChange: (value: string) => void;
+}
+
+function TextAnswerInput({
+  questionId,
+  value,
+  disabled,
+  placeholder,
+  onChange,
+}: TextAnswerInputProps): JSX.Element {
+  return (
+    <label className="mt-4 block">
+      <span className="sr-only">{placeholder}</span>
+      <input
+        type="text"
+        name={`exercise:${questionId}`}
+        value={value}
+        disabled={disabled}
+        placeholder={placeholder}
+        onChange={(event) => {
+          onChange(event.currentTarget.value);
+        }}
+        className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+      />
+    </label>
+  );
+}
+
 // ── Composant principal ───────────────────────────────────────────────────────
 
 export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX.Element {
   const [selectedAnswerIds, setSelectedAnswerIds] = useState<Record<string, readonly string[]>>({});
+  const [textAnswers, setTextAnswers] = useState<Record<string, string>>({});
   const [checked, setChecked] = useState(false);
   const [showIncomplete, setShowIncomplete] = useState(false);
 
@@ -199,14 +236,25 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
     setShowIncomplete(false);
   }
 
+  function handleTextChange(questionId: string, value: string): void {
+    setTextAnswers((current) => ({ ...current, [questionId]: value }));
+    setChecked(false);
+    setShowIncomplete(false);
+  }
+
   function check(): void {
-    const complete = exercise.questions.every((question) => selectedAnswerIds[question.id]?.length);
+    const complete = exercise.questions.every((question) =>
+      question.type === 'FILL_IN_THE_BLANK'
+        ? (textAnswers[question.id] ?? '').trim().length > 0
+        : selectedAnswerIds[question.id]?.length,
+    );
     setShowIncomplete(!complete);
     setChecked(complete);
   }
 
   function retry(): void {
     setSelectedAnswerIds({});
+    setTextAnswers({});
     setChecked(false);
     setShowIncomplete(false);
   }
@@ -238,9 +286,16 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
             .filter((answer) => answer.isCorrect)
             .map((answer) => answer.id);
           const isMulti = question.type === 'MCQ_MULTI';
-          const isCorrect = isMulti
-            ? sameAnswerSet(questionSelectedAnswerIds, correctAnswerIds)
-            : Boolean(selectedAnswer?.isCorrect);
+          const isTextAnswer = question.type === 'FILL_IN_THE_BLANK';
+          const questionTextAnswer = textAnswers[question.id] ?? '';
+          const correctAnswerLabels = question.answers
+            .filter((answer) => answer.isCorrect)
+            .map((answer) => answer.label);
+          const isCorrect = isTextAnswer
+            ? scoreTextAnswer(questionTextAnswer, correctAnswerLabels)
+            : isMulti
+              ? sameAnswerSet(questionSelectedAnswerIds, correctAnswerIds)
+              : Boolean(selectedAnswer?.isCorrect);
           const isTrueFalse = question.type === 'TRUE_FALSE';
           const feedbackText = firstNonEmptyText(
             selectedAnswer?.feedback,
@@ -257,7 +312,17 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
                 {String(index + 1)}. {question.prompt}
               </legend>
 
-              {isMulti ? (
+              {isTextAnswer ? (
+                <TextAnswerInput
+                  questionId={question.id}
+                  value={questionTextAnswer}
+                  disabled={checked}
+                  placeholder={copy.textAnswerPlaceholder}
+                  onChange={(value) => {
+                    handleTextChange(question.id, value);
+                  }}
+                />
+              ) : isMulti ? (
                 <CheckboxAnswerList
                   questionId={question.id}
                   answers={question.answers}
@@ -289,7 +354,8 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
                 />
               )}
 
-              {checked && questionSelectedAnswerIds.length > 0 ? (
+              {checked &&
+              (isTextAnswer ? questionTextAnswer.trim().length > 0 : questionSelectedAnswerIds.length > 0) ? (
                 <div
                   className={`mt-4 rounded-lg border px-4 py-3 text-sm ${
                     isCorrect
@@ -299,6 +365,12 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
                 >
                   <p className="font-semibold">{isCorrect ? copy.correct : copy.incorrect}</p>
                   <p className="mt-1">{feedbackText}</p>
+                  {isTextAnswer && correctAnswerLabels.length > 0 ? (
+                    <p className="mt-2">
+                      <span className="font-semibold">{copy.correct} : </span>
+                      {correctAnswerLabels.join(', ')}
+                    </p>
+                  ) : null}
                 </div>
               ) : null}
             </fieldset>
