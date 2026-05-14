@@ -86,15 +86,22 @@ export default async function QuizResultPage({
               <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
                 {c('selected')} :{' '}
                 <span className="font-medium">
-                  {answer.selectedText ??
-                    (answer.selectedAnswerLabels.length > 0
-                      ? answer.selectedAnswerLabels.join(', ')
-                      : '—')}
+                  {answer.selectedMatchLabels.length > 0
+                    ? answer.selectedMatchLabels.join(', ')
+                    : (answer.selectedText ??
+                      (answer.selectedAnswerLabels.length > 0
+                        ? answer.selectedAnswerLabels.join(', ')
+                        : '—'))}
                 </span>
               </p>
               <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
                 {c('correct')} :{' '}
-                <span className="font-medium">{answer.correctAnswerLabels.join(', ')}</span>
+                <span className="font-medium">
+                  {(answer.correctMatchLabels.length > 0
+                    ? answer.correctMatchLabels
+                    : answer.correctAnswerLabels
+                  ).join(', ')}
+                </span>
               </p>
               <p className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                 {answer.isCorrect ? `+${String(answer.pointsEarned)}` : '+0'} {c('point')}

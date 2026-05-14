@@ -11,6 +11,22 @@ const localized = (
   valueEn: string | null | undefined,
 ): string => (locale === 'fr' ? valueFr : valueEn) ?? valueFr ?? valueEn ?? '';
 
+interface SubmittedMatch {
+  readonly leftId: string;
+  readonly rightId: string;
+}
+
+function isSubmittedMatch(value: unknown): value is SubmittedMatch {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'leftId' in value &&
+    typeof value.leftId === 'string' &&
+    'rightId' in value &&
+    typeof value.rightId === 'string'
+  );
+}
+
 function extractSelectedAnswerIds(response: unknown): readonly string[] {
   if (typeof response !== 'object' || response === null || Array.isArray(response)) {
     return [];
@@ -41,6 +57,31 @@ function extractTextAnswer(response: unknown): string | null {
   }
 
   return null;
+}
+
+function extractSubmittedMatches(response: unknown): readonly SubmittedMatch[] {
+  if (typeof response !== 'object' || response === null || Array.isArray(response)) {
+    return [];
+  }
+
+  const matches = 'matches' in response ? response.matches : undefined;
+  if (Array.isArray(matches) && matches.every(isSubmittedMatch)) {
+    return matches;
+  }
+
+  return [];
+}
+
+function fallbackAnswerLabel(locale: Locale): string {
+  return locale === 'en' ? 'Unknown answer' : 'Réponse inconnue';
+}
+
+function getAnswerPairId(answer: unknown): string | null {
+  if (typeof answer !== 'object' || answer === null || !('pairId' in answer)) {
+    return null;
+  }
+
+  return typeof answer.pairId === 'string' && answer.pairId.length > 0 ? answer.pairId : null;
 }
 
 export async function getPublishedLearningCatalog(locale: Locale) {
@@ -431,12 +472,27 @@ export async function getAttemptResult(params: {
     answers: attempt.answers.map((answer) => {
       const selectedAnswerIds = extractSelectedAnswerIds(answer.response);
       const selectedText = extractTextAnswer(answer.response);
+      const selectedMatches = extractSubmittedMatches(answer.response);
+      const answersById = new Map(answer.question.answers.map((choice) => [choice.id, choice]));
+      const formatAnswerLabel = (answerId: string): string => {
+        const choice = answersById.get(answerId);
+        return choice
+          ? localized(params.locale, choice.labelFr, choice.labelEn)
+          : fallbackAnswerLabel(params.locale);
+      };
+      const formatMatchLabel = (match: SubmittedMatch): string =>
+        `${formatAnswerLabel(match.leftId)} → ${formatAnswerLabel(match.rightId)}`;
       const selectedAnswerLabels = answer.question.answers
         .filter((choice) => selectedAnswerIds.includes(choice.id))
         .map((choice) => localized(params.locale, choice.labelFr, choice.labelEn));
       const correctAnswerLabels = answer.question.answers
         .filter((choice) => choice.isCorrect)
         .map((choice) => localized(params.locale, choice.labelFr, choice.labelEn));
+      const selectedMatchLabels = selectedMatches.map(formatMatchLabel);
+      const correctMatchLabels = answer.question.answers.flatMap((choice) => {
+        const pairId = getAnswerPairId(choice);
+        return pairId ? [formatMatchLabel({ leftId: choice.id, rightId: pairId })] : [];
+      });
 
       return {
         questionId: answer.questionId,
@@ -445,8 +501,10 @@ export async function getAttemptResult(params: {
         selectedAnswerIds,
         selectedText,
         selectedAnswerLabels,
+        selectedMatchLabels,
         correctAnswerLabel: correctAnswerLabels[0] ?? '',
         correctAnswerLabels,
+        correctMatchLabels,
         isCorrect: answer.isCorrect,
         pointsEarned: answer.pointsEarned,
       };
