@@ -32,6 +32,9 @@ export interface QuizFormCopy {
   readonly shortAnswerHint: string;
   readonly matchingHint: string;
   readonly matchingSelectPlaceholder: string;
+  readonly orderingHint: string;
+  readonly orderingMoveDown: string;
+  readonly orderingMoveUp: string;
   readonly textAnswerPlaceholder: string;
   readonly errors: Record<SubmitQuizErrorCode, string>;
 }
@@ -56,10 +59,6 @@ export function QuizForm({
   const [orderingAnswerIdsByQuestionId, setOrderingAnswerIdsByQuestionId] = useState<
     Record<string, readonly string[]>
   >({});
-  const orderingLabels =
-    locale === 'en'
-      ? { hint: 'Put in order', moveDown: 'Move down', moveUp: 'Move up' }
-      : { hint: 'Mettre dans l’ordre', moveDown: 'Descendre', moveUp: 'Monter' };
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>): void {
     event.preventDefault();
@@ -133,13 +132,13 @@ export function QuizForm({
             {isOrdering ? (
               <>
                 <p className="mt-2 text-sm font-medium text-brand-700 dark:text-brand-300">
-                  {orderingLabels.hint}
+                  {copy.orderingHint}
                 </p>
                 <OrderingAnswerList
                   questionId={question.id}
                   answers={orderingAnswers}
-                  moveDownLabel={orderingLabels.moveDown}
-                  moveUpLabel={orderingLabels.moveUp}
+                  moveDownLabel={copy.orderingMoveDown}
+                  moveUpLabel={copy.orderingMoveUp}
                   onMove={(answerIndex, direction) => {
                     moveOrderingAnswer(question.id, orderingAnswerIds, answerIndex, direction);
                   }}

@@ -42,6 +42,9 @@ export interface ExercisePracticeCopy {
   readonly textAnswerPlaceholder?: string;
   readonly matchingHint: string;
   readonly matchingSelectPlaceholder: string;
+  readonly orderingHint: string;
+  readonly orderingMoveDown: string;
+  readonly orderingMoveUp: string;
 }
 
 export interface ExercisePracticeProps {
@@ -357,11 +360,6 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
   const [orderingAnswerIdsByQuestionId, setOrderingAnswerIdsByQuestionId] = useState<
     Record<string, readonly string[]>
   >({});
-  const orderingLabels = {
-    hint: 'Mettre dans l’ordre',
-    moveDown: 'Descendre',
-    moveUp: 'Monter',
-  };
   const [checked, setChecked] = useState(false);
   const [showIncomplete, setShowIncomplete] = useState(false);
 
@@ -533,14 +531,14 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
               ) : isOrdering ? (
                 <>
                   <p className="mt-3 text-sm font-medium text-brand-700 dark:text-brand-300">
-                    {orderingLabels.hint}
+                    {copy.orderingHint}
                   </p>
                   <OrderingAnswerList
                     questionId={question.id}
                     answers={questionOrderingAnswers}
                     disabled={checked}
-                    moveDownLabel={orderingLabels.moveDown}
-                    moveUpLabel={orderingLabels.moveUp}
+                    moveDownLabel={copy.orderingMoveDown}
+                    moveUpLabel={copy.orderingMoveUp}
                     onMove={(answerIndex, direction) => {
                       handleOrderingMove(
                         question.id,

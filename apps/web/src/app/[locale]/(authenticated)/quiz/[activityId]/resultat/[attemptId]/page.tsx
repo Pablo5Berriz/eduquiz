@@ -35,6 +35,7 @@ export default async function QuizResultPage({
     role: user.role as RlsRole,
     locale,
     unknownAnswerLabel: quizCopy('matchingUnknownAnswer'),
+    unknownOrderingAnswerLabel: quizCopy('orderingUnknownAnswer'),
   });
   if (!result) notFound();
 
@@ -88,7 +89,7 @@ export default async function QuizResultPage({
               >
                 <h3 className="font-semibold text-slate-950 dark:text-slate-50">{answer.prompt}</h3>
                 <div className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-                  {c('selected')} :{' '}
+                  {isOrdering ? quizCopy('orderingSelectedOrder') : c('selected')} :{' '}
                   {isOrdering ? (
                     <OrderedAnswerLabels labels={answer.selectedOrderingLabels} />
                   ) : (
@@ -103,7 +104,7 @@ export default async function QuizResultPage({
                   )}
                 </div>
                 <div className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-                  {c('correct')} :{' '}
+                  {isOrdering ? quizCopy('orderingCorrectOrder') : c('correct')} :{' '}
                   {isOrdering ? (
                     <OrderedAnswerLabels labels={answer.correctOrderingLabels} />
                   ) : (

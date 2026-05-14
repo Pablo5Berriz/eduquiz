@@ -1503,7 +1503,10 @@
     "textAnswerPlaceholder": "Type your answer",
     "matchingHint": "Match each item with the correct answer.",
     "matchingSelectPlaceholder": "Choose an answer",
-    "matchingUnknownAnswer": "Unknown answer"
+    "matchingUnknownAnswer": "Unknown answer",
+    "orderingHint": "Put the items in the correct order.",
+    "orderingMoveUp": "Move up",
+    "orderingMoveDown": "Move down"
   },
   "quiz": {
     "back": "Back to lesson",
@@ -1518,6 +1521,12 @@
     "matchingHint": "Match each item with the correct answer.",
     "matchingSelectPlaceholder": "Choose an answer",
     "matchingUnknownAnswer": "Unknown answer",
+    "orderingHint": "Put the items in the correct order.",
+    "orderingMoveUp": "Move up",
+    "orderingMoveDown": "Move down",
+    "orderingSelectedOrder": "Selected order",
+    "orderingCorrectOrder": "Correct order",
+    "orderingUnknownAnswer": "Unknown answer",
     "errors": {
       "invalid": "The form is invalid. Reload the page and try again.",
       "notFound": "This quiz is no longer available.",

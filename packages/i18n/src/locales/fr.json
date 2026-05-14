@@ -1508,7 +1508,10 @@
     "textAnswerPlaceholder": "Écris ta réponse",
     "matchingHint": "Associe chaque élément à la bonne réponse.",
     "matchingSelectPlaceholder": "Choisir une réponse",
-    "matchingUnknownAnswer": "Réponse inconnue"
+    "matchingUnknownAnswer": "Réponse inconnue",
+    "orderingHint": "Mets les éléments dans le bon ordre.",
+    "orderingMoveUp": "Monter",
+    "orderingMoveDown": "Descendre"
   },
   "quiz": {
     "back": "Retour à la leçon",
@@ -1523,6 +1526,12 @@
     "matchingHint": "Associe chaque élément à la bonne réponse.",
     "matchingSelectPlaceholder": "Choisir une réponse",
     "matchingUnknownAnswer": "Réponse inconnue",
+    "orderingHint": "Mets les éléments dans le bon ordre.",
+    "orderingMoveUp": "Monter",
+    "orderingMoveDown": "Descendre",
+    "orderingSelectedOrder": "Ordre choisi",
+    "orderingCorrectOrder": "Ordre attendu",
+    "orderingUnknownAnswer": "Réponse inconnue",
     "errors": {
       "invalid": "Le formulaire est invalide. Recharge la page puis réessaie.",
       "notFound": "Ce quiz n'est plus disponible.",

@@ -123,6 +123,9 @@ export default async function LessonPage({
               textAnswerPlaceholder: c('textAnswerPlaceholder'),
               matchingHint: c('matchingHint'),
               matchingSelectPlaceholder: c('matchingSelectPlaceholder'),
+              orderingHint: c('orderingHint'),
+              orderingMoveDown: c('orderingMoveDown'),
+              orderingMoveUp: c('orderingMoveUp'),
             }}
           />
         ) : (

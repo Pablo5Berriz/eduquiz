@@ -80,6 +80,9 @@ export default async function QuizPage({
           shortAnswerHint: c('shortAnswerHint'),
           matchingHint: c('matchingHint'),
           matchingSelectPlaceholder: c('matchingSelectPlaceholder'),
+          orderingHint: c('orderingHint'),
+          orderingMoveDown: c('orderingMoveDown'),
+          orderingMoveUp: c('orderingMoveUp'),
           textAnswerPlaceholder: c('textAnswerPlaceholder'),
           errors: {
             invalid: t(messages, 'quiz.errors.invalid'),

@@ -431,6 +431,7 @@ export async function getAttemptResult(params: {
   readonly role: RlsRole;
   readonly locale: Locale;
   readonly unknownAnswerLabel: string;
+  readonly unknownOrderingAnswerLabel: string;
 }) {
   const attempt = await withUser({ userId: params.userId, role: params.role }).$transaction(
     async (tx) =>
@@ -496,6 +497,12 @@ export async function getAttemptResult(params: {
       };
       const formatMatchLabel = (match: SubmittedMatch): string =>
         `${formatAnswerLabel(match.leftId)} → ${formatAnswerLabel(match.rightId)}`;
+      const formatOrderingAnswerLabel = (answerId: string): string => {
+        const choice = answersById.get(answerId);
+        return choice
+          ? localized(params.locale, choice.labelFr, choice.labelEn)
+          : params.unknownOrderingAnswerLabel;
+      };
       const selectedAnswerLabels = answer.question.answers
         .filter((choice) => selectedAnswerIds.includes(choice.id))
         .map((choice) => localized(params.locale, choice.labelFr, choice.labelEn));
@@ -507,7 +514,7 @@ export async function getAttemptResult(params: {
         const pairId = getAnswerPairId(choice);
         return pairId ? [formatMatchLabel({ leftId: choice.id, rightId: pairId })] : [];
       });
-      const selectedOrderingLabels = selectedOrderedAnswerIds.map(formatAnswerLabel);
+      const selectedOrderingLabels = selectedOrderedAnswerIds.map(formatOrderingAnswerLabel);
       const correctOrderingLabels = correctAnswerLabels;
 
       return {
