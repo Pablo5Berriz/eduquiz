@@ -77,6 +77,7 @@ export default async function QuizPage({
           points: c('points'),
           multiSelectHint: c('multiSelectHint'),
           fillBlankHint: c('fillBlankHint'),
+          shortAnswerHint: c('shortAnswerHint'),
           textAnswerPlaceholder: c('textAnswerPlaceholder'),
           errors: {
             invalid: t(messages, 'quiz.errors.invalid'),

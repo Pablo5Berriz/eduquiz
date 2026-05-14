@@ -1504,7 +1504,8 @@
     "questions": "question(s)",
     "startQuiz": "Lancer le quiz",
     "unavailable": "Aucun quiz publié pour cette leçon.",
-    "minutes": "min"
+    "minutes": "min",
+    "textAnswerPlaceholder": "Écris ta réponse"
   },
   "quiz": {
     "back": "Retour à la leçon",
@@ -1514,6 +1515,7 @@
     "points": "point(s)",
     "multiSelectHint": "Sélectionne toutes les bonnes réponses.",
     "fillBlankHint": "Complète la réponse dans le champ.",
+    "shortAnswerHint": "Écris une réponse courte.",
     "textAnswerPlaceholder": "Écris ta réponse",
     "errors": {
       "invalid": "Le formulaire est invalide. Recharge la page puis réessaie.",

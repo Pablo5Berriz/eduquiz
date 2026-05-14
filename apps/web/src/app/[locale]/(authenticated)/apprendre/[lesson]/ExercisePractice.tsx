@@ -209,6 +209,31 @@ function TextAnswerInput({
   );
 }
 
+function ShortAnswerTextarea({
+  questionId,
+  value,
+  disabled,
+  placeholder,
+  onChange,
+}: TextAnswerInputProps): JSX.Element {
+  return (
+    <label className="mt-4 block">
+      <span className="sr-only">{placeholder}</span>
+      <textarea
+        name={`exercise:${questionId}`}
+        value={value}
+        disabled={disabled}
+        placeholder={placeholder}
+        rows={3}
+        onChange={(event) => {
+          onChange(event.currentTarget.value);
+        }}
+        className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+      />
+    </label>
+  );
+}
+
 // ── Composant principal ───────────────────────────────────────────────────────
 
 export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX.Element {
@@ -244,7 +269,7 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
 
   function check(): void {
     const complete = exercise.questions.every((question) =>
-      question.type === 'FILL_IN_THE_BLANK'
+      question.type === 'FILL_IN_THE_BLANK' || question.type === 'SHORT_ANSWER'
         ? (textAnswers[question.id] ?? '').trim().length > 0
         : selectedAnswerIds[question.id]?.length,
     );
@@ -286,7 +311,9 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
             .filter((answer) => answer.isCorrect)
             .map((answer) => answer.id);
           const isMulti = question.type === 'MCQ_MULTI';
-          const isTextAnswer = question.type === 'FILL_IN_THE_BLANK';
+          const isFillInTheBlank = question.type === 'FILL_IN_THE_BLANK';
+          const isShortAnswer = question.type === 'SHORT_ANSWER';
+          const isTextAnswer = isFillInTheBlank || isShortAnswer;
           const questionTextAnswer = textAnswers[question.id] ?? '';
           const correctAnswerLabels = question.answers
             .filter((answer) => answer.isCorrect)
@@ -312,7 +339,17 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
                 {String(index + 1)}. {question.prompt}
               </legend>
 
-              {isTextAnswer ? (
+              {isShortAnswer ? (
+                <ShortAnswerTextarea
+                  questionId={question.id}
+                  value={questionTextAnswer}
+                  disabled={checked}
+                  placeholder={copy.textAnswerPlaceholder}
+                  onChange={(value) => {
+                    handleTextChange(question.id, value);
+                  }}
+                />
+              ) : isFillInTheBlank ? (
                 <TextAnswerInput
                   questionId={question.id}
                   value={questionTextAnswer}
@@ -355,7 +392,9 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
               )}
 
               {checked &&
-              (isTextAnswer ? questionTextAnswer.trim().length > 0 : questionSelectedAnswerIds.length > 0) ? (
+              (isTextAnswer
+                ? questionTextAnswer.trim().length > 0
+                : questionSelectedAnswerIds.length > 0) ? (
                 <div
                   className={`mt-4 rounded-lg border px-4 py-3 text-sm ${
                     isCorrect

@@ -50,7 +50,7 @@ export async function submitQuizAttempt(formData: FormData): Promise<SubmitQuizR
   const submittedAnswers = new Map<string, SubmittedQuizAnswer>();
   const missingQuestionIds: string[] = [];
   for (const question of quiz.questions) {
-    if (question.type === 'FILL_IN_THE_BLANK') {
+    if (question.type === 'FILL_IN_THE_BLANK' || question.type === 'SHORT_ANSWER') {
       const rawText = formData.get(`question:${question.id}`);
       if (typeof rawText === 'string' && rawText.trim().length > 0) {
         submittedAnswers.set(question.id, { text: rawText });

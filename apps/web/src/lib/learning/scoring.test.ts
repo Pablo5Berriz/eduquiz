@@ -199,6 +199,69 @@ describe('scoreSingleAnswerQuiz', () => {
       pointsEarned: 2,
     });
   });
+
+  it('score une question SHORT_ANSWER avec une réponse textuelle correcte', () => {
+    const result = scoreSingleAnswerQuiz(
+      [
+        {
+          id: 'question-short',
+          type: 'SHORT_ANSWER',
+          points: 3,
+          answers: [
+            { id: 'a', label: 'trouver un dénominateur commun', isCorrect: true },
+            { id: 'b', label: 'mettre sur un même dénominateur', isCorrect: true },
+          ],
+        },
+      ],
+      new Map([['question-short', { text: 'Trouver un dénominateur commun' }]]),
+      100,
+    );
+
+    expect(result).toMatchObject({
+      rawScore: 3,
+      maxScore: 3,
+      score: 100,
+      passed: true,
+    });
+    expect(result.answers[0]).toEqual({
+      questionId: 'question-short',
+      answerId: null,
+      answerIds: [],
+      text: 'Trouver un dénominateur commun',
+      isCorrect: true,
+      pointsEarned: 3,
+    });
+  });
+
+  it('refuse une question SHORT_ANSWER avec une réponse absente des variantes', () => {
+    const result = scoreSingleAnswerQuiz(
+      [
+        {
+          id: 'question-short',
+          type: 'SHORT_ANSWER',
+          points: 3,
+          answers: [{ id: 'a', label: 'trouver un dénominateur commun', isCorrect: true }],
+        },
+      ],
+      new Map([['question-short', { text: 'je ne sais pas' }]]),
+      80,
+    );
+
+    expect(result).toMatchObject({
+      rawScore: 0,
+      maxScore: 3,
+      score: 0,
+      passed: false,
+    });
+    expect(result.answers[0]).toEqual({
+      questionId: 'question-short',
+      answerId: null,
+      answerIds: [],
+      text: 'je ne sais pas',
+      isCorrect: false,
+      pointsEarned: 0,
+    });
+  });
 });
 
 describe('scoreTextAnswer', () => {

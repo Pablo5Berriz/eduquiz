@@ -46,13 +46,11 @@ export function scoreSingleAnswerQuiz(
       .filter((answer) => answer.isCorrect)
       .map((answer) => answer.id);
     const text = extractSubmittedText(submittedAnswer);
-    const isFillInTheBlank = question.type === 'FILL_IN_THE_BLANK';
-    const isCorrect = isFillInTheBlank
+    const isTextAnswer = question.type === 'FILL_IN_THE_BLANK' || question.type === 'SHORT_ANSWER';
+    const isCorrect = isTextAnswer
       ? scoreTextAnswer(
           text,
-          question.answers
-            .filter((answer) => answer.isCorrect)
-            .map((answer) => answer.label ?? ''),
+          question.answers.filter((answer) => answer.isCorrect).map((answer) => answer.label ?? ''),
         )
       : question.type === 'MCQ_MULTI'
         ? sameAnswerSet(answerIds, correctAnswerIds)
@@ -68,7 +66,7 @@ export function scoreSingleAnswerQuiz(
       pointsEarned: isCorrect ? question.points : 0,
     };
 
-    return isFillInTheBlank ? { ...scoredAnswer, text } : scoredAnswer;
+    return isTextAnswer ? { ...scoredAnswer, text } : scoredAnswer;
   });
 
   const rawScore = answers.reduce((total, answer) => total + answer.pointsEarned, 0);

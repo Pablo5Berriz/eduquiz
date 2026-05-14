@@ -1499,7 +1499,8 @@
     "questions": "question(s)",
     "startQuiz": "Start quiz",
     "unavailable": "No published quiz for this lesson.",
-    "minutes": "min"
+    "minutes": "min",
+    "textAnswerPlaceholder": "Type your answer"
   },
   "quiz": {
     "back": "Back to lesson",
@@ -1509,6 +1510,7 @@
     "points": "point(s)",
     "multiSelectHint": "Select all correct answers.",
     "fillBlankHint": "Complete the answer in the field.",
+    "shortAnswerHint": "Write a short answer.",
     "textAnswerPlaceholder": "Type your answer",
     "errors": {
       "invalid": "The form is invalid. Reload the page and try again.",

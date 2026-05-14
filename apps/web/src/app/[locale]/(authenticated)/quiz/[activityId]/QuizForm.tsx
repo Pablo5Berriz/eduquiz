@@ -28,6 +28,7 @@ export interface QuizFormCopy {
   readonly points: string;
   readonly multiSelectHint: string;
   readonly fillBlankHint: string;
+  readonly shortAnswerHint: string;
   readonly textAnswerPlaceholder: string;
   readonly errors: Record<SubmitQuizErrorCode, string>;
 }
@@ -74,6 +75,7 @@ export function QuizForm({
       {questions.map((question, index) => {
         const hasError = missingQuestionIds.has(question.id);
         const isFillInTheBlank = question.type === 'FILL_IN_THE_BLANK';
+        const isShortAnswer = question.type === 'SHORT_ANSWER';
         const inputType = question.type === 'MCQ_MULTI' ? 'checkbox' : 'radio';
 
         return (
@@ -104,6 +106,21 @@ export function QuizForm({
                     name={`question:${question.id}`}
                     placeholder={copy.textAnswerPlaceholder}
                     aria-invalid={hasError}
+                    className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+                  />
+                </label>
+              </div>
+            ) : isShortAnswer ? (
+              <div className="mt-5">
+                <label className="block">
+                  <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {copy.shortAnswerHint}
+                  </span>
+                  <textarea
+                    name={`question:${question.id}`}
+                    placeholder={copy.textAnswerPlaceholder}
+                    aria-invalid={hasError}
+                    rows={3}
                     className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
                   />
                 </label>
