@@ -25,6 +25,7 @@ export interface PracticeExercise {
     readonly answers: readonly {
       readonly id: string;
       readonly label: string;
+      readonly pairId?: string | null;
       readonly isCorrect: boolean;
       readonly feedback: string;
     }[];
@@ -234,11 +235,69 @@ function ShortAnswerTextarea({
   );
 }
 
+interface MatchingAnswerOption {
+  readonly id: string;
+  readonly label: string;
+  readonly pairId?: string | null;
+}
+
+interface MatchingAnswerListProps {
+  readonly questionId: string;
+  readonly answers: readonly MatchingAnswerOption[];
+  readonly selectedMatches: Readonly<Record<string, string>>;
+  readonly disabled: boolean;
+  readonly placeholder: string;
+  readonly onSelect: (leftId: string, rightId: string) => void;
+}
+
+function MatchingAnswerList({
+  questionId,
+  answers,
+  selectedMatches,
+  disabled,
+  placeholder,
+  onSelect,
+}: MatchingAnswerListProps): JSX.Element {
+  const { leftAnswers, rightAnswers } = getMatchingAnswerGroups(answers);
+
+  return (
+    <div className="mt-4 space-y-3">
+      {leftAnswers.map((leftAnswer) => (
+        <label
+          key={leftAnswer.id}
+          className="grid gap-2 rounded-md border border-slate-200 p-4 text-sm text-slate-700 dark:border-slate-700 dark:text-slate-200 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,1fr)] sm:items-center"
+        >
+          <span>{leftAnswer.label}</span>
+          <select
+            name={`matching:${questionId}:${leftAnswer.id}`}
+            value={selectedMatches[leftAnswer.id] ?? ''}
+            disabled={disabled}
+            onChange={(event) => {
+              onSelect(leftAnswer.id, event.currentTarget.value);
+            }}
+            className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+          >
+            <option value="">{placeholder}</option>
+            {rightAnswers.map((rightAnswer) => (
+              <option key={rightAnswer.id} value={rightAnswer.id}>
+                {rightAnswer.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      ))}
+    </div>
+  );
+}
+
 // ── Composant principal ───────────────────────────────────────────────────────
 
 export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX.Element {
   const [selectedAnswerIds, setSelectedAnswerIds] = useState<Record<string, readonly string[]>>({});
   const [textAnswers, setTextAnswers] = useState<Record<string, string>>({});
+  const [matchingAnswers, setMatchingAnswers] = useState<Record<string, Record<string, string>>>(
+    {},
+  );
   const [checked, setChecked] = useState(false);
   const [showIncomplete, setShowIncomplete] = useState(false);
 
@@ -267,12 +326,24 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
     setShowIncomplete(false);
   }
 
+  function handleMatchSelect(questionId: string, leftId: string, rightId: string): void {
+    setMatchingAnswers((current) => ({
+      ...current,
+      [questionId]: { ...(current[questionId] ?? {}), [leftId]: rightId },
+    }));
+    setChecked(false);
+    setShowIncomplete(false);
+  }
+
   function check(): void {
-    const complete = exercise.questions.every((question) =>
-      question.type === 'FILL_IN_THE_BLANK' || question.type === 'SHORT_ANSWER'
+    const complete = exercise.questions.every((question) => {
+      if (question.type === 'MATCHING') {
+        return isMatchingComplete(question.answers, matchingAnswers[question.id] ?? {});
+      }
+      return question.type === 'FILL_IN_THE_BLANK' || question.type === 'SHORT_ANSWER'
         ? (textAnswers[question.id] ?? '').trim().length > 0
-        : selectedAnswerIds[question.id]?.length,
-    );
+        : selectedAnswerIds[question.id]?.length;
+    });
     setShowIncomplete(!complete);
     setChecked(complete);
   }
@@ -280,6 +351,7 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
   function retry(): void {
     setSelectedAnswerIds({});
     setTextAnswers({});
+    setMatchingAnswers({});
     setChecked(false);
     setShowIncomplete(false);
   }
@@ -311,10 +383,13 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
             .filter((answer) => answer.isCorrect)
             .map((answer) => answer.id);
           const isMulti = question.type === 'MCQ_MULTI';
+          const isMatching = question.type === 'MATCHING';
           const isFillInTheBlank = question.type === 'FILL_IN_THE_BLANK';
           const isShortAnswer = question.type === 'SHORT_ANSWER';
           const isTextAnswer = isFillInTheBlank || isShortAnswer;
           const questionTextAnswer = textAnswers[question.id] ?? '';
+          const questionMatchingAnswers = matchingAnswers[question.id] ?? {};
+          const hasMatchingAnswer = isMatchingComplete(question.answers, questionMatchingAnswers);
           const correctAnswerLabels = question.answers
             .filter((answer) => answer.isCorrect)
             .map((answer) => answer.label);
@@ -359,6 +434,17 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
                     handleTextChange(question.id, value);
                   }}
                 />
+              ) : isMatching ? (
+                <MatchingAnswerList
+                  questionId={question.id}
+                  answers={question.answers}
+                  selectedMatches={questionMatchingAnswers}
+                  disabled={checked}
+                  placeholder={copy.textAnswerPlaceholder ?? 'Choisir une réponse'}
+                  onSelect={(leftId, rightId) => {
+                    handleMatchSelect(question.id, leftId, rightId);
+                  }}
+                />
               ) : isMulti ? (
                 <CheckboxAnswerList
                   questionId={question.id}
@@ -392,18 +478,24 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
               )}
 
               {checked &&
-              (isTextAnswer
-                ? questionTextAnswer.trim().length > 0
-                : questionSelectedAnswerIds.length > 0) ? (
+              (isMatching
+                ? hasMatchingAnswer
+                : isTextAnswer
+                  ? questionTextAnswer.trim().length > 0
+                  : questionSelectedAnswerIds.length > 0) ? (
                 <div
                   className={`mt-4 rounded-lg border px-4 py-3 text-sm ${
-                    isCorrect
-                      ? 'border-success-200 bg-success-50 text-success-700 dark:border-success-900 dark:bg-success-950/20 dark:text-success-500'
-                      : 'border-warning-200 bg-warning-50 text-warning-700 dark:border-warning-900 dark:bg-warning-950/20 dark:text-warning-500'
+                    isMatching
+                      ? 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
+                      : isCorrect
+                        ? 'border-success-200 bg-success-50 text-success-700 dark:border-success-900 dark:bg-success-950/20 dark:text-success-500'
+                        : 'border-warning-200 bg-warning-50 text-warning-700 dark:border-warning-900 dark:bg-warning-950/20 dark:text-warning-500'
                   }`}
                 >
-                  <p className="font-semibold">{isCorrect ? copy.correct : copy.incorrect}</p>
-                  <p className="mt-1">{feedbackText}</p>
+                  {isMatching ? null : (
+                    <p className="font-semibold">{isCorrect ? copy.correct : copy.incorrect}</p>
+                  )}
+                  {feedbackText ? <p className={isMatching ? '' : 'mt-1'}>{feedbackText}</p> : null}
                   {isTextAnswer && correctAnswerLabels.length > 0 ? (
                     <p className="mt-2">
                       <span className="font-semibold">{copy.correct} : </span>
@@ -436,6 +528,33 @@ function sameAnswerSet(left: readonly string[], right: readonly string[]): boole
   if (new Set(left).size !== left.length) return false;
   const rightSet = new Set(right);
   return left.every((id) => rightSet.has(id));
+}
+
+function getMatchingAnswerGroups(answers: readonly MatchingAnswerOption[]): {
+  readonly leftAnswers: readonly MatchingAnswerOption[];
+  readonly rightAnswers: readonly MatchingAnswerOption[];
+} {
+  const leftAnswers = answers.filter(
+    (answer) => typeof answer.pairId === 'string' && answer.pairId.length > 0,
+  );
+  const answersById = new Map(answers.map((answer) => [answer.id, answer]));
+  const rightAnswerIds = Array.from(new Set(leftAnswers.map((answer) => answer.pairId ?? '')));
+  const rightAnswers = rightAnswerIds.map(
+    (answerId) => answersById.get(answerId) ?? { id: answerId, label: answerId },
+  );
+
+  return { leftAnswers, rightAnswers };
+}
+
+function isMatchingComplete(
+  answers: readonly MatchingAnswerOption[],
+  selectedMatches: Readonly<Record<string, string>>,
+): boolean {
+  const { leftAnswers } = getMatchingAnswerGroups(answers);
+  return (
+    leftAnswers.length > 0 &&
+    leftAnswers.every((leftAnswer) => (selectedMatches[leftAnswer.id] ?? '').trim().length > 0)
+  );
 }
 
 function firstNonEmptyText(...values: readonly (string | undefined)[]): string {

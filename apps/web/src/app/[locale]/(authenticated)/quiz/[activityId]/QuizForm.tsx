@@ -19,6 +19,7 @@ export interface QuizFormQuestion {
   readonly answers: readonly {
     readonly id: string;
     readonly label: string;
+    readonly pairId?: string | null;
   }[];
 }
 
@@ -50,6 +51,7 @@ export function QuizForm({
 }: QuizFormProps): JSX.Element {
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<SubmitQuizResult>({ ok: true });
+  const matchingPlaceholder = locale === 'en' ? 'Choose an answer' : 'Choisir une réponse';
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>): void {
     event.preventDefault();
@@ -74,9 +76,11 @@ export function QuizForm({
 
       {questions.map((question, index) => {
         const hasError = missingQuestionIds.has(question.id);
+        const isMatching = question.type === 'MATCHING';
         const isFillInTheBlank = question.type === 'FILL_IN_THE_BLANK';
         const isShortAnswer = question.type === 'SHORT_ANSWER';
         const inputType = question.type === 'MCQ_MULTI' ? 'checkbox' : 'radio';
+        const matchingAnswers = getMatchingAnswerGroups(question.answers);
 
         return (
           <fieldset
@@ -95,7 +99,31 @@ export function QuizForm({
                 {copy.multiSelectHint}
               </p>
             ) : null}
-            {isFillInTheBlank ? (
+            {isMatching ? (
+              <div className="mt-5 space-y-3">
+                {matchingAnswers.leftAnswers.map((leftAnswer) => (
+                  <label
+                    key={leftAnswer.id}
+                    className="grid gap-2 rounded-md border border-slate-200 p-4 text-sm text-slate-700 dark:border-slate-700 dark:text-slate-200 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,1fr)] sm:items-center"
+                  >
+                    <span>{leftAnswer.label}</span>
+                    <select
+                      name={`matching:${question.id}:${leftAnswer.id}`}
+                      defaultValue=""
+                      aria-invalid={hasError}
+                      className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                    >
+                      <option value="">{matchingPlaceholder}</option>
+                      {matchingAnswers.rightAnswers.map((rightAnswer) => (
+                        <option key={rightAnswer.id} value={rightAnswer.id}>
+                          {rightAnswer.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ))}
+              </div>
+            ) : isFillInTheBlank ? (
               <div className="mt-5">
                 <label className="block">
                   <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
@@ -152,4 +180,26 @@ export function QuizForm({
       </Button>
     </form>
   );
+}
+
+interface MatchingAnswerOption {
+  readonly id: string;
+  readonly label: string;
+  readonly pairId?: string | null;
+}
+
+function getMatchingAnswerGroups(answers: readonly MatchingAnswerOption[]): {
+  readonly leftAnswers: readonly MatchingAnswerOption[];
+  readonly rightAnswers: readonly MatchingAnswerOption[];
+} {
+  const leftAnswers = answers.filter(
+    (answer) => typeof answer.pairId === 'string' && answer.pairId.length > 0,
+  );
+  const answersById = new Map(answers.map((answer) => [answer.id, answer]));
+  const rightAnswerIds = Array.from(new Set(leftAnswers.map((answer) => answer.pairId ?? '')));
+  const rightAnswers = rightAnswerIds.map(
+    (answerId) => answersById.get(answerId) ?? { id: answerId, label: answerId },
+  );
+
+  return { leftAnswers, rightAnswers };
 }
