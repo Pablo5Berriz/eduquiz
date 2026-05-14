@@ -1505,7 +1505,10 @@
     "startQuiz": "Lancer le quiz",
     "unavailable": "Aucun quiz publié pour cette leçon.",
     "minutes": "min",
-    "textAnswerPlaceholder": "Écris ta réponse"
+    "textAnswerPlaceholder": "Écris ta réponse",
+    "matchingHint": "Associe chaque élément à la bonne réponse.",
+    "matchingSelectPlaceholder": "Choisir une réponse",
+    "matchingUnknownAnswer": "Réponse inconnue"
   },
   "quiz": {
     "back": "Retour à la leçon",
@@ -1517,6 +1520,9 @@
     "fillBlankHint": "Complète la réponse dans le champ.",
     "shortAnswerHint": "Écris une réponse courte.",
     "textAnswerPlaceholder": "Écris ta réponse",
+    "matchingHint": "Associe chaque élément à la bonne réponse.",
+    "matchingSelectPlaceholder": "Choisir une réponse",
+    "matchingUnknownAnswer": "Réponse inconnue",
     "errors": {
       "invalid": "Le formulaire est invalide. Recharge la page puis réessaie.",
       "notFound": "Ce quiz n'est plus disponible.",

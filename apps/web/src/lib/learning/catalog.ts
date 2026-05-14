@@ -72,10 +72,6 @@ function extractSubmittedMatches(response: unknown): readonly SubmittedMatch[] {
   return [];
 }
 
-function fallbackAnswerLabel(locale: Locale): string {
-  return locale === 'en' ? 'Unknown answer' : 'Réponse inconnue';
-}
-
 function getAnswerPairId(answer: unknown): string | null {
   if (typeof answer !== 'object' || answer === null || !('pairId' in answer)) {
     return null;
@@ -418,6 +414,7 @@ export async function getAttemptResult(params: {
   readonly userId: string;
   readonly role: RlsRole;
   readonly locale: Locale;
+  readonly unknownAnswerLabel: string;
 }) {
   const attempt = await withUser({ userId: params.userId, role: params.role }).$transaction(
     async (tx) =>
@@ -478,7 +475,7 @@ export async function getAttemptResult(params: {
         const choice = answersById.get(answerId);
         return choice
           ? localized(params.locale, choice.labelFr, choice.labelEn)
-          : fallbackAnswerLabel(params.locale);
+          : params.unknownAnswerLabel;
       };
       const formatMatchLabel = (match: SubmittedMatch): string =>
         `${formatAnswerLabel(match.leftId)} → ${formatAnswerLabel(match.rightId)}`;

@@ -121,6 +121,8 @@ export default async function LessonPage({
               incorrect: c('exerciseIncorrect'),
               hint: c('hint'),
               textAnswerPlaceholder: c('textAnswerPlaceholder'),
+              matchingHint: c('matchingHint'),
+              matchingSelectPlaceholder: c('matchingSelectPlaceholder'),
             }}
           />
         ) : (

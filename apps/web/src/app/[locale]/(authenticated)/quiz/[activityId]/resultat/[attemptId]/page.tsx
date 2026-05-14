@@ -23,6 +23,9 @@ export default async function QuizResultPage({
   readonly params: ResultRouteParams;
 }): Promise<JSX.Element> {
   const locale = resolveLocaleParam(params.locale);
+  const messages = getMessages(locale);
+  const c = (key: string) => t(messages, `quizResult.${key}`);
+  const quizCopy = (key: string) => t(messages, `quiz.${key}`);
   const user = await requireApiUser();
   await guardMinorParentLink(user, locale);
   const result = await getAttemptResult({
@@ -31,11 +34,9 @@ export default async function QuizResultPage({
     userId: user.id,
     role: user.role as RlsRole,
     locale,
+    unknownAnswerLabel: quizCopy('matchingUnknownAnswer'),
   });
   if (!result) notFound();
-
-  const messages = getMessages(locale);
-  const c = (key: string) => t(messages, `quizResult.${key}`);
 
   return (
     <Container width="md" className="py-12 sm:py-16">

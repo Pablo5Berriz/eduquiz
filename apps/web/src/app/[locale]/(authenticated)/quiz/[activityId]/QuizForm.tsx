@@ -30,6 +30,8 @@ export interface QuizFormCopy {
   readonly multiSelectHint: string;
   readonly fillBlankHint: string;
   readonly shortAnswerHint: string;
+  readonly matchingHint: string;
+  readonly matchingSelectPlaceholder: string;
   readonly textAnswerPlaceholder: string;
   readonly errors: Record<SubmitQuizErrorCode, string>;
 }
@@ -51,7 +53,6 @@ export function QuizForm({
 }: QuizFormProps): JSX.Element {
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<SubmitQuizResult>({ ok: true });
-  const matchingPlaceholder = locale === 'en' ? 'Choose an answer' : 'Choisir une réponse';
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>): void {
     event.preventDefault();
@@ -100,6 +101,11 @@ export function QuizForm({
               </p>
             ) : null}
             {isMatching ? (
+              <p className="mt-2 text-sm font-medium text-brand-700 dark:text-brand-300">
+                {copy.matchingHint}
+              </p>
+            ) : null}
+            {isMatching ? (
               <div className="mt-5 space-y-3">
                 {matchingAnswers.leftAnswers.map((leftAnswer) => (
                   <label
@@ -113,7 +119,7 @@ export function QuizForm({
                       aria-invalid={hasError}
                       className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                     >
-                      <option value="">{matchingPlaceholder}</option>
+                      <option value="">{copy.matchingSelectPlaceholder}</option>
                       {matchingAnswers.rightAnswers.map((rightAnswer) => (
                         <option key={rightAnswer.id} value={rightAnswer.id}>
                           {rightAnswer.label}

@@ -40,6 +40,8 @@ export interface ExercisePracticeCopy {
   readonly incorrect: string;
   readonly hint: string;
   readonly textAnswerPlaceholder?: string;
+  readonly matchingHint: string;
+  readonly matchingSelectPlaceholder: string;
 }
 
 export interface ExercisePracticeProps {
@@ -435,16 +437,21 @@ export function ExercisePractice({ exercise, copy }: ExercisePracticeProps): JSX
                   }}
                 />
               ) : isMatching ? (
-                <MatchingAnswerList
-                  questionId={question.id}
-                  answers={question.answers}
-                  selectedMatches={questionMatchingAnswers}
-                  disabled={checked}
-                  placeholder={copy.textAnswerPlaceholder ?? 'Choisir une réponse'}
-                  onSelect={(leftId, rightId) => {
-                    handleMatchSelect(question.id, leftId, rightId);
-                  }}
-                />
+                <>
+                  <p className="mt-3 text-sm font-medium text-brand-700 dark:text-brand-300">
+                    {copy.matchingHint}
+                  </p>
+                  <MatchingAnswerList
+                    questionId={question.id}
+                    answers={question.answers}
+                    selectedMatches={questionMatchingAnswers}
+                    disabled={checked}
+                    placeholder={copy.matchingSelectPlaceholder}
+                    onSelect={(leftId, rightId) => {
+                      handleMatchSelect(question.id, leftId, rightId);
+                    }}
+                  />
+                </>
               ) : isMulti ? (
                 <CheckboxAnswerList
                   questionId={question.id}

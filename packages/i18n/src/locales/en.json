@@ -1500,7 +1500,10 @@
     "startQuiz": "Start quiz",
     "unavailable": "No published quiz for this lesson.",
     "minutes": "min",
-    "textAnswerPlaceholder": "Type your answer"
+    "textAnswerPlaceholder": "Type your answer",
+    "matchingHint": "Match each item with the correct answer.",
+    "matchingSelectPlaceholder": "Choose an answer",
+    "matchingUnknownAnswer": "Unknown answer"
   },
   "quiz": {
     "back": "Back to lesson",
@@ -1512,6 +1515,9 @@
     "fillBlankHint": "Complete the answer in the field.",
     "shortAnswerHint": "Write a short answer.",
     "textAnswerPlaceholder": "Type your answer",
+    "matchingHint": "Match each item with the correct answer.",
+    "matchingSelectPlaceholder": "Choose an answer",
+    "matchingUnknownAnswer": "Unknown answer",
     "errors": {
       "invalid": "The form is invalid. Reload the page and try again.",
       "notFound": "This quiz is no longer available.",
