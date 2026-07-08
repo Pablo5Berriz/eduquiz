@@ -36,6 +36,49 @@ Récapitulatif des contrôles déjà livrés au tag `v0.1.0` (avril 2026, Phase 
 | Request ID propagé (corrélation logs ↔ AuditLog)                                              | ✅             | Middleware Next.js                                                                                                         |
 | Healthcheck combiné app + DB (200/503)                                                        | ✅             | `GET /api/health`                                                                                                          |
 
+| Rôles Postgres non-superuser (`eduquiz_app` + `eduquiz_service`) | ✅ |
+`infra/docker/init/02-app-role.sql`, `.env.example`, `.env.prod.example` |
+
+### Séparation des rôles Postgres
+
+L'application utilise trois rôles PostgreSQL distincts :
+
+| Rôle              | Variable d'env         | Privilèges                                         | Usage                                                    |
+| ----------------- | ---------------------- | -------------------------------------------------- | -------------------------------------------------------- |
+| `eduquiz`         | `DIRECT_URL`           | SUPERUSER                                          | Migrations Prisma (`prisma migrate deploy`) et admin DB  |
+| `eduquiz_app`     | `DATABASE_URL`         | NOSUPERUSER, NOBYPASSRLS, NOCREATEDB, NOCREATEROLE | Client `prisma` + `withUser()` — soumis aux policies RLS |
+| `eduquiz_service` | `SERVICE_DATABASE_URL` | NOSUPERUSER, BYPASSRLS, NOCREATEDB, NOCREATEROLE   | Client `prismaService` — bypass RLS, non-superuser       |
+
+Les deux rôles applicatifs sont créés par `infra/docker/init/02-app-role.sql` au
+premier démarrage du conteneur Postgres. Ils reçoivent uniquement DML
+(SELECT/INSERT/UPDATE/DELETE) sur les tables applicatives — aucun privilège DDL.
+
+**`eduquiz_app`** est le rôle par défaut. Toute route authentifiée passant par
+`withUser({ userId, role })` injecte les variables de session PostgreSQL
+(`app.current_user_id`, `app.current_role`) lues par les policies RLS.
+
+**`eduquiz_service`** contourne les policies RLS (BYPASSRLS) mais **n'est pas
+superuser** : pas de CREATE/DROP/ALTER sur les tables, pas de gestion des rôles.
+Son usage est limité aux chemins de code qui opèrent légitimement sans contexte
+utilisateur RLS, documentés ci-dessous.
+
+#### Fichiers utilisant `prismaService` — bypass RLS justifié
+
+Ces fichiers utilisent `prismaService` (connexion `eduquiz_service`, BYPASSRLS)
+sans `withUser()`. Le bypass est une décision documentée, pas un oubli. Le
+contrôle d'accès repose sur la logique applicative (vérification de rôle, rate
+limiting, tokens) plutôt que sur les policies RLS.
+
+| Fichier                                            | Raison du bypass RLS                                                     |
+| -------------------------------------------------- | ------------------------------------------------------------------------ |
+| `apps/web/src/lib/auth/actions/register.ts`        | L'utilisateur n'existe pas encore — aucun contexte RLS possible          |
+| `apps/web/src/lib/auth/actions/verify-email.ts`    | Consommation de token sans session authentifiée                          |
+| `apps/web/src/lib/auth/actions/forgot-password.ts` | Lookup par email sans session — anti-énumération applicatif              |
+| `apps/web/src/lib/auth/server.ts`                  | Résolution de session Auth.js (avant que le contexte utilisateur existe) |
+| `apps/web/src/lib/admin/actions.ts`                | Mutations admin cross-user — rôle ADMIN vérifié en amont                 |
+| `apps/web/src/lib/family/actions.ts`               | Rattachement parent ↔ enfant cross-user — rôles vérifiés en amont        |
+| `apps/web/src/lib/purge/purgeExpiredAccounts.ts`   | Cron système sans utilisateur — authentifié par secret partagé           |
+
 **Limites et reports à traiter avant une V1 complète** :
 
 - Worker cron de purge effective post-30 jours (les `DataRequest` en

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { setActivityStatus, setCourseStatus, validateQuestionForPublishing } from './actions';
+import { setActivityStatus, setCourseStatus } from './actions';
+import { validateQuestionForPublishing } from './validation';
 
 const { mockRequireRoleOrRedirect, mockPrisma } = vi.hoisted(() => ({
   mockRequireRoleOrRedirect: vi.fn(),
@@ -45,7 +46,9 @@ vi.mock('../auth/server', () => ({
   requireRoleOrRedirect: mockRequireRoleOrRedirect,
 }));
 
-function makeQuestion(overrides: Partial<Parameters<typeof validateQuestionForPublishing>[0]> = {}) {
+function makeQuestion(
+  overrides: Partial<Parameters<typeof validateQuestionForPublishing>[0]> = {},
+) {
   return {
     id: 'question-1',
     type: 'MCQ_SINGLE',
@@ -118,7 +121,9 @@ describe('admin content publication validation', () => {
       }),
     );
 
-    expect(issues).toContain('Une question à choix unique doit avoir exactement une bonne réponse.');
+    expect(issues).toContain(
+      'Une question à choix unique doit avoir exactement une bonne réponse.',
+    );
   });
 
   it('refuse un MCQ_SINGLE avec plusieurs bonnes réponses', () => {
@@ -131,7 +136,9 @@ describe('admin content publication validation', () => {
       }),
     );
 
-    expect(issues).toContain('Une question à choix unique doit avoir exactement une bonne réponse.');
+    expect(issues).toContain(
+      'Une question à choix unique doit avoir exactement une bonne réponse.',
+    );
   });
 
   it('refuse un ORDERING avec moins de deux éléments', () => {

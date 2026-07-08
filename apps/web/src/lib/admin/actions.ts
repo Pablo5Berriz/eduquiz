@@ -15,6 +15,8 @@ import { requireRoleOrRedirect } from '../auth/server';
 import { parseLessonContent } from '../learning/content';
 import { logger } from '../logger';
 
+import { validateQuestionForPublishing } from './validation';
+
 import type { AuthSessionUser } from '@eduquiz/auth/permissions';
 export type AdminActionCode = 'forbidden' | 'invalid' | 'notFound' | 'conflict' | 'unknown';
 
@@ -26,21 +28,6 @@ export type AdminActionResult =
       readonly message: string;
       readonly issues?: readonly string[];
     };
-
-interface ValidatableQuestion {
-  readonly id: string;
-  readonly type: string;
-  readonly promptFr: string;
-  readonly promptEn: string;
-  readonly answers: readonly {
-    readonly id: string;
-    readonly labelFr: string;
-    readonly labelEn: string;
-    readonly isCorrect: boolean;
-    readonly pairValueFr?: string | null;
-    readonly pairValueEn?: string | null;
-  }[];
-}
 
 const VALID_CONTENT_STATUSES = new Set<string>(Object.values(ContentStatus));
 
@@ -81,10 +68,7 @@ function unknownError(scope: string, error: unknown): AdminActionResult {
   };
 }
 
-async function requireContentAdmin(
-  locale: string,
-  nextPath: string,
-): Promise<AuthSessionUser> {
+async function requireContentAdmin(locale: string, nextPath: string): Promise<AuthSessionUser> {
   return requireRoleOrRedirect(locale, UserRole.ADMIN, nextPath);
 }
 
@@ -119,50 +103,6 @@ function validateStatus(status: ContentStatus): readonly string[] {
   return VALID_CONTENT_STATUSES.has(status) ? [] : ['Statut de contenu invalide.'];
 }
 
-export function validateQuestionForPublishing(question: ValidatableQuestion): readonly string[] {
-  const issues: string[] = [];
-  const promptFr = question.promptFr.trim();
-  const promptEn = question.promptEn.trim();
-  const answers = question.answers;
-  const correctAnswers = answers.filter((answer) => answer.isCorrect);
-
-  if (!promptFr && !promptEn) issues.push('La question doit avoir un énoncé.');
-
-  if (question.type === 'MCQ_SINGLE') {
-    if (answers.length < 2) issues.push('Une question à choix unique doit avoir au moins deux réponses.');
-    if (correctAnswers.length !== 1) {
-      issues.push('Une question à choix unique doit avoir exactement une bonne réponse.');
-    }
-  } else if (question.type === 'MCQ_MULTI') {
-    if (answers.length < 2) issues.push('Une question à choix multiples doit avoir au moins deux réponses.');
-    if (correctAnswers.length < 1) {
-      issues.push('Une question à choix multiples doit avoir au moins une bonne réponse.');
-    }
-  } else if (question.type === 'TRUE_FALSE') {
-    if (answers.length !== 2) issues.push('Une question vrai/faux doit avoir exactement deux options.');
-    if (correctAnswers.length !== 1) issues.push('Une question vrai/faux doit avoir exactement une bonne réponse.');
-  } else if (question.type === 'MATCHING') {
-    const completePairs = answers.filter(
-      (answer) =>
-        answer.isCorrect &&
-        ((answer.pairValueFr ?? '').trim().length > 0 ||
-          (answer.pairValueEn ?? '').trim().length > 0),
-    );
-    if (completePairs.length < 1) issues.push('Une question d’association doit avoir au moins une paire complète.');
-  } else if (question.type === 'ORDERING') {
-    if (answers.length < 2) issues.push('Une question de mise en ordre doit avoir au moins deux éléments.');
-    if (correctAnswers.length !== answers.length) {
-      issues.push('Tous les éléments de mise en ordre doivent être marqués comme attendus.');
-    }
-  } else if (question.type === 'SHORT_ANSWER' || question.type === 'FILL_IN_THE_BLANK') {
-    if (correctAnswers.length < 1) issues.push('Une question texte doit avoir au moins une réponse attendue.');
-  } else {
-    issues.push('Type de question invalide.');
-  }
-
-  return issues;
-}
-
 async function validateQuizActivityForPublishing(activityId: string): Promise<readonly string[]> {
   const activity = await prisma.activity.findUnique({
     where: { id: activityId },
@@ -187,7 +127,8 @@ async function validateQuizActivityForPublishing(activityId: string): Promise<re
     return ["L'activité doit appartenir à un cours publié."];
   }
   if (!activity.quiz) return ["L'activité publiée doit avoir un quiz."];
-  if (activity.quiz.questions.length < 1) return ['Un quiz publié doit avoir au moins une question.'];
+  if (activity.quiz.questions.length < 1)
+    return ['Un quiz publié doit avoir au moins une question.'];
 
   return activity.quiz.questions.flatMap((question, index) =>
     validateQuestionForPublishing(question).map(
@@ -247,10 +188,7 @@ async function validateLessonForPublishing(lessonId: string): Promise<readonly s
   ];
 }
 
-export async function createCourse(
-  locale: string,
-  formData: FormData,
-): Promise<AdminActionResult> {
+export async function createCourse(locale: string, formData: FormData): Promise<AdminActionResult> {
   const actor = await requireContentAdmin(locale, `/${locale}/admin/cours`);
 
   const titleFr = str(formData, 'titleFr');
@@ -338,7 +276,10 @@ export async function setCourseStatus(
   status: ContentStatus,
 ): Promise<AdminActionResult> {
   const actor = await requireContentAdmin(locale, `/${locale}/admin/cours/${courseId}`);
-  const issues = status === ContentStatus.PUBLISHED ? await validateCourseForPublishing(courseId) : validateStatus(status);
+  const issues =
+    status === ContentStatus.PUBLISHED
+      ? await validateCourseForPublishing(courseId)
+      : validateStatus(status);
   if (issues.length > 0) return validationError('Le cours ne peut pas être publié.', issues);
 
   const before = await prisma.course.findUnique({
@@ -470,7 +411,10 @@ export async function setLessonStatus(
   status: ContentStatus,
 ): Promise<AdminActionResult> {
   const actor = await requireContentAdmin(locale, `/${locale}/admin/cours/${courseId}`);
-  const issues = status === ContentStatus.PUBLISHED ? await validateLessonForPublishing(lessonId) : validateStatus(status);
+  const issues =
+    status === ContentStatus.PUBLISHED
+      ? await validateLessonForPublishing(lessonId)
+      : validateStatus(status);
   if (issues.length > 0) return validationError('La leçon ne peut pas être publiée.', issues);
 
   const before = await prisma.lesson.findUnique({
@@ -512,7 +456,10 @@ export async function setActivityStatus(
   status: ContentStatus,
 ): Promise<AdminActionResult> {
   const actor = await requireContentAdmin(locale, `/${locale}/admin`);
-  const issues = status === ContentStatus.PUBLISHED ? await validateQuizActivityForPublishing(activityId) : validateStatus(status);
+  const issues =
+    status === ContentStatus.PUBLISHED
+      ? await validateQuizActivityForPublishing(activityId)
+      : validateStatus(status);
   if (issues.length > 0) return validationError("L'activité ne peut pas être publiée.", issues);
 
   const before = await prisma.activity.findUnique({
