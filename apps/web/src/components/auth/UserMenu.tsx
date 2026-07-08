@@ -64,13 +64,14 @@ export function UserMenu({ locale, displayName, avatarUrl, copy }: UserMenuProps
         aria-label={copy.open}
         aria-haspopup="menu"
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-2 rounded-full border border-transparent p-1 hover:border-slate-300 focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500 dark:hover:border-slate-700"
+        onClick={() => { setOpen((v) => !v); }}
+        className="inline-flex items-center gap-2 rounded-full border border-transparent px-2 py-1 hover:border-slate-300 focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500 dark:hover:border-slate-700"
       >
         <Avatar src={avatarUrl} name={displayName} size="md" ariaLabel={displayName} />
-        <span aria-hidden="true" className="text-sm font-medium text-slate-700 dark:text-slate-200">
-          ▾
+        <span className="max-w-[140px] truncate text-sm font-medium text-slate-700 dark:text-slate-200">
+          {displayName}
         </span>
+        <span aria-hidden="true" className="text-xs text-slate-400 dark:text-slate-500">▾</span>
       </button>
       {open ? (
         <div
@@ -87,7 +88,7 @@ export function UserMenu({ locale, displayName, avatarUrl, copy }: UserMenuProps
               <Link
                 role="menuitem"
                 href={`/${locale}/profil`}
-                onClick={() => setOpen(false)}
+                onClick={() => { setOpen(false); }}
                 className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 focus-visible:bg-slate-100 focus-visible:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:focus-visible:bg-slate-800"
               >
                 <span aria-hidden="true">👤</span>
@@ -98,7 +99,7 @@ export function UserMenu({ locale, displayName, avatarUrl, copy }: UserMenuProps
               <Link
                 role="menuitem"
                 href={`/${locale}/parametres`}
-                onClick={() => setOpen(false)}
+                onClick={() => { setOpen(false); }}
                 className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 focus-visible:bg-slate-100 focus-visible:outline-none dark:text-slate-200 dark:hover:bg-slate-800 dark:focus-visible:bg-slate-800"
               >
                 <span aria-hidden="true">⚙</span>

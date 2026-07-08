@@ -15,7 +15,7 @@ import { useState, useTransition } from 'react';
 import {
   changePassword,
   type ChangePasswordFieldErrorCode,
-} from '../../../../../../lib/auth/actions/account';
+} from '../../../../../lib/auth/actions/account';
 
 import type { JSX } from 'react';
 
@@ -35,6 +35,11 @@ export interface ChangePasswordFormProps {
   readonly copy: ChangePasswordFormCopy;
 }
 
+function formString(fd: FormData, key: string): string {
+  const value = fd.get(key);
+  return typeof value === 'string' ? value : '';
+}
+
 export function ChangePasswordForm({ locale, copy }: ChangePasswordFormProps): JSX.Element {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -47,9 +52,9 @@ export function ChangePasswordForm({ locale, copy }: ChangePasswordFormProps): J
     setSuccess(false);
     const fd = new FormData(e.currentTarget);
     const input = {
-      currentPassword: String(fd.get('currentPassword') ?? ''),
-      newPassword: String(fd.get('newPassword') ?? ''),
-      confirmPassword: String(fd.get('confirmPassword') ?? ''),
+      currentPassword: formString(fd, 'currentPassword'),
+      newPassword: formString(fd, 'newPassword'),
+      confirmPassword: formString(fd, 'confirmPassword'),
     };
     startTransition(async () => {
       const result = await changePassword(input);
@@ -58,7 +63,7 @@ export function ChangePasswordForm({ locale, copy }: ChangePasswordFormProps): J
         // Toutes les sessions ayant été invalidées (y compris la
         // courante), on renvoie vers la connexion avec un drapeau
         // explicite pour expliquer la déconnexion.
-        setTimeout(() => router.push(`/${locale}/connexion?session=expired`), 800);
+        setTimeout(() => { router.push(`/${locale}/connexion?session=expired`); }, 800);
         return;
       }
       setErrors(result.fieldErrors as Record<string, ChangePasswordFieldErrorCode>);

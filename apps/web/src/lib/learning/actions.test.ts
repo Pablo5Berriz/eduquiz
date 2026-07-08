@@ -3,7 +3,7 @@
  *
  * Toutes les dépendances I/O sont mockées :
  *   - @eduquiz/db  → withUser / $transaction
- *   - ./catalog    → getPublishedQuizByActivityId
+ *   - ./catalog    → getPublishedQuizForScoringByActivityId
  *   - ./scoring    → scoreSingleAnswerQuiz
  *   - ../auth/server → requireApiUser
  *   - ../i18n/locale → safeResolveLocale
@@ -107,7 +107,7 @@ vi.mock('../auth/server', () => ({
 }));
 
 vi.mock('./catalog', () => ({
-  getPublishedQuizByActivityId: mockGetPublishedQuizByActivityId,
+  getPublishedQuizForScoringByActivityId: mockGetPublishedQuizByActivityId,
 }));
 
 vi.mock('./scoring', () => ({
@@ -200,7 +200,9 @@ const MOCK_QUIZ = {
       points: 2,
       answers: [
         { id: 'left-1', label: '3/4', pairId: 'right-1', isCorrect: true },
+        { id: 'right-1', label: '0,75', isCorrect: false },
         { id: 'left-2', label: '2/3', pairId: 'right-2', isCorrect: true },
+        { id: 'right-2', label: '0,66', isCorrect: false },
       ],
     },
     {
@@ -217,6 +219,8 @@ const MOCK_QUIZ = {
     },
   ],
 };
+
+const MATCHING_PAIR_VALUE_RIGHT_ID = 'matching-pair-value-0-5';
 
 const MOCK_SCORE = {
   score: 100,
@@ -382,7 +386,7 @@ describe('submitQuizAttempt', () => {
 
   // ── Quiz non trouvé ─────────────────────────────────────────────────────────
 
-  it('retourne notFound si getPublishedQuizByActivityId retourne null', async () => {
+  it('retourne notFound si getPublishedQuizForScoringByActivityId retourne null', async () => {
     mockGetPublishedQuizByActivityId.mockResolvedValue(null);
     const result = await submitQuizAttempt(makeValidFormData());
     expect(result).toEqual({ ok: false, error: 'notFound' });
@@ -403,6 +407,9 @@ describe('submitQuizAttempt', () => {
       // 'question:q2' absent
     });
     fd.append('question:q3', 'a6');
+    fd.append('ordering:q6', 'step-1');
+    fd.append('ordering:q6', 'step-2');
+    fd.append('ordering:q6', 'step-3');
     const result = await submitQuizAttempt(fd);
     expect(result).toEqual({
       ok: false,
@@ -448,7 +455,7 @@ describe('submitQuizAttempt', () => {
     expect(result).toEqual({
       ok: false,
       error: 'incomplete',
-      missingQuestionIds: ['q1', 'q2', 'q3', 'q4', 'q5'],
+      missingQuestionIds: ['q1', 'q2', 'q3', 'q4', 'q5', 'q6'],
     });
   });
 
@@ -471,6 +478,32 @@ describe('submitQuizAttempt', () => {
       error: 'incomplete',
       missingQuestionIds: ['q5'],
     });
+  });
+
+  it("retourne incomplete si une réponse MATCHING pointe vers une option qui n'appartient pas aux cibles", async () => {
+    const fd = makeValidFormData({ 'matching:q5:left-2': 'a1' });
+    const result = await submitQuizAttempt(fd);
+    expect(result).toEqual({
+      ok: false,
+      error: 'incomplete',
+      missingQuestionIds: ['q5'],
+    });
+    expect(mockScoreSingleAnswerQuiz).not.toHaveBeenCalled();
+  });
+
+  it("retourne incomplete si une réponse ORDERING contient une option qui n'appartient pas à la question", async () => {
+    const fd = makeValidFormData({ 'ordering:q6': 'step-1' });
+    fd.append('ordering:q6', 'step-2');
+    fd.append('ordering:q6', 'foreign-step');
+
+    const result = await submitQuizAttempt(fd);
+
+    expect(result).toEqual({
+      ok: false,
+      error: 'incomplete',
+      missingQuestionIds: ['q6'],
+    });
+    expect(mockScoreSingleAnswerQuiz).not.toHaveBeenCalled();
   });
 
   // ── Scoring ─────────────────────────────────────────────────────────────────
@@ -521,13 +554,17 @@ describe('submitQuizAttempt', () => {
     });
   });
 
-  it('transmet une réponse ORDERING vide au scoring', async () => {
+  it('retourne incomplete si une réponse ORDERING est vide', async () => {
     const fd = makeValidFormData({ 'ordering:q6': '' });
 
-    await submitQuizAttempt(fd);
+    const result = await submitQuizAttempt(fd);
 
-    const [, submittedAnswers] = firstMockCall(mockScoreSingleAnswerQuiz) as ScoreMockCall;
-    expect(submittedAnswers.get('q6')).toEqual({ orderedAnswerIds: [] });
+    expect(result).toEqual({
+      ok: false,
+      error: 'incomplete',
+      missingQuestionIds: ['q6'],
+    });
+    expect(mockScoreSingleAnswerQuiz).not.toHaveBeenCalled();
   });
 
   it('ignore les valeurs vides dans une réponse ORDERING', async () => {
@@ -545,16 +582,18 @@ describe('submitQuizAttempt', () => {
     });
   });
 
-  it('transmet une réponse ORDERING avec un élément manquant', async () => {
+  it('retourne incomplete si une réponse ORDERING a un élément manquant', async () => {
     const fd = makeValidFormData({ 'ordering:q6': 'step-1' });
     fd.append('ordering:q6', 'step-2');
 
-    await submitQuizAttempt(fd);
+    const result = await submitQuizAttempt(fd);
 
-    const [, submittedAnswers] = firstMockCall(mockScoreSingleAnswerQuiz) as ScoreMockCall;
-    expect(submittedAnswers.get('q6')).toEqual({
-      orderedAnswerIds: ['step-1', 'step-2'],
+    expect(result).toEqual({
+      ok: false,
+      error: 'incomplete',
+      missingQuestionIds: ['q6'],
     });
+    expect(mockScoreSingleAnswerQuiz).not.toHaveBeenCalled();
   });
 
   it('transmet une réponse MATCHING même si les paires arrivent dans un ordre différent', async () => {
@@ -569,6 +608,9 @@ describe('submitQuizAttempt', () => {
       'matching:q5:left-1': 'right-1',
     });
     fd.append('question:q3', 'a6');
+    fd.append('ordering:q6', 'step-1');
+    fd.append('ordering:q6', 'step-2');
+    fd.append('ordering:q6', 'step-3');
 
     await submitQuizAttempt(fd);
 
@@ -593,6 +635,55 @@ describe('submitQuizAttempt', () => {
         { leftId: 'left-2', rightId: 'right-1' },
       ],
     });
+  });
+
+  it('accepte une réponse MATCHING soumise avec un id de droite synthétique pairValue', async () => {
+    mockGetPublishedQuizByActivityId.mockResolvedValue({
+      ...MOCK_QUIZ,
+      questions: [
+        {
+          id: 'q-pair-value',
+          prompt: 'Associe la fraction à son décimal.',
+          type: 'MATCHING',
+          points: 2,
+          answers: [
+            {
+              id: 'left-pair-value',
+              label: '1/2',
+              pairId: MATCHING_PAIR_VALUE_RIGHT_ID,
+              isCorrect: true,
+            },
+          ],
+        },
+      ],
+    });
+    mockScoreSingleAnswerQuiz.mockReturnValue({
+      ...MOCK_SCORE,
+      answers: [
+        {
+          questionId: 'q-pair-value',
+          answerId: null,
+          answerIds: [],
+          matches: [{ leftId: 'left-pair-value', rightId: MATCHING_PAIR_VALUE_RIGHT_ID }],
+          isCorrect: true,
+          pointsEarned: 2,
+        },
+      ],
+    });
+    const fd = makeFormData({
+      activityId: ACTIVITY_ID,
+      locale: 'fr',
+      'matching:q-pair-value:left-pair-value': MATCHING_PAIR_VALUE_RIGHT_ID,
+    });
+
+    await submitQuizAttempt(fd);
+
+    expect(mockScoreSingleAnswerQuiz).toHaveBeenCalledOnce();
+    const [, submittedAnswers] = firstMockCall(mockScoreSingleAnswerQuiz) as ScoreMockCall;
+    expect(submittedAnswers.get('q-pair-value')).toEqual({
+      matches: [{ leftId: 'left-pair-value', rightId: MATCHING_PAIR_VALUE_RIGHT_ID }],
+    });
+    expect(mockRedirect).toHaveBeenCalledOnce();
   });
 
   // ── Transaction DB ──────────────────────────────────────────────────────────

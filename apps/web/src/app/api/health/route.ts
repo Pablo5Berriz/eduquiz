@@ -44,7 +44,7 @@ export async function GET(): Promise<NextResponse<HealthReport>> {
     await prisma.$queryRaw`SELECT 1`;
   } catch (err: unknown) {
     database = 'down';
-    // eslint-disable-next-line no-console
+     
     console.error('[health] database check failed:', err);
   }
 

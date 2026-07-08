@@ -1,4 +1,5 @@
 import { getMessages, t } from '@eduquiz/i18n';
+import { Card } from '@eduquiz/ui';
 import Link from 'next/link';
 
 import { resolveLocaleParam, type LocaleRouteParams } from '../../../../lib/i18n/locale';
@@ -7,10 +8,12 @@ import type { Metadata } from 'next';
 import type { JSX } from 'react';
 
 /**
- * Index `/[locale]/parametres` — sert d'introduction et liste des
- * sous-sections. La sidebar est rendue par le layout parent ; ici on
- * répète la liste sous forme de cartes pour le mobile et en cas
- * d'arrivée directe sur la racine.
+ * Écran 31 — Index des paramètres.
+ *
+ * Liste les 4 sections disponibles sous forme de cartes avec icône,
+ * titre et description courte. La sidebar (desktop) est rendue par
+ * le layout parent ; cette page sert de point d'entrée et de repli
+ * si l'utilisateur arrive directement sur `/parametres`.
  */
 
 export function generateMetadata({ params }: { params: LocaleRouteParams }): Metadata {
@@ -22,6 +25,15 @@ export function generateMetadata({ params }: { params: LocaleRouteParams }): Met
   };
 }
 
+interface SettingsSection {
+  key: string;
+  href: string;
+  icon: string;
+  label: string;
+  description: string;
+  tone?: 'default' | 'danger';
+}
+
 export default function SettingsIndexPage({
   params,
 }: {
@@ -30,15 +42,45 @@ export default function SettingsIndexPage({
   const locale = resolveLocaleParam(params.locale);
   const messages = getMessages(locale);
 
-  const sections = [
-    { key: 'account', href: `/${locale}/parametres/compte`, label: t(messages, 'account.settings.navigation.account') },
-    { key: 'language', href: `/${locale}/parametres/langue`, label: t(messages, 'account.settings.navigation.language') },
-    { key: 'data', href: `/${locale}/parametres/donnees`, label: t(messages, 'account.settings.navigation.data') },
+  const isFr = locale === 'fr';
+
+  const sections: SettingsSection[] = [
+    {
+      key: 'account',
+      href: `/${locale}/parametres/compte`,
+      icon: '🔑',
+      label: t(messages, 'account.settings.navigation.account'),
+      description: isFr
+        ? "Mets à jour ton mot de passe et sécurise ton compte."
+        : "Update your password and secure your account.",
+    },
+    {
+      key: 'language',
+      href: `/${locale}/parametres/langue`,
+      icon: '🌐',
+      label: t(messages, 'account.settings.navigation.language'),
+      description: isFr
+        ? "Choisis la langue d'affichage et des e-mails."
+        : "Choose your display language and email language.",
+    },
+    {
+      key: 'data',
+      href: `/${locale}/parametres/donnees`,
+      icon: '📦',
+      label: t(messages, 'account.settings.navigation.data'),
+      description: isFr
+        ? "Télécharge une copie de toutes tes données (Loi 25)."
+        : "Download a copy of all your data.",
+    },
     {
       key: 'deletion',
       href: `/${locale}/parametres/suppression`,
+      icon: '🗑️',
       label: t(messages, 'account.settings.navigation.deletion'),
-      tone: 'danger' as const,
+      description: isFr
+        ? "Supprime définitivement ton compte et toutes tes données."
+        : "Permanently delete your account and all your data.",
+      tone: 'danger',
     },
   ];
 
@@ -51,18 +93,58 @@ export default function SettingsIndexPage({
         {t(messages, 'account.settings.subtitle')}
       </p>
 
-      <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+      <ul className="mt-8 grid gap-4 sm:grid-cols-2">
         {sections.map((s) => (
           <li key={s.key}>
-            <Link
-              href={s.href}
-              className={
-                s.tone === 'danger'
-                  ? 'block rounded-xl border border-danger-200 bg-white px-4 py-3 text-sm font-medium text-danger-800 hover:border-danger-300 hover:bg-danger-50 focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-danger-500 dark:border-danger-800 dark:bg-slate-900 dark:text-danger-200 dark:hover:border-danger-700 dark:hover:bg-danger-950/30'
-                  : 'block rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800'
-              }
-            >
-              {s.label} <span aria-hidden="true">→</span>
+            <Link href={s.href} className="group block h-full">
+              <Card
+                variant="surface"
+                padding="lg"
+                className={[
+                  "h-full transition-all duration-150",
+                  s.tone === 'danger'
+                    ? "border-danger-200 group-hover:border-danger-400 group-hover:shadow-sm dark:border-danger-800 group-hover:dark:border-danger-600"
+                    : "group-hover:border-brand-300 group-hover:shadow-sm dark:group-hover:border-brand-700",
+                ].join(' ')}
+              >
+                <div className="flex items-start gap-4">
+                  <span
+                    className={[
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xl",
+                      s.tone === 'danger'
+                        ? "bg-danger-50 dark:bg-danger-950/40"
+                        : "bg-brand-50 dark:bg-brand-950/40",
+                    ].join(' ')}
+                    aria-hidden="true"
+                  >
+                    {s.icon}
+                  </span>
+                  <div className="min-w-0">
+                    <p className={[
+                      "text-sm font-semibold",
+                      s.tone === 'danger'
+                        ? "text-danger-700 dark:text-danger-400"
+                        : "text-slate-900 dark:text-slate-100 group-hover:text-brand-700 dark:group-hover:text-brand-300",
+                    ].join(' ')}>
+                      {s.label}
+                    </p>
+                    <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                      {s.description}
+                    </p>
+                  </div>
+                  <span
+                    className={[
+                      "ml-auto shrink-0 self-center text-sm transition-transform duration-150 group-hover:translate-x-0.5",
+                      s.tone === 'danger'
+                        ? "text-danger-400 dark:text-danger-600"
+                        : "text-slate-400 dark:text-slate-600",
+                    ].join(' ')}
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
+                </div>
+              </Card>
             </Link>
           </li>
         ))}

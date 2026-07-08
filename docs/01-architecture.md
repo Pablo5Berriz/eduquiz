@@ -190,110 +190,116 @@ Quelques invariants appliqués à **chaque** requête authentifiée :
 
 ## Authentification et sessions
 
-État livré en **Phase 1 (v0.1.0)** — Auth.js v5 (NextAuth) avec une
-architecture en deux configs pour respecter la contrainte Edge runtime du
-middleware Next.js :
+État livré en **Phase 1 (v0.1.0)** — Auth.js v5 (NextAuth) avec une architecture
+en deux configs pour respecter la contrainte Edge runtime du middleware Next.js
+:
 
 - `@eduquiz/auth/config.ts` (Node) : adapter Prisma + provider Credentials
-  (Argon2id) + providers Google et Apple OAuth conditionnels + events
-  `signIn` / `signOut` qui logent dans `AuditLog`.
-- `@eduquiz/auth/edge.ts` (Edge-safe) : callbacks JWT/session + autorisation
-  des zones protégées, sans Prisma ni Argon2 (incompatibles avec Edge).
+  (Argon2id) + providers Google et Apple OAuth conditionnels + events `signIn` /
+  `signOut` qui logent dans `AuditLog`.
+- `@eduquiz/auth/edge.ts` (Edge-safe) : callbacks JWT/session + autorisation des
+  zones protégées, sans Prisma ni Argon2 (incompatibles avec Edge).
 
 Trois moyens d'entrée :
 
-**Email + mot de passe (Credentials).** Surface principale en V1. Mots de
-passe hashés en Argon2id avec les paramètres OWASP 2024 (`m=19456 KiB`,
-`t=2`, `p=1`). Re-hash automatique au login si les paramètres deviennent
-obsolètes. Refus de connexion si email non vérifié, compte désactivé
-(`disabledAt`) ou supprimé (`deletedAt`). Les échecs sont tracés dans
-`AuditLog.AUTH_FAILED` avec une raison interne (`unknown_user` /
-`disabled` / `no_password` / `unverified` / `bad_password`) jamais
-révélée à l'utilisateur (anti-énumération maintenue).
+**Email + mot de passe (Credentials).** Surface principale en V1. Mots de passe
+hashés en Argon2id avec les paramètres OWASP 2024 (`m=19456 KiB`, `t=2`, `p=1`).
+Re-hash automatique au login si les paramètres deviennent obsolètes. Refus de
+connexion si email non vérifié, compte désactivé (`disabledAt`) ou supprimé
+(`deletedAt`). Les échecs sont tracés dans `AuditLog.AUTH_FAILED` avec une
+raison interne (`unknown_user` / `disabled` / `no_password` / `unverified` /
+`bad_password`) jamais révélée à l'utilisateur (anti-énumération maintenue).
 
 **OAuth Google / Apple.** Câblés via Auth.js, **conditionnels** : actifs
 seulement si les variables `AUTH_GOOGLE_ID/SECRET` ou `AUTH_APPLE_ID/SECRET`
-sont renseignées. Sinon les boutons OAuth sont absents des écrans de
-connexion / inscription (pas de chemin mort vers une erreur). Lors d'un
-premier OAuth login, l'adapter crée automatiquement la `User` + un `Account`
-lié.
+sont renseignées. Sinon les boutons OAuth sont absents des écrans de connexion /
+inscription (pas de chemin mort vers une erreur). Lors d'un premier OAuth login,
+l'adapter crée automatiquement la `User` + un `Account` lié.
 
 **Magic link par courriel.** Préparé via les helpers `createToken` /
-`consumeToken` (`@eduquiz/auth/tokens`) mais le provider Email d'Auth.js
-n'est pas activé en V1. Cible Phase 2.
+`consumeToken` (`@eduquiz/auth/tokens`) mais le provider Email d'Auth.js n'est
+pas activé en V1. Cible Phase 2.
 
-Côté session, la stratégie est **DB côté Node, JWT côté Edge** :
+Côté session, la stratégie livrée est **JWT avec validation serveur par version
+de session** :
 
-- **Node (signin/signout réel)** : sessions persistées dans la table
-  `sessions` (révocation immédiate, audit IP/user-agent, cohérence avec
-  RLS). TTL 30 jours, refresh quotidien.
-- **Edge (middleware)** : lit un JWT signé dans le cookie pour ne pas
-  toucher à Prisma. Conséquence : un changement de rôle prend effet au
-  prochain refresh JWT (≤ 24 h) ou à la prochaine connexion.
+- Auth.js Credentials utilise `session.strategy = "jwt"` pour rester compatible
+  avec le provider Credentials et le middleware Edge.
+- Le JWT contient les attributs utiles (`role`, `locale`, état du compte) et
+  `User.sessionVersion`.
+- Les helpers serveur Node relisent l'utilisateur en DB et comparent
+  `session.user.sessionVersion` à `User.sessionVersion`. Si la version diffère,
+  le JWT est considéré obsolète et l'utilisateur doit se reconnecter.
+- Les opérations sensibles (reset password, changement de mot de passe,
+  suppression de compte) incrémentent `User.sessionVersion`. La suppression des
+  lignes `sessions` reste une défense en profondeur si une stratégie DB est
+  réactivée plus tard.
+- Le middleware Edge peut lire le JWT, mais ne peut pas garantir à lui seul une
+  révocation instantanée contre la DB. Les Route Handlers, Server Actions et
+  Server Components protégés doivent donc passer par les helpers serveur.
 
 Cookies : `__Secure-eduquiz.session-token` en prod (`Secure`, `HttpOnly`,
 `SameSite=Lax`).
 
 **Flux livrés en Phase 1 :**
 
-| Écran | Route | Contenu |
-| --- | --- | --- |
-| 15 | `/[locale]/inscription` | Sélecteur de type (adulte actif, parent/mineur en « Bientôt disponible ») |
-| 19 | `/[locale]/inscription/adulte` | Formulaire complet, validation Zod, OAuth conditionnels |
-| 22 | `/[locale]/verification-email` | Page d'attente avec bouton renvoi cooldown 60s |
-| 23 | `/[locale]/verification-email/confirme/[token]` | Confirme l'email (succès / expiré / invalide) |
-| 16 | `/[locale]/connexion` | Credentials + OAuth, bannières contextuelles `?verified` `?reset` `?session=expired` |
-| 17 | `/[locale]/mot-de-passe-oublie` | Demande lien reset, anti-énumération |
-| 18 | `/[locale]/mot-de-passe-oublie/reinitialiser/[token]` | Nouveau mdp + confirmation, invalide toutes les sessions |
-| 29 | `/[locale]/profil` | Vue lecture seule du profil |
-| 30 | `/[locale]/profil/modifier` | Édition profil (firstName, lastName, displayName, currentGrade, preferredLocale, avatarUrl) |
-| 32 | `/[locale]/parametres/compte` | Changement mot de passe (changement email reporté) |
-| 33 | `/[locale]/parametres/langue` | Toggle FR/EN persisté |
-| 37 | `/[locale]/parametres/donnees` | Export Loi 25 via `/api/account/export` (JSON immédiat) |
-| 38 | `/[locale]/parametres/suppression` | Soft delete avec délai de grâce 30 jours |
+| Écran | Route                                                 | Contenu                                                                                     |
+| ----- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 15    | `/[locale]/inscription`                               | Sélecteur de type (adulte actif, parent/mineur en « Bientôt disponible »)                   |
+| 19    | `/[locale]/inscription/adulte`                        | Formulaire complet, validation Zod, OAuth conditionnels                                     |
+| 22    | `/[locale]/verification-email`                        | Page d'attente avec bouton renvoi cooldown 60s                                              |
+| 23    | `/[locale]/verification-email/confirme/[token]`       | Confirme l'email (succès / expiré / invalide)                                               |
+| 16    | `/[locale]/connexion`                                 | Credentials + OAuth, bannières contextuelles `?verified` `?reset` `?session=expired`        |
+| 17    | `/[locale]/mot-de-passe-oublie`                       | Demande lien reset, anti-énumération                                                        |
+| 18    | `/[locale]/mot-de-passe-oublie/reinitialiser/[token]` | Nouveau mdp + confirmation, invalide les anciens JWT côté serveur via `sessionVersion`      |
+| 29    | `/[locale]/profil`                                    | Vue lecture seule du profil                                                                 |
+| 30    | `/[locale]/profil/modifier`                           | Édition profil (firstName, lastName, displayName, currentGrade, preferredLocale, avatarUrl) |
+| 32    | `/[locale]/parametres/compte`                         | Changement mot de passe (changement email reporté)                                          |
+| 33    | `/[locale]/parametres/langue`                         | Toggle FR/EN persisté                                                                       |
+| 37    | `/[locale]/parametres/donnees`                        | Export Loi 25 via `/api/account/export` (JSON immédiat)                                     |
+| 38    | `/[locale]/parametres/suppression`                    | Soft delete avec délai de grâce 30 jours                                                    |
 
 **Sécurité Loi 25 livrée :**
 
 - `ConsentRecord` créé en transaction à l'inscription (TERMS_ACCEPTED,
   PRIVACY_ACCEPTED, MARKETING_OPTED_IN si choisi)
-- Toutes les actions sensibles tracées dans `AuditLog`
-  (`AUTH_USER_CREATED`, `AUTH_VERIFY_EMAIL`, `AUTH_SIGNIN`, `AUTH_SIGNOUT`,
-  `AUTH_FAILED`, `AUTH_PASSWORD_RESET`, `PROFILE_UPDATED`,
-  `DATA_EXPORT_DELIVERED`, `DATA_DELETION_REQUESTED`)
-- Soft delete : `disabledAt` empêche immédiatement le login, `DataRequest`
-  tracé avec `graceExpiresAt` à +30j, purge effective différée à un
-  worker cron à venir
-- Anti-énumération sur connexion (message générique
-  « identifiants invalides ») et sur reset password (toujours `ok:true`
-  côté UI)
+- Toutes les actions sensibles tracées dans `AuditLog` (`AUTH_USER_CREATED`,
+  `AUTH_VERIFY_EMAIL`, `AUTH_SIGNIN`, `AUTH_SIGNOUT`, `AUTH_FAILED`,
+  `AUTH_PASSWORD_RESET`, `PROFILE_UPDATED`, `DATA_EXPORT_DELIVERED`,
+  `DATA_DELETION_REQUESTED`)
+- Soft delete : `disabledAt` empêche immédiatement le login, `DataRequest` tracé
+  avec `graceExpiresAt` à +30j, purge effective différée à un worker cron à
+  venir
+- Anti-énumération sur connexion (message générique « identifiants invalides »)
+  et sur reset password (toujours `ok:true` côté UI)
 - Mot de passe actuel exigé pour : changement de mdp, suppression de compte
-- Invalidation de toutes les sessions au reset password et au changement
-  de mdp
+- Invalidation serveur des anciens JWT au reset password et au changement de mdp
+  via `User.sessionVersion`
 
 **Rate limiting Redis** (`@eduquiz/rate-limit`) — bucket fenêtre fixe via
-`MULTI INCR + PEXPIRE NX`, mode no-op si `REDIS_URL` absent, fail-open en
-cas de panne. Quotas livrés :
+`MULTI INCR + PEXPIRE NX`, mode no-op si `REDIS_URL` absent, fail-open en cas de
+panne. Quotas livrés :
 
-| Action | Quota |
-| --- | --- |
-| `signIn` | 5 / minute / IP+email |
-| `register` | 3 / 15 minutes / IP |
-| `forgot-password` | 3 / 15 minutes / IP |
+| Action                | Quota                  |
+| --------------------- | ---------------------- |
+| `signIn`              | 5 / minute / IP+email  |
+| `register`            | 3 / 15 minutes / IP    |
+| `forgot-password`     | 3 / 15 minutes / IP    |
 | `resend-verification` | 3 / 15 minutes / email |
-| `account-deletion` | 3 / jour / userId |
+| `account-deletion`    | 3 / jour / userId      |
 
-Sur dépassement : `{ ok: false, fieldErrors: { form: 'rateLimited' } }`,
-message générique côté UI (l'anti-énumération reste préservée).
+Sur dépassement : `{ ok: false, fieldErrors: { form: 'rateLimited' } }`, message
+générique côté UI (l'anti-énumération reste préservée).
 
-**Helper RLS** `withAuthenticatedDb()` (`apps/web/src/lib/auth/rls.ts`)
-combine `requireApiUser()` + `withUser({ userId, role })` de `@eduquiz/db`.
-Pattern documenté pour les Server Actions futures qui toucheront à des
-données partagées (Lots 5+). En Phase 1, les actions opèrent sur le
-compte propre (User/Profile/Account/Session) qui ne sont pas couverts
-par les politiques RLS — un `prisma` direct suffit.
+**Helper RLS** `withAuthenticatedDb()` (`apps/web/src/lib/auth/rls.ts`) combine
+`requireApiUser()` + `withUser({ userId, role })` de `@eduquiz/db`. Pattern
+documenté pour les Server Actions futures qui toucheront à des données partagées
+(Lots 5+). En Phase 1, les actions opèrent sur le compte propre
+(User/Profile/Account/Session) qui ne sont pas couverts par les politiques RLS —
+un `prisma` direct suffit.
 
-Diagramme historique de la stratégie session « database + cache » prévue
-pour Phase 2 (Redis pour réduire le hit DB par requête) :
+Diagramme historique de la stratégie session « database + cache » prévue pour
+Phase 2 (Redis pour réduire le hit DB par requête) :
 
 ```mermaid
 sequenceDiagram

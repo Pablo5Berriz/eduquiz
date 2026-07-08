@@ -128,7 +128,6 @@ export default function SubjectDetailPage({
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           {/* Image d'illustration. Les placeholders SVG sont remplacés
               par des photos libres de droits via scripts/download-subject-images.mjs. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={image}
             alt={imageAlt}

@@ -51,11 +51,17 @@ export async function withAuthenticatedDb<T>(
   const ctx: RlsContext = {
     userId: user.id,
     role: user.role as RlsRole,
-    requestId: options.requestId,
   };
-  return withUser(ctx).$transaction((tx) => fn(tx, ctx), {
-    maxWait: options.maxWait,
-    timeout: options.timeout,
-    isolationLevel: options.isolationLevel,
-  });
+  if (options.requestId !== undefined) {
+    Object.assign(ctx, { requestId: options.requestId });
+  }
+  const transactionOptions: {
+    maxWait?: number;
+    timeout?: number;
+    isolationLevel?: Prisma.TransactionIsolationLevel;
+  } = {};
+  if (options.maxWait !== undefined) transactionOptions.maxWait = options.maxWait;
+  if (options.timeout !== undefined) transactionOptions.timeout = options.timeout;
+  if (options.isolationLevel !== undefined) transactionOptions.isolationLevel = options.isolationLevel;
+  return withUser(ctx).$transaction((tx) => fn(tx, ctx), transactionOptions);
 }

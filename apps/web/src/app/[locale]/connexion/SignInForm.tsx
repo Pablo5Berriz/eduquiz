@@ -16,7 +16,7 @@ import { useState, useTransition } from 'react';
 import {
   signInAdult,
   type SignInErrorCode,
-} from '../../../../lib/auth/actions/signin';
+} from '../../../lib/auth/actions/signin';
 
 import type { JSX } from 'react';
 
@@ -35,6 +35,11 @@ export interface SignInFormProps {
   readonly copy: SignInFormCopy;
 }
 
+function formString(fd: FormData, key: string): string {
+  const value = fd.get(key);
+  return typeof value === 'string' ? value : '';
+}
+
 export function SignInForm({ locale, nextPath, copy }: SignInFormProps): JSX.Element {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<SignInErrorCode | null>(null);
@@ -45,8 +50,8 @@ export function SignInForm({ locale, nextPath, copy }: SignInFormProps): JSX.Ele
     const fd = new FormData(e.currentTarget);
     const input = {
       locale,
-      email: String(fd.get('email') ?? ''),
-      password: String(fd.get('password') ?? ''),
+      email: formString(fd, 'email'),
+      password: formString(fd, 'password'),
       nextPath,
     };
     startTransition(async () => {

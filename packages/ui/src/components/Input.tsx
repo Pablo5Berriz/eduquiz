@@ -58,7 +58,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     <input
       ref={ref}
       type={type}
-      aria-invalid={invalid || undefined}
+      aria-invalid={invalid ?? undefined}
       className={cn(input({ size, invalid }), className)}
       {...rest}
     />

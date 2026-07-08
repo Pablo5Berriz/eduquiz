@@ -103,6 +103,7 @@ export default function SignupAdultPage({
                 birthDateInvalid: t(messages, 'auth.signup.adult.errors.birthDateInvalid'),
                 notAdult: t(messages, 'auth.signup.adult.errors.notAdult'),
                 termsRequired: t(messages, 'auth.signup.adult.errors.termsRequired'),
+                rateLimited: t(messages, 'auth.signup.adult.errors.rateLimited'),
                 unknown: t(messages, 'auth.signup.adult.errors.unknown'),
               },
             }}
@@ -169,7 +170,7 @@ function renderTermsLabel(
   privacyText: string,
 ): JSX.Element {
   // On découpe sur les deux marqueurs en gardant l'ordre rencontré.
-  const parts: Array<{ kind: 'text'; value: string } | { kind: 'terms' | 'privacy' }> = [];
+  const parts: ({ kind: 'text'; value: string } | { kind: 'terms' | 'privacy' })[] = [];
   const re = /\{(terms|privacy)\}/g;
   let lastIndex = 0;
   let m: RegExpExecArray | null;

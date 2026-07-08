@@ -14,7 +14,7 @@
  */
 
 import { consumeToken, createToken } from '@eduquiz/auth/tokens';
-import { AuditEventKind, prisma } from '@eduquiz/db';
+import { AuditEventKind, prismaService as prisma } from '@eduquiz/db';
 import { buildVerificationEmail, buildWelcomeEmail, sendEmail } from '@eduquiz/email';
 
 import { logger } from '../../logger';
@@ -99,7 +99,7 @@ export async function confirmVerification(token: string): Promise<ConfirmResult>
   }
 
   try {
-    const localeLower = (user.locale.toLowerCase() ?? 'fr') as 'fr' | 'en';
+    const localeLower = user.locale.toLowerCase() as 'fr' | 'en';
     const signInUrl = getCanonicalAuthUrl(`/${localeLower}/connexion?verified=1`);
     await sendEmail(buildWelcomeEmail({ to: user.email, locale: localeLower, signInUrl }));
   } catch {

@@ -60,6 +60,7 @@ export default async function LearnPage({
           {courses.map((course) => (
             <section
               key={course.id}
+              data-testid="learning-course"
               className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -95,6 +96,7 @@ export default async function LearnPage({
                   return (
                     <li
                       key={lesson.id}
+                      data-testid="learning-lesson"
                       className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div>

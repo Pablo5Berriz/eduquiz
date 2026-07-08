@@ -19,7 +19,7 @@
  * valide. Coût : un `UPDATE` ponctuel par utilisateur.
  */
 
-import { AuditEventKind, Locale, prisma, UserRole } from '@eduquiz/db';
+import { AuditEventKind, prismaService as prisma } from '@eduquiz/db';
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
 
@@ -89,8 +89,8 @@ export const credentialsProvider: Provider = Credentials({
       // Email peut être absent/mal formé — on ne loggue rien d'utile
       // et on ne révèle pas la raison côté UI.
       const emailHint =
-        typeof (rawCredentials as { email?: unknown })?.email === 'string'
-          ? ((rawCredentials as { email: string }).email).slice(0, 254)
+        typeof (rawCredentials as { email?: unknown }).email === 'string'
+          ? (rawCredentials as { email: string }).email.slice(0, 254)
           : '';
       await logFailedSignIn('invalid_input', emailHint, null);
       return null;
@@ -110,6 +110,7 @@ export const credentialsProvider: Provider = Credentials({
         locale: true,
         disabledAt: true,
         deletedAt: true,
+        sessionVersion: true,
         profile: { select: { displayName: true, firstName: true, avatarUrl: true } },
       },
     });
@@ -159,11 +160,12 @@ export const credentialsProvider: Provider = Credentials({
       email: user.email,
       name: user.profile?.displayName ?? user.profile?.firstName ?? null,
       image: user.profile?.avatarUrl ?? null,
-      role: user.role as UserRole,
-      locale: user.locale as Locale,
+      role: user.role as unknown as import('../constants.js').UserRole,
+      locale: user.locale as unknown as import('../constants.js').Locale,
       emailVerifiedAt: user.emailVerifiedAt,
       disabledAt: user.disabledAt,
       deletedAt: user.deletedAt,
+      sessionVersion: user.sessionVersion,
     };
   },
 });

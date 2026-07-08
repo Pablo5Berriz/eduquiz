@@ -43,6 +43,11 @@ export interface SignupAdultFormProps {
   readonly copy: SignupAdultFormCopy;
 }
 
+function formString(fd: FormData, key: string): string {
+  const value = fd.get(key);
+  return typeof value === 'string' ? value : '';
+}
+
 export function SignupAdultForm({ locale, copy }: SignupAdultFormProps): JSX.Element {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -53,9 +58,9 @@ export function SignupAdultForm({ locale, copy }: SignupAdultFormProps): JSX.Ele
     const fd = new FormData(e.currentTarget);
     const input = {
       locale,
-      email: String(fd.get('email') ?? ''),
-      password: String(fd.get('password') ?? ''),
-      birthDate: String(fd.get('birthDate') ?? ''),
+      email: formString(fd, 'email'),
+      password: formString(fd, 'password'),
+      birthDate: formString(fd, 'birthDate'),
       acceptTerms: fd.get('acceptTerms') === 'on',
       acceptMarketing: fd.get('acceptMarketing') === 'on',
     };

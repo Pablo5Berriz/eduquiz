@@ -6,6 +6,7 @@ import { clientIpFrom, withRateLimit } from '@eduquiz/rate-limit';
 import { headers } from 'next/headers';
 
 import { logger } from '../logger';
+
 import { type CheckRateLimitInput, RateLimits } from './rate-limit';
 
 export interface CheckRateLimitResult {
@@ -68,6 +69,13 @@ function shouldFailClosedOnBypass(input: ServerCheckRateLimitInput): boolean {
   return input.failClosedOnBypass ?? CRITICAL_BUCKETS.has(input.bucket);
 }
 
+function allowE2ERateLimitBypass(): boolean {
+  return (
+    process.env.NODE_ENV !== 'production' &&
+    process.env.EDUQUIZ_E2E_ALLOW_RATE_LIMIT_BYPASS === '1'
+  );
+}
+
 export async function checkRateLimit(input: ServerCheckRateLimitInput): Promise<CheckRateLimitResult> {
   const config = RateLimits[input.bucket];
   const keyHash = hashRateLimitKey(input.key);
@@ -86,7 +94,7 @@ export async function checkRateLimit(input: ServerCheckRateLimitInput): Promise<
       ...(reqId ? { reqId } : {}),
     };
 
-    if (process.env.REDIS_URL && shouldFailClosedOnBypass(input)) {
+    if (process.env.REDIS_URL && shouldFailClosedOnBypass(input) && !allowE2ERateLimitBypass()) {
       logUnexpectedRedisBypass(fields);
       return { allowed: false, bypassed: true, keyHash };
     }

@@ -10,7 +10,7 @@ import { Alert, Button } from '@eduquiz/ui';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
-import { updateLocale } from '../../../../../../lib/auth/actions/account';
+import { updateLocale } from '../../../../../lib/auth/actions/account';
 
 import type { JSX } from 'react';
 
@@ -60,7 +60,7 @@ export function LanguageForm({ initialLocale, copy }: LanguageFormProps): JSX.El
             name="locale"
             value="FR"
             checked={value === 'FR'}
-            onChange={() => setValue('FR')}
+            onChange={() => { setValue('FR'); }}
             className="h-5 w-5"
           />
           <span>{copy.optionFr}</span>
@@ -71,7 +71,7 @@ export function LanguageForm({ initialLocale, copy }: LanguageFormProps): JSX.El
             name="locale"
             value="EN"
             checked={value === 'EN'}
-            onChange={() => setValue('EN')}
+            onChange={() => { setValue('EN'); }}
             className="h-5 w-5"
           />
           <span>{copy.optionEn}</span>

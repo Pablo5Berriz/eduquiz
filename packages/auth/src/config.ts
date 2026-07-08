@@ -2,7 +2,7 @@
  * Configuration Auth.js v5 complète, runtime Node.js.
  *
  * Compose la base Edge-safe (`config-edge.ts`) avec :
- *   - L'adapter Prisma (sessions persistées en DB)
+ *   - L'adapter Prisma (utilisateurs/comptes/tokens persistés en DB)
  *   - Le provider Credentials (qui touche à la DB)
  *   - Les providers OAuth (Google, Apple) si configurés
  *   - Les events `signIn`/`signOut`/`signInError` qui logent dans
@@ -63,14 +63,12 @@ async function logAudit(
 export const authConfig: NextAuthConfig = {
   ...authConfigEdge,
   adapter,
-  // On bascule sur la stratégie « database » côté Node : sessions
-  // persistées dans la table `sessions` (révocation immédiate, audit
-  // IP/UA, cohérence RLS). Le middleware Edge utilise quand même JWT
-  // pour pouvoir lire la session sans Prisma.
   session: {
-    strategy: 'database',
-    maxAge: 60 * 60 * 24 * 30, // 30 jours
-    updateAge: 60 * 60 * 24, // refresh quotidien
+    // Credentials ne persiste pas la session en DB par défaut. On garde
+    // donc JWT et on force la révocation serveur via User.sessionVersion.
+    strategy: 'jwt',
+    maxAge: 60 * 60 * 24 * 30,
+    updateAge: 60 * 60 * 24,
   },
 
   providers: buildProviders(),
@@ -81,14 +79,17 @@ export const authConfig: NextAuthConfig = {
   // l'enum si nécessaire).
   events: {
     async signIn({ user, account }) {
-      await logAudit(AuditEventKind.AUTH_SIGNIN, user?.id ?? null, {
+      const actorId = typeof user.id === 'string' ? user.id : null;
+      await logAudit(AuditEventKind.AUTH_SIGNIN, actorId, {
         provider: account?.provider ?? 'credentials',
       });
     },
     async signOut(message) {
       const actorId =
         'session' in message
-          ? message.session?.userId ?? null
+          ? message.session
+            ? message.session.userId
+            : null
           : 'token' in message
             ? (message.token?.sub ?? null)
             : null;

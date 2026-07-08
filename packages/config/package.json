@@ -13,7 +13,7 @@
     "./eslint": "./eslint.config.js",
     "./prettier": "./prettier.config.js",
     "./tailwind": "./tailwind-config-base.js",
-    "./vitest": "./vitest.config.base.ts"
+    "./vitest": "./vitest.config.base.js"
   },
   "scripts": {
     "lint": "eslint . --max-warnings=0",

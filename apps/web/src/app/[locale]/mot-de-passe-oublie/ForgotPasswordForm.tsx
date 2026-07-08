@@ -11,7 +11,7 @@
 import { Alert, Button, FormField, Input } from '@eduquiz/ui';
 import { useState, useTransition } from 'react';
 
-import { requestPasswordReset } from '../../../../lib/auth/actions/forgot-password';
+import { requestPasswordReset } from '../../../lib/auth/actions/forgot-password';
 
 import type { JSX } from 'react';
 
@@ -29,6 +29,11 @@ export interface ForgotPasswordFormProps {
   readonly copy: ForgotPasswordFormCopy;
 }
 
+function formString(fd: FormData, key: string): string {
+  const value = fd.get(key);
+  return typeof value === 'string' ? value : '';
+}
+
 export function ForgotPasswordForm({ locale, copy }: ForgotPasswordFormProps): JSX.Element {
   const [pending, startTransition] = useTransition();
   const [sent, setSent] = useState(false);
@@ -38,7 +43,7 @@ export function ForgotPasswordForm({ locale, copy }: ForgotPasswordFormProps): J
     e.preventDefault();
     setError(null);
     const fd = new FormData(e.currentTarget);
-    const email = String(fd.get('email') ?? '');
+    const email = formString(fd, 'email');
     startTransition(async () => {
       const result = await requestPasswordReset({ locale, email });
       if (result.ok) {

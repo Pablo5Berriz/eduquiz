@@ -88,4 +88,5 @@ Livrables recommandés :
 
 Les documents de vision (`00` à `08`) peuvent décrire la cible, mais toute
 affirmation du type "livré", "terminé", "Phase complète" doit être vérifiée
-contre ce fichier. Si le code change le statut 
+contre ce fichier. Si le code change le statut réel d'un domaine, ce document
+doit être mis à jour dans la même PR.

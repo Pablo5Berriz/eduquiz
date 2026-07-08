@@ -27,20 +27,13 @@ import {
   isLocale,
   type Locale,
 } from '@eduquiz/i18n';
+import { NextResponse } from 'next/server';
 import NextAuth from 'next-auth';
-import { NextResponse, type NextRequest } from 'next/server';
 
 const LOCALE_COOKIE = 'NEXT_LOCALE';
 
 const PUBLIC_FILE = /\.[a-zA-Z0-9]+$/;
-const SKIP_PREFIXES = [
-  '/api',
-  '/_next',
-  '/static',
-  '/favicon.ico',
-  '/robots.txt',
-  '/sitemap.xml',
-];
+const SKIP_PREFIXES = ['/api', '/_next', '/static', '/favicon.ico', '/robots.txt', '/sitemap.xml'];
 
 export const config = {
   matcher: [
@@ -76,7 +69,7 @@ function generateRequestId(): string {
  * fournit `req.auth`. On l'enveloppe pour intercaler l'étape locale
  * avant la décision d'accès.
  */
-export default authMiddleware((request: NextRequest) => {
+export default authMiddleware((request) => {
   const { pathname } = request.nextUrl;
 
   // 0. Request ID. Si l'amont (Traefik, Cloudflare) en a déjà posé un,
@@ -94,10 +87,7 @@ export default authMiddleware((request: NextRequest) => {
   }
 
   // 1. Bypass des chemins techniques.
-  if (
-    SKIP_PREFIXES.some((p) => pathname.startsWith(p)) ||
-    PUBLIC_FILE.test(pathname)
-  ) {
+  if (SKIP_PREFIXES.some((p) => pathname.startsWith(p)) || PUBLIC_FILE.test(pathname)) {
     return passthrough();
   }
 

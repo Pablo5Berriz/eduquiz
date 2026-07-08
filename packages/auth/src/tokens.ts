@@ -25,13 +25,14 @@ import { randomBytes } from 'node:crypto';
 
 import { prisma } from '@eduquiz/db';
 
-export type TokenPurpose = 'verify-email' | 'reset-password' | 'magic-link';
+export type TokenPurpose = 'verify-email' | 'reset-password' | 'magic-link' | 'confirm-parent-link';
 
 /** Durées de vie par usage (en minutes). */
 const TTL_MINUTES: Record<TokenPurpose, number> = {
-  'verify-email': 60 * 24, // 24 h
-  'reset-password': 60, // 1 h
-  'magic-link': 15, // 15 min
+  'verify-email': 60 * 24,       // 24 h
+  'reset-password': 60,          // 1 h
+  'magic-link': 15,              // 15 min
+  'confirm-parent-link': 60 * 24, // 24 h — parent confirme le rattachement
 };
 
 export interface CreateTokenInput {
@@ -96,13 +97,14 @@ export async function consumeToken(token: string): Promise<ConsumedToken | null>
   // identifiers sans préfixe).
   const sep = deleted.identifier.indexOf(':');
   if (sep <= 0) return null;
-  const purpose = deleted.identifier.slice(0, sep) as TokenPurpose;
+  const purpose = deleted.identifier.slice(0, sep);
   const email = deleted.identifier.slice(sep + 1);
 
   if (
     purpose !== 'verify-email' &&
     purpose !== 'reset-password' &&
-    purpose !== 'magic-link'
+    purpose !== 'magic-link' &&
+    purpose !== 'confirm-parent-link'
   ) {
     return null;
   }

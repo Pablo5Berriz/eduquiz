@@ -1,5 +1,9 @@
 # Priorisation MoSCoW — EduQuiz Public
 
+> Les coches de ce document indiquent une priorité ou un rattachement de lot,
+> pas un statut livré. Pour l'état réel du dépôt, voir
+> [`09-implementation-status.md`](./09-implementation-status.md).
+
 La priorisation vise un **premier lancement utilisable** permettant de tester le
 marché, puis une extension progressive. MoSCoW répond à la question : « si je
 devais couper, que garderais-je ? ».

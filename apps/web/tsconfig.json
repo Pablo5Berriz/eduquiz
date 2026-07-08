@@ -1,14 +1,13 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@eduquiz/config/tsconfig-nextjs",
   "compilerOptions": {
     "baseUrl": ".",
     "ignoreDeprecations": "5.0",
+    "declaration": false,
+    "declarationMap": false,
     "rootDir": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "plugins": [{ "name": "next" }]
   },
-  "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", ".next", ".turbo", "dist"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }

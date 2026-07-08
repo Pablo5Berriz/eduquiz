@@ -7,23 +7,31 @@ Secondaire 5. Mode libre uniquement (B2C).
 
 Monorepo Turborepo + pnpm workspaces, Node 22 LTS, TypeScript strict.
 
-- **Phase 0** (scaffolding et fondations techniques) terminée le 2026-04-21.
-- **Phase 1** (vitrine publique + auth + espace authentifié + observabilité)
-  terminée le 2026-04-26 — tag [`v0.1.0`](./CHANGELOG.md).
+- **Phase 0** (scaffolding et fondations techniques) majoritairement livrée.
+- **Phase 1** est livrée partiellement : vitrine publique, auth adulte et
+  paramètres de compte existent, mais le produit pédagogique complet n'est pas
+  encore livré.
 
-État livré au tag `v0.1.0` :
+Le statut détaillé et à jour se trouve dans
+[`docs/09-implementation-status.md`](./docs/09-implementation-status.md).
 
-- Vitrine publique bilingue (38 écrans : home, fonctionnalités, 10 matières,
-  9 niveaux scolaires, tarifs, FAQ, blog, contact, pages légales)
+État actuellement utilisable :
+
+- Vitrine publique bilingue (38 écrans : home, fonctionnalités, 10 matières, 9
+  niveaux scolaires, tarifs, FAQ, blog, contact, pages légales)
 - Inscription adulte avec vérification d'email (Argon2id, OWASP 2024)
 - Connexion (Credentials + OAuth Google/Apple conditionnels), mot de passe
   oublié, réinitialisation
 - Espace authentifié : profil, édition profil, changement mot de passe,
-  paramètre langue, export Loi 25, suppression de compte (soft delete +
-  délai de grâce 30 jours)
-- Audit complet (`AuditLog` append-only) + RLS prêt + rate limiting Redis
+  paramètre langue, export Loi 25, suppression de compte (soft delete + délai de
+  grâce 30 jours)
+- Audit des actions principales (`AuditLog` append-only) + RLS préparé + rate
+  limiting Redis
 - Logger structuré JSONL + propagation `x-request-id` + healthcheck
   `/api/health` (app + DB)
+
+Non encore livré : moteur d'exercices, moteur de quiz, progression pédagogique,
+dashboard parent, flux mineur complet, Stripe, tests E2E web/mobile.
 
 ## Structure du monorepo
 

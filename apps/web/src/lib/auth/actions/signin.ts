@@ -103,4 +103,11 @@ export async function signInAdult(input: SignInAdultInput): Promise<SignInAdultR
       //   - email non vérifié (Credentials.authorize() retourne null)
       //   - compte désactivé (idem)
       // On ne distingue PAS côté UI (anti-énumération) — toujours
-      // « inv
+      // « invalidCredentials ». La vraie raison est tracée dans
+      // AuditLog par `logFailedSignIn` côté provider.
+      return { ok: false, code: 'invalidCredentials' };
+    }
+
+    return { ok: false, code: 'unknown' };
+  }
+}

@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 
 import { guardMinorParentLink, requireApiUser } from '../../../../../lib/auth/server';
 import { resolveLocaleParam, type LocaleRouteParams } from '../../../../../lib/i18n/locale';
-import { getPublishedQuizByActivityId } from '../../../../../lib/learning/catalog';
+import { getPublishedQuizForTakingByActivityId } from '../../../../../lib/learning/catalog';
 
 import { QuizForm } from './QuizForm';
 
@@ -25,7 +25,7 @@ export default async function QuizPage({
   const locale = resolveLocaleParam(params.locale);
   const user = await requireApiUser();
   await guardMinorParentLink(user, locale);
-  const quiz = await getPublishedQuizByActivityId(params.activityId, locale);
+  const quiz = await getPublishedQuizForTakingByActivityId(params.activityId, locale);
   if (!quiz) notFound();
 
   const messages = getMessages(locale);
@@ -52,9 +52,6 @@ export default async function QuizPage({
             {quiz.introduction}
           </p>
         ) : null}
-        <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">
-          {c('score')} : {quiz.passingScore ?? 0} %
-        </p>
       </header>
 
       <QuizForm
@@ -65,16 +62,15 @@ export default async function QuizPage({
           id: question.id,
           type: question.type,
           prompt: question.prompt,
-          points: question.points,
           answers: question.answers.map((answer) => ({
             id: answer.id,
             label: answer.label,
+            side: answer.side,
           })),
         }))}
         copy={{
           submit: c('submit'),
           submitting: c('submitting'),
-          points: c('points'),
           multiSelectHint: c('multiSelectHint'),
           fillBlankHint: c('fillBlankHint'),
           shortAnswerHint: c('shortAnswerHint'),

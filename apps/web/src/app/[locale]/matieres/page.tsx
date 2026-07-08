@@ -68,7 +68,6 @@ export default function SubjectsHubPage({
                   href={`/${locale}/matieres/${slug}`}
                   className="flex h-full flex-col focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={image}
                     alt={imageAlt}

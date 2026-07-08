@@ -14,6 +14,9 @@
  * Auth.js a besoin de Prisma et `argon2`, qui ne tournent pas sur Edge.
  */
 
-export { GET, POST } from '../../../../auth';
+// src/app/api/auth/[...nextauth]/route.ts
+import { handlers } from '../../../../auth';
+
+export const { GET, POST } = handlers;
 
 export const runtime = 'nodejs';

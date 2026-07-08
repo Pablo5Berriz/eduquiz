@@ -19,7 +19,7 @@ import { useState, useTransition } from 'react';
 import {
   requestAccountDeletion,
   type DeletionFieldErrorCode,
-} from '../../../../../../lib/auth/actions/account';
+} from '../../../../../lib/auth/actions/account';
 
 import type { JSX } from 'react';
 
@@ -40,6 +40,11 @@ export interface DeleteAccountFormProps {
   readonly copy: DeleteAccountFormCopy;
 }
 
+function formString(fd: FormData, key: string): string {
+  const value = fd.get(key);
+  return typeof value === 'string' ? value : '';
+}
+
 export function DeleteAccountForm({ locale, copy }: DeleteAccountFormProps): JSX.Element {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -51,15 +56,15 @@ export function DeleteAccountForm({ locale, copy }: DeleteAccountFormProps): JSX
     setErrors({});
     const fd = new FormData(e.currentTarget);
     const input = {
-      password: String(fd.get('password') ?? ''),
-      confirmText: String(fd.get('confirmText') ?? ''),
+      password: formString(fd, 'password'),
+      confirmText: formString(fd, 'confirmText'),
       expectedWord: copy.confirmWord,
     };
     startTransition(async () => {
       const result = await requestAccountDeletion(input);
       if (result.ok) {
         setDone(true);
-        setTimeout(() => router.push(`/${locale}/?disabled=1`), 1200);
+        setTimeout(() => { router.push(`/${locale}/?disabled=1`); }, 1200);
         return;
       }
       setErrors(result.fieldErrors as Record<string, DeletionFieldErrorCode>);
@@ -123,7 +128,7 @@ export function DeleteAccountForm({ locale, copy }: DeleteAccountFormProps): JSX
           type="button"
           variant="ghost"
           size="lg"
-          onClick={() => router.push(`/${locale}/parametres`)}
+          onClick={() => { router.push(`/${locale}/parametres`); }}
         >
           {copy.cancel}
         </Button>

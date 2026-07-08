@@ -37,6 +37,11 @@ export interface ResetPasswordFormProps {
   readonly copy: ResetPasswordFormCopy;
 }
 
+function formString(fd: FormData, key: string): string {
+  const value = fd.get(key);
+  return typeof value === 'string' ? value : '';
+}
+
 export function ResetPasswordForm({ locale, token, copy }: ResetPasswordFormProps): JSX.Element {
   const [pending, startTransition] = useTransition();
   const [done, setDone] = useState(false);
@@ -48,8 +53,8 @@ export function ResetPasswordForm({ locale, token, copy }: ResetPasswordFormProp
     const fd = new FormData(e.currentTarget);
     const input = {
       token,
-      newPassword: String(fd.get('newPassword') ?? ''),
-      confirmPassword: String(fd.get('confirmPassword') ?? ''),
+      newPassword: formString(fd, 'newPassword'),
+      confirmPassword: formString(fd, 'confirmPassword'),
     };
     startTransition(async () => {
       const result = await completePasswordReset(input);

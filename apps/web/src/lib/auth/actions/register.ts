@@ -21,13 +21,17 @@
 
 import { hashPassword } from '@eduquiz/auth/password';
 import { createToken } from '@eduquiz/auth/tokens';
-import { AuditEventKind, ConsentEventKind, Locale, UserRole, prisma } from '@eduquiz/db';
+import { AuditEventKind, ConsentEventKind, Locale, UserRole, prismaService as prisma } from '@eduquiz/db';
 import { buildVerificationEmail, sendEmail } from '@eduquiz/email';
 import { z } from 'zod';
 
 import { logger } from '../../logger';
 import { checkRateLimit, currentClientIp } from '../rate-limit-server';
 import { getCanonicalAuthUrl } from '../url';
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  TYPES COMMUNS
+// ─────────────────────────────────────────────────────────────────────────────
 
 /** Code champ → clé i18n d'erreur dans `auth.signup.adult.errors`. */
 export type SignupFieldErrorCode =
@@ -37,6 +41,19 @@ export type SignupFieldErrorCode =
   | 'passwordWeak'
   | 'birthDateInvalid'
   | 'notAdult'
+  | 'termsRequired'
+  | 'rateLimited'
+  | 'unknown';
+
+/** Code champ → clé i18n d'erreur dans `auth.signup.minor.errors`. */
+export type SignupMinorFieldErrorCode =
+  | 'emailInvalid'
+  | 'emailTaken'
+  | 'passwordTooShort'
+  | 'passwordWeak'
+  | 'birthDateInvalid'
+  | 'notMinor'
+  | 'tooYoung'
   | 'termsRequired'
   | 'rateLimited'
   | 'unknown';
@@ -211,6 +228,178 @@ export async function registerAdult(input: RegisterAdultInput): Promise<Register
     } catch {
       // L'email n'a pas pu partir : l'utilisateur pourra le redemander
       // depuis l'écran 22 via la Server Action `resendVerification`.
+    }
+
+    return { ok: true, email: user.email };
+  } catch {
+    return { ok: false, fieldErrors: { form: 'unknown' } };
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  INSCRIPTION MINEUR
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Server Action — inscription d'un compte élève mineur.
+ *
+ * Pipeline identique à `registerAdult`, à deux différences près :
+ *   - L'âge doit être strictement < 18 ans (erreur `notMinor` sinon).
+ *   - L'âge minimum est 6 ans (erreur `tooYoung` sinon).
+ *   - Le rôle créé est `LEARNER_MINOR`.
+ *   - Pas de `acceptMarketing` : les mineurs sont exclus du marketing
+ *     direct (Loi 25 / art. 17 LPrP).
+ *
+ * Après inscription, l'appelant redirige vers `/verification-email`.
+ * Le rattachement parent est géré séparément (Tâche 2.2).
+ */
+
+export interface RegisterMinorInput {
+  readonly locale: 'fr' | 'en';
+  readonly email: string;
+  readonly password: string;
+  readonly birthDate: string; // ISO date YYYY-MM-DD
+  readonly acceptTerms: boolean;
+}
+
+export type RegisterMinorResult =
+  | {
+      readonly ok: true;
+      readonly email: string;
+    }
+  | {
+      readonly ok: false;
+      readonly fieldErrors: Partial<Record<keyof RegisterMinorInput | 'form', SignupMinorFieldErrorCode>>;
+    };
+
+const minorInputSchema = z.object({
+  locale: z.enum(['fr', 'en']),
+  email: z.string().trim().toLowerCase().email().max(254),
+  password: z.string().min(8).max(512),
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  acceptTerms: z.literal(true),
+});
+
+export async function registerMinor(input: RegisterMinorInput): Promise<RegisterMinorResult> {
+  // 0. Rate limit IP.
+  const ip = currentClientIp();
+  const limited = await checkRateLimit({ bucket: 'register', key: ip });
+  if (!limited.allowed) {
+    logger.warn('auth.register_minor.rate_limited', { keyHash: limited.keyHash });
+    return { ok: false, fieldErrors: { form: 'rateLimited' } };
+  }
+
+  // 1. Validation Zod.
+  const parsed = minorInputSchema.safeParse(input);
+  if (!parsed.success) {
+    const fieldErrors: Partial<Record<keyof RegisterMinorInput | 'form', SignupMinorFieldErrorCode>> = {};
+    for (const issue of parsed.error.issues) {
+      const path = issue.path[0];
+      if (path === 'email') fieldErrors.email = 'emailInvalid';
+      else if (path === 'password') fieldErrors.password = 'passwordTooShort';
+      else if (path === 'birthDate') fieldErrors.birthDate = 'birthDateInvalid';
+      else if (path === 'acceptTerms') fieldErrors.acceptTerms = 'termsRequired';
+    }
+    return { ok: false, fieldErrors };
+  }
+  const data = parsed.data;
+
+  // 2a. Force complexité mot de passe.
+  if (!PASSWORD_STRENGTH.test(data.password)) {
+    return { ok: false, fieldErrors: { password: 'passwordWeak' } };
+  }
+
+  // 2b. Vérif âge : doit être entre 6 et 17 ans inclus.
+  const birthDateObj = new Date(`${data.birthDate}T00:00:00Z`);
+  if (Number.isNaN(birthDateObj.getTime())) {
+    return { ok: false, fieldErrors: { birthDate: 'birthDateInvalid' } };
+  }
+  const age = ageInYears(birthDateObj);
+  if (age >= 18) {
+    return { ok: false, fieldErrors: { birthDate: 'notMinor' } };
+  }
+  if (age < 6) {
+    return { ok: false, fieldErrors: { birthDate: 'tooYoung' } };
+  }
+
+  // 3. Anti-collision email.
+  const existing = await prisma.user.findUnique({
+    where: { email: data.email },
+    select: { id: true },
+  });
+  if (existing) {
+    return { ok: false, fieldErrors: { email: 'emailTaken' } };
+  }
+
+  try {
+    // 4. Hash + création User+Profile+ConsentRecord en transaction.
+    const passwordHash = await hashPassword(data.password);
+    const localeEnum = data.locale === 'en' ? Locale.EN : Locale.FR;
+    const now = new Date();
+
+    const user = await prisma.$transaction(async (tx) => {
+      const created = await tx.user.create({
+        data: {
+          email: data.email,
+          passwordHash,
+          role: UserRole.LEARNER_MINOR,
+          locale: localeEnum,
+          profile: {
+            create: {
+              firstName: '',
+              lastName: '',
+              birthDate: birthDateObj,
+              preferredLocale: localeEnum,
+              province: 'QC',
+            },
+          },
+          consentRecords: {
+            createMany: {
+              data: [
+                {
+                  kind: ConsentEventKind.TERMS_ACCEPTED,
+                  documentRef: 'CGU v1.0',
+                  recordedAt: now,
+                },
+                {
+                  kind: ConsentEventKind.PRIVACY_ACCEPTED,
+                  documentRef: 'Politique v1.0',
+                  recordedAt: now,
+                },
+                // Pas de consentement marketing : interdit pour les mineurs
+                // (Loi 25 / art. 17 LPrP — données personnelles des enfants).
+              ],
+            },
+          },
+        },
+        select: { id: true, email: true },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          kind: AuditEventKind.AUTH_USER_CREATED,
+          actorId: created.id,
+          targetId: created.id,
+          targetType: 'user',
+          payload: { provider: 'credentials', role: 'LEARNER_MINOR' } as never,
+        },
+      });
+
+      return created;
+    });
+
+    // 5. Token + email de vérification (best-effort).
+    const { token } = await createToken({ purpose: 'verify-email', email: user.email });
+
+    try {
+      const verifyUrl = getCanonicalAuthUrl(
+        `/${data.locale}/verification-email/confirme/${encodeURIComponent(token)}`,
+      );
+      await sendEmail(
+        buildVerificationEmail({ to: user.email, locale: localeEnum.toLowerCase() as 'fr' | 'en', verifyUrl }),
+      );
+    } catch {
+      // Best-effort : l'utilisateur pourra redemander depuis l'écran de vérification.
     }
 
     return { ok: true, email: user.email };

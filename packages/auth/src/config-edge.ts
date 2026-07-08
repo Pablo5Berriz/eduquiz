@@ -141,4 +141,21 @@ export const authConfigEdge: NextAuthConfig = {
       const zone = segments[1];
       const isProtected =
         zone === 'accueil' ||
-        zone === 'apprendre
+        zone === 'apprendre' ||
+        zone === 'quiz' ||
+        zone === 'parent' ||
+        zone === 'admin' ||
+        zone === 'profil' ||
+        zone === 'parametres';
+      if (!isProtected) return true;
+      if (!auth?.user) return false;
+      // Zone admin : exige rôle ADMIN.
+      if (zone === 'admin' && auth.user.role !== UserRole.ADMIN) return false;
+      // Zone parent : PARENT ou ADMIN.
+      if (zone === 'parent' && auth.user.role !== UserRole.PARENT && auth.user.role !== UserRole.ADMIN) {
+        return false;
+      }
+      return true;
+    },
+  },
+};

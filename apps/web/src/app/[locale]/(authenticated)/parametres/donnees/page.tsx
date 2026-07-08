@@ -10,10 +10,11 @@ import type { JSX } from 'react';
 /**
  * Écran 37 — Export de mes données (Loi 25).
  *
- * Le téléchargement passe par une Route Handler dédiée
- * (`/api/account/export`) qui renvoie un JSON immédiat avec
- * `Content-Disposition: attachment`. Pas de Server Action ici (les
- * Server Actions retournent du JSON sérialisable, pas un Blob).
+ * Deux boutons de téléchargement :
+ *   • JSON — données brutes, schéma versionné
+ *   • PDF  — document formaté, lisible sans outil technique
+ *
+ * Le téléchargement passe par `/api/account/export?format=json|pdf`.
  */
 
 export function generateMetadata({ params }: { params: LocaleRouteParams }): Metadata {
@@ -49,7 +50,10 @@ export default function DataExportPage({
         <ul className="mt-3 flex flex-col gap-1.5 text-sm text-slate-700 dark:text-slate-200">
           {(['profile', 'activity', 'consents', 'audit', 'requests'] as const).map((k) => (
             <li key={k} className="flex items-start gap-2">
-              <span aria-hidden="true" className="mt-1.5 inline-block h-1 w-1 shrink-0 rounded-full bg-emerald-600" />
+              <span
+                aria-hidden="true"
+                className="mt-1.5 inline-block h-1 w-1 shrink-0 rounded-full bg-emerald-600"
+              />
               <span>{t(messages, `account.dataExport.includes.${k}`)}</span>
             </li>
           ))}
@@ -60,21 +64,33 @@ export default function DataExportPage({
             {t(messages, 'account.dataExport.formatLabel')}
           </span>{' '}
           <span className="text-slate-600 dark:text-slate-300">
-            · {t(messages, 'account.dataExport.formatJson')}
+            · {t(messages, 'account.dataExport.formatJson')} ·{' '}
+            {t(messages, 'account.dataExport.formatPdf')}
           </span>
         </p>
 
-        <div className="mt-6">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          {/* JSON export */}
           <Link
-            href={`/api/account/export?locale=${locale}`}
+            href={`/api/account/export?locale=${locale}&format=json`}
             prefetch={false}
-            // Force un téléchargement plutôt qu'une navigation : la
-            // Route Handler renvoie `Content-Disposition: attachment`.
             download
             className="inline-flex"
           >
             <Button variant="primary" size="md">
-              {t(messages, 'account.dataExport.downloadCta')}
+              {t(messages, 'account.dataExport.downloadCtaJson')}
+            </Button>
+          </Link>
+
+          {/* PDF export */}
+          <Link
+            href={`/api/account/export?locale=${locale}&format=pdf`}
+            prefetch={false}
+            download
+            className="inline-flex"
+          >
+            <Button variant="secondary" size="md">
+              {t(messages, 'account.dataExport.downloadCtaPdf')}
             </Button>
           </Link>
         </div>

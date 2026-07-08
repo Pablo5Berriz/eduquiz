@@ -108,7 +108,10 @@ export default async function LessonPage({
         )}
       </section>
 
-      <section className="mt-6 rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+      <section
+        className="mt-6 rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
+        data-testid="lesson-exercise"
+      >
         <h2 className="text-lg font-semibold text-slate-950 dark:text-slate-50">{c('exercise')}</h2>
         {lesson.exercise ? (
           <ExercisePractice
@@ -135,7 +138,10 @@ export default async function LessonPage({
         )}
       </section>
 
-      <section className="mt-6 rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+      <section
+        className="mt-6 rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
+        data-testid="lesson-attempt-history"
+      >
         <h2 className="text-lg font-semibold text-slate-950 dark:text-slate-50">{c('history')}</h2>
         {attemptHistory.length > 0 ? (
           <ul className="mt-4 divide-y divide-slate-200 dark:divide-slate-800">
@@ -188,6 +194,7 @@ export default async function LessonPage({
           {lesson.quizActivityId ? (
             <Link
               href={`/${locale}/quiz/${lesson.quizActivityId}`}
+              data-testid="lesson-start-quiz"
               className="inline-flex items-center justify-center rounded-md bg-brand-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-800 focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500"
             >
               {c('startQuiz')}

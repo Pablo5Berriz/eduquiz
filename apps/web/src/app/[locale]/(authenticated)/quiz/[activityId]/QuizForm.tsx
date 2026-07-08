@@ -15,18 +15,16 @@ export interface QuizFormQuestion {
   readonly id: string;
   readonly type?: string;
   readonly prompt: string;
-  readonly points: number;
   readonly answers: readonly {
     readonly id: string;
     readonly label: string;
-    readonly pairId?: string | null;
+    readonly side?: 'left' | 'right' | null;
   }[];
 }
 
 export interface QuizFormCopy {
   readonly submit: string;
   readonly submitting: string;
-  readonly points: string;
   readonly multiSelectHint: string;
   readonly fillBlankHint: string;
   readonly shortAnswerHint: string;
@@ -65,8 +63,10 @@ export function QuizForm({
     const formData = new FormData(event.currentTarget);
 
     startTransition(async () => {
-      const nextResult = await submitQuizAttempt(formData);
-      setResult(nextResult);
+      const nextResult = (await submitQuizAttempt(formData)) as SubmitQuizResult | undefined;
+      if (nextResult) {
+        setResult(nextResult);
+      }
     });
   }
 
@@ -86,7 +86,7 @@ export function QuizForm({
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="mt-10 space-y-6">
+    <form onSubmit={onSubmit} noValidate className="mt-10 space-y-6" data-testid="quiz-form">
       <input type="hidden" name="activityId" value={activityId} />
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="startedAt" value={startedAt} />
@@ -111,14 +111,14 @@ export function QuizForm({
           <fieldset
             key={question.id}
             aria-invalid={hasError}
+            data-testid="quiz-question"
+            data-question-id={question.id}
+            data-question-type={question.type}
             className="rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
           >
             <legend className="text-lg font-semibold text-slate-950 dark:text-slate-50">
               {index + 1}. {question.prompt}
             </legend>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              {String(question.points)} {copy.points}
-            </p>
             {question.type === 'MCQ_MULTI' ? (
               <p className="mt-2 text-sm font-medium text-brand-700 dark:text-brand-300">
                 {copy.multiSelectHint}
@@ -156,6 +156,8 @@ export function QuizForm({
                       name={`matching:${question.id}:${leftAnswer.id}`}
                       defaultValue=""
                       aria-invalid={hasError}
+                      data-testid="quiz-matching-select"
+                      data-left-label={leftAnswer.label}
                       className="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                     >
                       <option value="">{copy.matchingSelectPlaceholder}</option>
@@ -209,6 +211,7 @@ export function QuizForm({
                       type={inputType}
                       name={`question:${question.id}`}
                       value={answer.id}
+                      data-testid="quiz-choice"
                       className="mt-1 h-4 w-4 border-slate-300 text-brand-700 focus:ring-brand-500"
                     />
                     <span>{answer.label}</span>
@@ -220,7 +223,7 @@ export function QuizForm({
         );
       })}
 
-      <Button type="submit" variant="primary" size="lg" isLoading={pending}>
+      <Button type="submit" variant="primary" size="lg" isLoading={pending} data-testid="quiz-submit">
         {pending ? copy.submitting : copy.submit}
       </Button>
     </form>
@@ -230,7 +233,7 @@ export function QuizForm({
 interface MatchingAnswerOption {
   readonly id: string;
   readonly label: string;
-  readonly pairId?: string | null;
+  readonly side?: 'left' | 'right' | null;
 }
 
 interface OrderingAnswerListProps {
@@ -253,6 +256,8 @@ function OrderingAnswerList({
       {answers.map((answer, index) => (
         <div
           key={answer.id}
+          data-testid="quiz-ordering-item"
+          data-answer-label={answer.label}
           className="grid gap-3 rounded-md border border-slate-200 p-4 text-sm text-slate-700 dark:border-slate-700 dark:text-slate-200 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
         >
           <input type="hidden" name={`ordering:${questionId}`} value={answer.id} />
@@ -261,6 +266,7 @@ function OrderingAnswerList({
             <button
               type="button"
               disabled={index === 0}
+              data-testid="quiz-ordering-move-up"
               onClick={() => {
                 onMove(index, -1);
               }}
@@ -271,6 +277,7 @@ function OrderingAnswerList({
             <button
               type="button"
               disabled={index === answers.length - 1}
+              data-testid="quiz-ordering-move-down"
               onClick={() => {
                 onMove(index, 1);
               }}
@@ -289,14 +296,8 @@ function getMatchingAnswerGroups(answers: readonly MatchingAnswerOption[]): {
   readonly leftAnswers: readonly MatchingAnswerOption[];
   readonly rightAnswers: readonly MatchingAnswerOption[];
 } {
-  const leftAnswers = answers.filter(
-    (answer) => typeof answer.pairId === 'string' && answer.pairId.length > 0,
-  );
-  const answersById = new Map(answers.map((answer) => [answer.id, answer]));
-  const rightAnswerIds = Array.from(new Set(leftAnswers.map((answer) => answer.pairId ?? '')));
-  const rightAnswers = rightAnswerIds.map(
-    (answerId) => answersById.get(answerId) ?? { id: answerId, label: answerId },
-  );
+  const leftAnswers = answers.filter((answer) => answer.side === 'left');
+  const rightAnswers = answers.filter((answer) => answer.side === 'right');
 
   return { leftAnswers, rightAnswers };
 }
@@ -329,9 +330,11 @@ function moveAnswerId(
   if (targetIndex < 0 || targetIndex >= answerIds.length) return answerIds;
 
   const nextAnswerIds = [...answerIds];
-  [nextAnswerIds[index], nextAnswerIds[targetIndex]] = [
-    nextAnswerIds[targetIndex],
-    nextAnswerIds[index],
-  ];
+  const currentAnswerId = nextAnswerIds[index];
+  const targetAnswerId = nextAnswerIds[targetIndex];
+  if (currentAnswerId === undefined || targetAnswerId === undefined) return answerIds;
+
+  nextAnswerIds[index] = targetAnswerId;
+  nextAnswerIds[targetIndex] = currentAnswerId;
   return nextAnswerIds;
 }

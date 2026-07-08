@@ -3,7 +3,7 @@ import { Button, Container } from '@eduquiz/ui';
 import Link from 'next/link';
 
 import { confirmVerification } from '../../../../../lib/auth/actions/verify-email';
-import { resolveLocaleParam, type LocaleRouteParams } from '../../../../../lib/i18n/locale';
+import { resolveLocaleParam } from '../../../../../lib/i18n/locale';
 
 import type { Metadata } from 'next';
 import type { JSX } from 'react';

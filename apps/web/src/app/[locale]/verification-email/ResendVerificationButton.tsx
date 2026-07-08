@@ -37,8 +37,8 @@ export function ResendVerificationButton({
 
   useEffect(() => {
     if (cooldown <= 0) return;
-    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
-    return () => clearTimeout(t);
+    const t = setTimeout(() => { setCooldown((c) => c - 1); }, 1000);
+    return () => { clearTimeout(t); };
   }, [cooldown]);
 
   function onClick(): void {
@@ -47,7 +47,7 @@ export function ResendVerificationButton({
       setSuccess(true);
       setCooldown(COOLDOWN_SECONDS);
       // Le succès s'efface après le cooldown.
-      setTimeout(() => setSuccess(false), COOLDOWN_SECONDS * 1000);
+      setTimeout(() => { setSuccess(false); }, COOLDOWN_SECONDS * 1000);
     });
   }
 

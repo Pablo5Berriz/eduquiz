@@ -72,6 +72,7 @@ export default function DeleteAccountPage({
               passwordRequired: t(messages, 'account.deletion.errors.passwordRequired'),
               passwordInvalid: t(messages, 'account.deletion.errors.passwordInvalid'),
               mustTypeWord: t(messages, 'account.deletion.errors.mustTypeWord'),
+              rateLimited: t(messages, 'account.deletion.errors.rateLimited'),
               unknown: t(messages, 'account.deletion.errors.unknown'),
             },
           }}

@@ -26,11 +26,7 @@ vi.mock('@eduquiz/db', () => ({
     MARKETING_OPTED_IN: 'MARKETING_OPTED_IN',
   },
   Locale: { EN: 'EN', FR: 'FR' },
-  UserRole: { LEARNER_ADULT: 'LEARNER_ADULT' },
-  prisma: {
-    user: { findUnique: vi.fn() },
-    $transaction: vi.fn(),
-  },
+  UserRole: { LEARNER_ADULT: 'LEARNER_ADULT', LEARNER_MINOR: 'LEARNER_MINOR' },
   prismaService: {
     user: { findUnique: vi.fn() },
     $transaction: vi.fn(),
@@ -50,7 +46,7 @@ vi.mock('../url', () => ({
   getCanonicalAuthUrl: vi.fn((path: string) => `https://example.test${path}`),
 }));
 
-import { registerAdult } from './register';
+import { registerAdult, registerMinor } from './register';
 
 describe('register rate limiting', () => {
   beforeEach(() => {
@@ -71,6 +67,19 @@ describe('register rate limiting', () => {
     expect(result).toEqual({ ok: false, fieldErrors: { form: 'rateLimited' } });
     expect(mockWarn).toHaveBeenCalledWith('auth.register.rate_limited', { keyHash: 'abc123def456' });
     expect(JSON.stringify(mockWarn.mock.calls)).not.toContain('203.0.113.10');
-    expect(JSON.stringify(mockWarn.mock.calls)).not.toContain('adult@example.com');
+  });
+
+  it("bloque l'inscription mineur et loggue uniquement keyHash", async () => {
+    const result = await registerMinor({
+      locale: 'fr',
+      email: 'minor@example.com',
+      password: 'Password123',
+      birthDate: '2015-01-01',
+      acceptTerms: true,
+    });
+
+    expect(result).toEqual({ ok: false, fieldErrors: { form: 'rateLimited' } });
+    expect(mockWarn).toHaveBeenCalledWith('auth.register_minor.rate_limited', { keyHash: 'abc123def456' });
+    expect(JSON.stringify(mockWarn.mock.calls)).not.toContain('203.0.113.10');
   });
 });

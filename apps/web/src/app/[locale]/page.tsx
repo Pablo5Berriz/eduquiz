@@ -1,42 +1,27 @@
+import { prisma } from '@eduquiz/db';
 import { getMessages, t, tList } from '@eduquiz/i18n';
-import { Button, Card, Container, SectionHeading, cn } from '@eduquiz/ui';
+import { Button, Container, SectionHeading, cn } from '@eduquiz/ui';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
-import {
-  SCHOOL_LEVEL_KEYS,
-  getSchoolLevelSlug,
-} from '../../lib/catalog/levels';
+import { SCHOOL_LEVEL_KEYS, getSchoolLevelSlug } from '../../lib/catalog/levels';
 import { SUBJECT_KEYS, getSubjectSlug } from '../../lib/catalog/subjects';
+import { getCurrentUser } from '../../lib/auth/server';
 import { resolveLocaleParam, type LocaleRouteParams } from '../../lib/i18n/locale';
 
 import type { JSX } from 'react';
 
-/**
- * Page d'accueil bilingue d'EduQuiz — écran 1 de la vitrine publique.
- *
- * Sections (toutes en server components, aucune dépendance client) :
- *   1. Hero : kicker + titre + sous-titre + double CTA.
- *   2. Trust strip : quatre signes de confiance (PFEQ, hébergement,
- *      Loi 25, bilingue).
- *   3. Features teaser : trois piliers, carte cliquable vers la page
- *      Fonctionnalités pour aller plus loin.
- *   4. School levels : neuf niveaux scolaires (mini-cards avec âge
- *      propice) → page détail `/[locale]/niveaux/[level]`.
- *   5. Subjects teaser : dix matières, grille 2×2 sur mobile, 5 col
- *      sur desktop.
- *   6. How it works : trois étapes numérotées.
- *   7. Pricing teaser : mention du plan gratuit + redirection vers la
- *      page Tarifs.
- *   8. Final CTA : encart avec double appel à l'action.
- *
- * On privilégie une structure `<section aria-labelledby="…">` propre et
- * des landmarks clairs (un `<h1>` unique, `<h2>` par section).
- */
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Static copy (public marketing page — double quotes for FR apostrophes)
+// ─────────────────────────────────────────────────────────────────────────────
 
 const FEATURE_ITEMS = [
-  { titleKey: 'home.features.item1Title', descKey: 'home.features.item1Description' },
-  { titleKey: 'home.features.item2Title', descKey: 'home.features.item2Description' },
-  { titleKey: 'home.features.item3Title', descKey: 'home.features.item3Description' },
+  { titleKey: 'home.features.item1Title', descKey: 'home.features.item1Description', accent: 'success' },
+  { titleKey: 'home.features.item2Title', descKey: 'home.features.item2Description', accent: 'brand' },
+  { titleKey: 'home.features.item3Title', descKey: 'home.features.item3Description', accent: 'warning' },
 ] as const;
 
 const STEP_ITEMS = [
@@ -45,307 +30,335 @@ const STEP_ITEMS = [
   { titleKey: 'home.howItWorks.step3Title', descKey: 'home.howItWorks.step3Description' },
 ] as const;
 
-export default function LocalizedHomePage({
+const HOME_COPY = {
+  fr: {
+    heroTitle: "Réviser le programme du Québec sans perdre le fil.",
+    heroSubtitle:
+      "EduQuiz transforme les matières de P3 à S5 en parcours clairs : exercices courts, quiz au bon niveau et progression lisible pour l'élève comme pour le parent.",
+    proofItems: ['P3 à S5', 'FR/EN', 'sans carte de crédit'],
+    preview: {
+      label: 'Aperçu élève',
+      subject: 'Mathématiques',
+      level: 'Secondaire 1',
+      question: 'Quel pourcentage représente 18 sur 24 ?',
+      answerA: '65 %',
+      answerB: '75 %',
+      answerC: '80 %',
+      feedback: 'Bonne réponse. La compétence "proportions" progresse.',
+      mastery: 'Maîtrise',
+      next: 'Prochaine action',
+      nextValue: 'Réviser les fractions équivalentes',
+    },
+    trustNote:
+      "Des repères concrets avant les promesses : niveau scolaire, langue, confidentialité et démarrage gratuit.",
+    product: {
+      kicker: 'Le produit, pas seulement la promesse',
+      title: "L'élève pratique, le parent comprend quoi faire ensuite",
+      description:
+        "La page d'accueil montre ce que l'utilisateur gagne. L'expérience est pensée autour de deux vues : action immédiate pour l'élève, lecture rapide pour le parent.",
+      learnerTitle: 'Vue élève',
+      learnerBody: 'Question courte, rétroaction immédiate, progression par compétence.',
+      parentTitle: 'Vue parent',
+      parentBody: 'Résumé clair des forces, des blocages et de la prochaine révision utile.',
+      learnerStats: ['12 min', '4 quiz', '+8 %'],
+      parentStats: ['À consolider', 'Proportions', 'Cette semaine'],
+    },
+    levelsIntro: 'Primaire',
+    levelsOutro: 'Secondaire',
+    finalTitle: 'Commencer petit, mesurer vite, progresser vraiment.',
+    finalDescription:
+      "Le premier objectif n'est pas de tout faire. C'est de lancer une session utile, voir le niveau réel, puis savoir quoi travailler ensuite.",
+  },
+  en: {
+    heroTitle: 'Review the Quebec curriculum without losing the thread.',
+    heroSubtitle:
+      'EduQuiz turns Grade 3 to Secondary 5 subjects into clear pathways: short exercises, right-level quizzes, and progress both students and parents can read.',
+    proofItems: ['Grade 3 to Sec. 5', 'FR/EN', 'no credit card'],
+    preview: {
+      label: 'Student preview',
+      subject: 'Mathematics',
+      level: 'Secondary 1',
+      question: 'What percentage is 18 out of 24?',
+      answerA: '65%',
+      answerB: '75%',
+      answerC: '80%',
+      feedback: 'Correct. The "proportions" skill is improving.',
+      mastery: 'Mastery',
+      next: 'Next action',
+      nextValue: 'Review equivalent fractions',
+    },
+    trustNote:
+      'Concrete signals before big claims: school level, language, privacy, and a free start.',
+    product: {
+      kicker: 'The product, not just the promise',
+      title: 'Students practise, parents know what to do next',
+      description:
+        'The home page shows the user what they gain. This experience is built around two views: immediate action for the student, quick clarity for the parent.',
+      learnerTitle: 'Student view',
+      learnerBody: 'Short question, instant feedback, skill-by-skill progress.',
+      parentTitle: 'Parent view',
+      parentBody: 'A clear summary of strengths, blockers, and the next useful review.',
+      learnerStats: ['12 min', '4 quizzes', '+8%'],
+      parentStats: ['Needs work', 'Proportions', 'This week'],
+    },
+    levelsIntro: 'Primary',
+    levelsOutro: 'Secondary',
+    finalTitle: 'Start small, measure quickly, make real progress.',
+    finalDescription:
+      'The first goal is not to do everything. It is to launch one useful session, see the real level, then know what to work on next.',
+  },
+} as const;
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Sub-components (public page only)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function ProductPreview({ locale }: { readonly locale: 'fr' | 'en' }): JSX.Element {
+  const copy = HOME_COPY[locale].preview;
+  return (
+    <div className="relative mx-auto w-full max-w-xl">
+      <div aria-hidden="true" className="absolute -inset-4 rounded-2xl bg-brand-100/70 blur-2xl dark:bg-brand-900/30" />
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950">
+        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-4 dark:border-slate-800 dark:bg-slate-900">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700 dark:text-brand-300">{copy.label}</p>
+            <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">{copy.subject} · {copy.level}</p>
+          </div>
+          <div className="rounded-lg bg-white px-3 py-2 text-right text-xs shadow-sm ring-1 ring-slate-200 dark:bg-slate-950 dark:ring-slate-800">
+            <p className="font-semibold text-slate-900 dark:text-slate-100">76%</p>
+            <p className="text-slate-500 dark:text-slate-400">{copy.mastery}</p>
+          </div>
+        </div>
+        <div className="grid gap-5 p-5 sm:p-6">
+          <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-4 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+              <div className="h-full w-3/4 rounded-full bg-success-500" />
+            </div>
+            <h2 className="text-base font-semibold text-slate-950 dark:text-slate-50">{copy.question}</h2>
+            <div className="mt-4 grid gap-2">
+              {[copy.answerA, copy.answerB, copy.answerC].map((answer) => (
+                <div key={answer} className={cn('rounded-lg border px-4 py-3 text-sm font-medium', answer === copy.answerB ? 'border-success-500 bg-success-50 text-success-700' : 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300')}>
+                  {answer}
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 rounded-lg bg-success-50 px-4 py-3 text-sm text-success-700 dark:bg-success-500/10 dark:text-success-500">{copy.feedback}</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-[1fr_1.2fr]">
+            <div className="rounded-xl bg-slate-950 p-4 text-white dark:bg-slate-100 dark:text-slate-950">
+              <p className="text-xs uppercase tracking-[0.16em] text-slate-300 dark:text-slate-600">{copy.next}</p>
+              <p className="mt-2 text-sm font-semibold">{copy.nextValue}</p>
+            </div>
+            <div className="rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+              <div className="flex items-end justify-between gap-3">
+                {[42, 64, 76].map((value) => (
+                  <div key={value} className="flex flex-1 flex-col items-center gap-2">
+                    <div className="flex h-20 w-full items-end rounded-md bg-slate-100 dark:bg-slate-800">
+                      <div className="w-full rounded-md bg-brand-500" style={{ height: `${String(value)}%` }} />
+                    </div>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{String(value)}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Page entry point
+// ─────────────────────────────────────────────────────────────────────────────
+
+export default async function LocalizedHomePage({
   params,
 }: {
   readonly params: LocaleRouteParams;
-}): JSX.Element {
+}): Promise<JSX.Element> {
   const locale = resolveLocaleParam(params.locale);
+  const user = await getCurrentUser();
+
+  // ── Authenticated — rediriger vers le tableau de bord ou l'onboarding ───────
+  if (user) {
+    const profile = await prisma.profile.findUnique({
+      where: { userId: user.id },
+      select: { firstName: true },
+    });
+
+    // Nouveau profil sans prénom → onboarding
+    if (!profile?.firstName || profile.firstName.trim() === '') {
+      redirect(`/${locale}/profil/modifier?welcome=1`);
+    }
+
+    // Profil complet → tableau de bord dédié
+    redirect(`/${locale}/accueil`);
+  }
+
+  // ── Public / visitor ──────────────────────────────────────────────────────
   const messages = getMessages(locale);
+  const copy = HOME_COPY[locale];
   const trustItems = tList(messages, 'home.trust.items');
 
   return (
     <>
-      {/* 1. Hero */}
-      <section aria-labelledby="home-hero-title" className="relative overflow-hidden">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-gradient-to-b from-brand-50 via-white to-white dark:from-brand-950/40 dark:via-slate-950 dark:to-slate-950"
-        />
-        <Container width="lg" className="relative py-20 sm:py-28">
-          <div className="flex flex-col items-center gap-6 text-center">
-            <span
-              className={cn(
-                'rounded-full border border-brand-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-brand-700',
-                'dark:border-brand-800 dark:bg-slate-900 dark:text-brand-300',
-              )}
-            >
-              {t(messages, 'home.heroKicker')}
-            </span>
-
-            <h1
-              id="home-hero-title"
-              className="text-balance text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl"
-            >
-              {t(messages, 'home.heroTitle')}
-            </h1>
-
-            <p className="max-w-2xl text-balance text-lg text-slate-600 dark:text-slate-300">
-              {t(messages, 'home.heroSubtitle')}
-            </p>
-
-            <div className="mt-2 flex flex-col gap-3 sm:flex-row">
-              <Link href={`/${locale}/inscription`} className="inline-flex">
-                <Button variant="primary" size="lg">
-                  {t(messages, 'home.ctaPrimary')}
-                </Button>
-              </Link>
-
-              <Link href={`/${locale}/matieres`} className="inline-flex">
-                <Button variant="secondary" size="lg">
-                  {t(messages, 'home.ctaSecondary')}
-                </Button>
-              </Link>
+      <section aria-labelledby="home-hero-title" className="relative overflow-hidden border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950">
+        <div className="absolute inset-x-0 top-0 h-32 bg-white dark:bg-slate-950" aria-hidden="true" />
+        <Container width="xl" className="relative grid gap-12 py-16 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:py-20">
+          <div className="max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700 dark:text-brand-300">{t(messages, 'home.heroKicker')}</p>
+            <h1 id="home-hero-title" className="mt-5 text-balance text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl dark:text-slate-50">{copy.heroTitle}</h1>
+            <p className="mt-5 max-w-xl text-pretty text-lg text-slate-600 dark:text-slate-300">{copy.heroSubtitle}</p>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <Link href={`/${locale}/inscription`} className="inline-flex"><Button variant="primary" size="lg">{t(messages, 'home.ctaPrimary')}</Button></Link>
+              <Link href={`/${locale}/matieres`} className="inline-flex"><Button variant="secondary" size="lg">{t(messages, 'home.ctaSecondary')}</Button></Link>
             </div>
+            <ul className="mt-6 flex flex-wrap gap-2">
+              {copy.proofItems.map((item) => (
+                <li key={item} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">{item}</li>
+              ))}
+            </ul>
           </div>
+          <ProductPreview locale={locale} />
         </Container>
       </section>
 
-      {/* 2. Trust strip */}
-      <section
-        aria-label={t(messages, 'home.trust.title')}
-        className="border-y border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950"
-      >
-        <Container width="lg" className="py-6">
-          <p className="sr-only">{t(messages, 'home.trust.title')}</p>
-          <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm font-medium text-slate-600 dark:text-slate-300">
+      <section aria-label={t(messages, 'home.trust.title')} className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+        <Container width="xl" className="grid gap-5 py-6 lg:grid-cols-[1fr_2fr] lg:items-center">
+          <p className="max-w-md text-sm text-slate-600 dark:text-slate-300">{copy.trustNote}</p>
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {trustItems.map((item) => (
-              <li key={item} className="flex items-center gap-2">
-                <span
-                  aria-hidden="true"
-                  className="inline-block h-1.5 w-1.5 rounded-full bg-brand-500"
-                />
-                {item}
+              <li key={item} className="rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 dark:border-slate-800 dark:text-slate-100">
+                <span className="mr-2 inline-block h-2 w-2 rounded-full bg-success-500" aria-hidden="true" />{item}
               </li>
             ))}
           </ul>
         </Container>
       </section>
 
-      {/* 3. Features teaser */}
-      <section aria-labelledby="home-features-title">
-        <Container width="lg" className="py-20">
-          <SectionHeading
-            kicker={t(messages, 'home.features.kicker')}
-            title={<span id="home-features-title">{t(messages, 'home.features.title')}</span>}
-            description={t(messages, 'home.features.description')}
-            align="center"
-            className="mx-auto max-w-3xl"
-          />
+      <section aria-labelledby="home-product-title">
+        <Container width="xl" className="py-20">
+          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+            <SectionHeading kicker={copy.product.kicker} title={<span id="home-product-title">{copy.product.title}</span>} description={copy.product.description} />
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div className="mb-5 inline-flex rounded-lg bg-success-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-success-700">{copy.product.learnerTitle}</div>
+                <p className="text-base font-semibold text-slate-950 dark:text-slate-50">{copy.product.learnerBody}</p>
+                <div className="mt-6 grid grid-cols-3 gap-2">
+                  {copy.product.learnerStats.map((stat) => (
+                    <div key={stat} className="rounded-lg bg-slate-50 px-3 py-4 text-center text-sm font-bold text-slate-900 dark:bg-slate-950 dark:text-slate-100">{stat}</div>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-950 p-6 text-white shadow-sm dark:border-slate-800">
+                <div className="mb-5 inline-flex rounded-lg bg-warning-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-warning-500">{copy.product.parentTitle}</div>
+                <p className="text-base font-semibold">{copy.product.parentBody}</p>
+                <div className="mt-6 grid gap-2">
+                  {copy.product.parentStats.map((stat) => (
+                    <div key={stat} className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold">{stat}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
 
-          <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <section aria-labelledby="home-features-title" className="border-y border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/40">
+        <Container width="xl" className="py-20">
+          <SectionHeading kicker={t(messages, 'home.features.kicker')} title={<span id="home-features-title">{t(messages, 'home.features.title')}</span>} description={t(messages, 'home.features.description')} align="center" className="mx-auto max-w-3xl" />
+          <ul className="mt-12 grid gap-4 lg:grid-cols-3">
             {FEATURE_ITEMS.map((feature) => (
-              <Card as="li" key={feature.titleKey} variant="surface">
-                <h3 className="text-lg font-semibold">{t(messages, feature.titleKey)}</h3>
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                  {t(messages, feature.descKey)}
-                </p>
-              </Card>
+              <li key={feature.titleKey} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <div className={cn('mb-5 h-2 w-16 rounded-full', feature.accent === 'success' && 'bg-success-500', feature.accent === 'brand' && 'bg-brand-500', feature.accent === 'warning' && 'bg-warning-500')} aria-hidden="true" />
+                <h3 className="text-lg font-semibold text-slate-950 dark:text-slate-50">{t(messages, feature.titleKey)}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{t(messages, feature.descKey)}</p>
+              </li>
             ))}
           </ul>
-
-          <p className="mt-8 text-center">
-            <Link
-              href={`/${locale}/fonctionnalites`}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500 dark:text-brand-300 dark:hover:text-brand-200"
-            >
-              {t(messages, 'home.features.cta')}
-              <span aria-hidden="true">→</span>
-            </Link>
-          </p>
         </Container>
       </section>
 
-      {/* 4. School levels teaser */}
       <section aria-labelledby="home-levels-title">
-        <Container width="lg" className="py-20">
-          <SectionHeading
-            kicker={t(messages, 'home.levels.kicker')}
-            title={<span id="home-levels-title">{t(messages, 'home.levels.title')}</span>}
-            description={t(messages, 'home.levels.description')}
-            align="center"
-            className="mx-auto max-w-3xl"
-          />
-
-          <ul className="mt-12 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
-            {SCHOOL_LEVEL_KEYS.map((key) => {
-              const slug = getSchoolLevelSlug(messages, key);
-              const title = t(messages, `levels.list.${key}.title`);
-              const age = t(messages, `levels.list.${key}.age`);
-              return (
-                <li
-                  key={key}
-                  className="rounded-xl border border-slate-200 bg-white shadow-sm transition-colors hover:border-brand-300 hover:bg-brand-50/40 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-700 dark:hover:bg-brand-950/30"
-                >
-                  <Link
-                    href={`/${locale}/niveaux/${slug}`}
-                    className="flex items-center justify-between gap-4 p-4 focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500"
-                  >
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                        {title}
-                      </span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400">
-                        {age}
-                      </span>
-                    </div>
-                    <span
-                      aria-hidden="true"
-                      className="text-brand-600 dark:text-brand-300"
-                    >
-                      →
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+        <Container width="xl" className="py-20">
+          <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
+            <SectionHeading kicker={t(messages, 'home.levels.kicker')} title={<span id="home-levels-title">{t(messages, 'home.levels.title')}</span>} description={t(messages, 'home.levels.description')} />
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+              <div className="mb-4 flex items-center justify-between px-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                <span>{copy.levelsIntro}</span><span>{copy.levelsOutro}</span>
+              </div>
+              <ul className="grid gap-2 sm:grid-cols-3">
+                {SCHOOL_LEVEL_KEYS.map((key) => {
+                  const slug = getSchoolLevelSlug(messages, key);
+                  return (
+                    <li key={key}>
+                      <Link href={`/${locale}/niveaux/${slug}`} className="group flex min-h-20 flex-col justify-between rounded-xl border border-slate-200 bg-slate-50 p-4 transition-colors hover:border-brand-300 hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-700 dark:hover:bg-brand-950/30">
+                        <span className="text-sm font-semibold text-slate-950 dark:text-slate-50">{t(messages, `levels.list.${key}.title`)}</span>
+                        <span className="mt-2 text-xs text-slate-500 dark:text-slate-400">{t(messages, `levels.list.${key}.age`)}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
         </Container>
       </section>
 
-      {/* 5. Subjects teaser */}
-      <section
-        aria-labelledby="home-subjects-title"
-        className="bg-slate-50 dark:bg-slate-900/40"
-      >
-        <Container width="lg" className="py-20">
-          <SectionHeading
-            kicker={t(messages, 'home.subjects.kicker')}
-            title={<span id="home-subjects-title">{t(messages, 'home.subjects.title')}</span>}
-            description={t(messages, 'home.subjects.description')}
-            align="center"
-            className="mx-auto max-w-3xl"
-          />
-
+      <section aria-labelledby="home-subjects-title" className="bg-slate-950 text-white">
+        <Container width="xl" className="py-20">
+          <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
+            <SectionHeading kicker={t(messages, 'home.subjects.kicker')} title={<span id="home-subjects-title">{t(messages, 'home.subjects.title')}</span>} description={t(messages, 'home.subjects.description')} className="[&_*]:text-white [&_p:last-child]:text-slate-300" />
+            <p className="lg:text-right">
+              <Link href={`/${locale}/matieres`} className="inline-flex rounded-lg border border-white/15 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-300">{t(messages, 'home.subjects.cta')}</Link>
+            </p>
+          </div>
           <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {SUBJECT_KEYS.map((key) => {
               const slug = getSubjectSlug(messages, key);
               const title = t(messages, `subjects.list.${key}.title`);
-              const levels = t(messages, `subjects.list.${key}.levels`);
               const image = t(messages, `subjects.list.${key}.image`);
-              const imageAlt = `${t(messages, 'subjects.detail.imageAlt')} — ${title}`;
               return (
-                <li
-                  key={key}
-                  className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-colors hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
-                >
-                  <Link
-                    href={`/${locale}/matieres/${slug}`}
-                    className="flex h-full flex-col focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={image}
-                      alt={imageAlt}
-                      className="h-28 w-full object-cover"
-                      loading="lazy"
-                      decoding="async"
-                    />
+                <li key={key} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition-colors hover:bg-white/[0.07]">
+                  <Link href={`/${locale}/matieres/${slug}`} className="flex h-full flex-col focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-300">
+                    <div className="bg-white p-4"><img src={image} alt={title} className="h-24 w-full object-contain" loading="lazy" decoding="async" /></div>
                     <div className="flex h-full flex-col gap-1 p-4">
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                        {title}
-                      </h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{levels}</p>
+                      <h3 className="text-sm font-semibold text-white">{title}</h3>
+                      <p className="text-xs text-slate-300">{t(messages, `subjects.list.${key}.levels`)}</p>
                     </div>
                   </Link>
                 </li>
               );
             })}
           </ul>
-
-          <p className="mt-8 text-center">
-            <Link
-              href={`/${locale}/matieres`}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:text-brand-800 focus-visible:outline-none focus-visible:ring-focus focus-visible:ring-brand-500 dark:text-brand-300 dark:hover:text-brand-200"
-            >
-              {t(messages, 'home.subjects.cta')}
-              <span aria-hidden="true">→</span>
-            </Link>
-          </p>
         </Container>
       </section>
 
-      {/* 6. How it works */}
       <section aria-labelledby="home-how-title">
-        <Container width="lg" className="py-20">
-          <SectionHeading
-            kicker={t(messages, 'home.howItWorks.kicker')}
-            title={<span id="home-how-title">{t(messages, 'home.howItWorks.title')}</span>}
-            align="center"
-            className="mx-auto max-w-3xl"
-          />
-
-          <ol className="mt-12 grid gap-6 sm:grid-cols-3">
+        <Container width="xl" className="py-20">
+          <SectionHeading kicker={t(messages, 'home.howItWorks.kicker')} title={<span id="home-how-title">{t(messages, 'home.howItWorks.title')}</span>} align="center" className="mx-auto max-w-3xl" />
+          <ol className="mt-12 grid gap-4 lg:grid-cols-3">
             {STEP_ITEMS.map((step, index) => (
-              <li key={step.titleKey} className="relative pl-12">
-                <span
-                  aria-hidden="true"
-                  className="absolute left-0 top-0 inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white"
-                >
-                  {index + 1}
-                </span>
-                <h3 className="text-base font-semibold">{t(messages, step.titleKey)}</h3>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                  {t(messages, step.descKey)}
-                </p>
+              <li key={step.titleKey} className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-950">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">{index + 1}</span>
+                <h3 className="mt-5 text-base font-semibold text-slate-950 dark:text-slate-50">{t(messages, step.titleKey)}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{t(messages, step.descKey)}</p>
               </li>
             ))}
           </ol>
         </Container>
       </section>
 
-      {/* 7. Pricing teaser */}
-      <section
-        aria-labelledby="home-pricing-title"
-        className="bg-slate-50 dark:bg-slate-900/40"
-      >
-        <Container width="lg" className="py-20">
-          <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
-            <SectionHeading
-              kicker={t(messages, 'home.pricingTeaser.kicker')}
-              title={
-                <span id="home-pricing-title">
-                  {t(messages, 'home.pricingTeaser.title')}
-                </span>
-              }
-              description={t(messages, 'home.pricingTeaser.description')}
-              align="center"
-            />
-            <Link href={`/${locale}/tarifs`} className="mt-2 inline-flex">
-              <Button variant="primary" size="md">
-                {t(messages, 'home.pricingTeaser.cta')}
-              </Button>
-            </Link>
+      <section aria-labelledby="home-final-cta-title" className="border-t border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/40">
+        <Container width="lg" className="py-20 text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700 dark:text-brand-300">{t(messages, 'home.pricingTeaser.kicker')}</p>
+          <h2 id="home-final-cta-title" className="mx-auto mt-4 max-w-3xl text-balance text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl dark:text-slate-50">{copy.finalTitle}</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-pretty text-base text-slate-600 dark:text-slate-300">{copy.finalDescription}</p>
+          <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link href={`/${locale}/inscription`} className="inline-flex"><Button variant="primary" size="lg">{t(messages, 'home.finalCta.ctaPrimary')}</Button></Link>
+            <Link href={`/${locale}/tarifs`} className="inline-flex"><Button variant="secondary" size="lg">{t(messages, 'home.pricingTeaser.cta')}</Button></Link>
           </div>
-        </Container>
-      </section>
-
-      {/* 8. Final CTA */}
-      <section aria-labelledby="home-final-cta-title">
-        <Container width="lg" className="py-20">
-          <Card variant="accent" padding="lg" className="text-center">
-            <h2
-              id="home-final-cta-title"
-              className="text-balance text-2xl font-bold sm:text-3xl"
-            >
-              {t(messages, 'home.finalCta.title')}
-            </h2>
-            <p className="mx-auto mt-3 max-w-xl text-balance text-slate-700 dark:text-slate-200">
-              {t(messages, 'home.finalCta.description')}
-            </p>
-            <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link href={`/${locale}/inscription`} className="inline-flex">
-                <Button variant="primary" size="lg">
-                  {t(messages, 'home.finalCta.ctaPrimary')}
-                </Button>
-              </Link>
-              <Link href={`/${locale}/contact`} className="inline-flex">
-                <Button variant="ghost" size="lg">
-                  {t(messages, 'home.finalCta.ctaSecondary')}
-                </Button>
-              </Link>
-            </div>
-          </Card>
         </Container>
       </section>
     </>

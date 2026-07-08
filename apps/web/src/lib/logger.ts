@@ -41,11 +41,12 @@ function emit(level: Level, msg: string, fields: Record<string, unknown> = {}): 
     msg,
     ...fields,
   };
-  // stdout pour info/debug, stderr pour warn/error — pratique pour
-  // séparer les flux côté Docker/observability.
-  const target = level === 'warn' || level === 'error' ? console.error : console.log;
-  // eslint-disable-next-line no-console
-  target(JSON.stringify(record));
+  const line = `${JSON.stringify(record)}\n`;
+  if (level === 'warn' || level === 'error') {
+    process.stderr.write(line);
+    return;
+  }
+  process.stdout.write(line);
 }
 
 /**

@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { requireApiUser } from '../auth/server';
 import { safeResolveLocale } from '../i18n/locale';
 
-import { getPublishedQuizByActivityId } from './catalog';
+import { getPublishedQuizForScoringByActivityId } from './catalog';
 import { computeMastery } from './mastery';
 import { scoreSingleAnswerQuiz } from './scoring';
 
@@ -42,7 +42,10 @@ export async function submitQuizAttempt(formData: FormData): Promise<SubmitQuizR
     return { ok: false, error: 'invalid' };
   }
 
-  const quiz = await getPublishedQuizByActivityId(parsed.data.activityId, parsed.data.locale);
+  const quiz = await getPublishedQuizForScoringByActivityId(
+    parsed.data.activityId,
+    parsed.data.locale,
+  );
   if (!quiz) {
     return { ok: false, error: 'notFound' };
   }
@@ -55,19 +58,36 @@ export async function submitQuizAttempt(formData: FormData): Promise<SubmitQuizR
         .getAll(`ordering:${question.id}`)
         .filter((answerId): answerId is string => typeof answerId === 'string')
         .filter((answerId) => answerId.trim().length > 0);
+      if (
+        !isExactAnswerIdSet(
+          orderedAnswerIds,
+          question.answers.map((answer) => answer.id),
+        )
+      ) {
+        missingQuestionIds.push(question.id);
+        continue;
+      }
       submittedAnswers.set(question.id, { orderedAnswerIds });
       continue;
     }
 
     if (question.type === 'MATCHING') {
+      const leftAnswerIds = question.answers
+        .filter((answer) => typeof answer.pairId === 'string' && answer.pairId.length > 0)
+        .map((answer) => answer.id);
+      const rightAnswerIds = new Set(
+        question.answers.flatMap((answer) => (answer.pairId ? [answer.pairId] : [])),
+      );
       const matches = question.answers.flatMap((answer) => {
         const rawRightId = formData.get(`matching:${question.id}:${answer.id}`);
-        return typeof rawRightId === 'string' && rawRightId.trim().length > 0
+        return leftAnswerIds.includes(answer.id) &&
+          typeof rawRightId === 'string' &&
+          rightAnswerIds.has(rawRightId)
           ? [{ leftId: answer.id, rightId: rawRightId }]
           : [];
       });
 
-      if (matches.length > 0 && matches.length === question.answers.length) {
+      if (matches.length > 0 && matches.length === leftAnswerIds.length) {
         submittedAnswers.set(question.id, { matches });
       } else {
         missingQuestionIds.push(question.id);
@@ -203,4 +223,18 @@ export async function submitQuizAttempt(formData: FormData): Promise<SubmitQuizR
   }
 
   redirect(`/${parsed.data.locale}/quiz/${quiz.id}/resultat/${attemptId}`);
+}
+
+function isExactAnswerIdSet(
+  submittedAnswerIds: readonly string[],
+  validAnswerIds: readonly string[],
+): boolean {
+  if (submittedAnswerIds.length === 0 || submittedAnswerIds.length !== validAnswerIds.length) {
+    return false;
+  }
+
+  if (new Set(submittedAnswerIds).size !== submittedAnswerIds.length) return false;
+
+  const validAnswerIdSet = new Set(validAnswerIds);
+  return submittedAnswerIds.every((answerId) => validAnswerIdSet.has(answerId));
 }

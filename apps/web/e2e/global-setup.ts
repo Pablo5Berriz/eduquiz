@@ -27,15 +27,35 @@ function loadEnvFile(path: string): void {
  * Le fichier est écrit dans e2e/.cache/ (ignoré par git).
  */
 export interface E2EQuizFixture {
+  /** Email de l'utilisateur E2E créé par global-setup. */
+  email: string;
+  /** Mot de passe de l'utilisateur E2E créé par global-setup. */
+  password: string;
   /** Slug de la leçon (ex. "math-p5-comparer-fractions"). */
   lessonSlug: string;
   /** Titre FR attendu (pour assertion de navigation). */
   lessonTitleFr: string;
-  /**
-   * Pour chaque question du quiz, le labelFr de la bonne réponse.
-   * L'ordre correspond à l'ordre d'affichage (ordinal ASC).
-   */
-  correctAnswerLabelsFr: string[];
+  /** Nom FR de la matière attendue dans le catalogue. */
+  subjectNameFr: string;
+  /** Nom FR du niveau attendu dans le catalogue. */
+  levelNameFr: string;
+  /** Titre FR d'une leçon brouillon, si le seed en contient une. */
+  draftLessonTitleFr?: string;
+  /** Questions du quiz et réponses attendues, résolues côté setup depuis la DB. */
+  quizQuestions: E2EQuizQuestionFixture[];
+}
+
+export interface E2EQuizQuestionFixture {
+  readonly id: string;
+  readonly type: string;
+  readonly promptFr: string;
+  readonly correctAnswerLabelsFr: string[];
+  readonly textAnswerFr?: string;
+  readonly matchingPairsFr?: readonly {
+    readonly leftLabel: string;
+    readonly rightLabel: string;
+  }[];
+  readonly orderingLabelsFr?: readonly string[];
 }
 
 async function globalSetup(): Promise<void> {
@@ -99,7 +119,6 @@ async function globalSetup(): Promise<void> {
   });
 
   await prismaService.progress.deleteMany({ where: { userId: user.id } });
-  await prismaService.attempt.deleteMany({ where: { userId: user.id } });
 
   // ── Résoudre dynamiquement la première leçon/quiz disponible ─────────────────
   //
@@ -129,6 +148,12 @@ async function globalSetup(): Promise<void> {
         select: {
           slug: true,
           titleFr: true,
+          course: {
+            select: {
+              subject: { select: { nameFr: true } },
+              level: { select: { nameFr: true } },
+            },
+          },
         },
       },
       quiz: {
@@ -136,10 +161,16 @@ async function globalSetup(): Promise<void> {
           questions: {
             orderBy: { ordinal: 'asc' },
             select: {
+              id: true,
+              type: true,
+              promptFr: true,
               answers: {
-                where: { isCorrect: true },
-                select: { labelFr: true },
-                take: 1,
+                orderBy: { ordinal: 'asc' },
+                select: {
+                  labelFr: true,
+                  isCorrect: true,
+                  pairValueFr: true,
+                },
               },
             },
           },
@@ -155,10 +186,40 @@ async function globalSetup(): Promise<void> {
     );
   }
 
+  const draftLesson = await prismaService.lesson.findFirst({
+    where: { status: ContentStatus.DRAFT },
+    orderBy: { titleFr: 'asc' },
+    select: { titleFr: true },
+  });
+
   const fixture: E2EQuizFixture = {
+    email,
+    password,
     lessonSlug: firstQuizActivity.lesson.slug,
     lessonTitleFr: firstQuizActivity.lesson.titleFr,
-    correctAnswerLabelsFr: firstQuizActivity.quiz.questions.map((q) => q.answers[0]?.labelFr ?? ''),
+    subjectNameFr: firstQuizActivity.lesson.course.subject.nameFr,
+    levelNameFr: firstQuizActivity.lesson.course.level.nameFr,
+    draftLessonTitleFr: draftLesson?.titleFr,
+    quizQuestions: firstQuizActivity.quiz.questions.map((question) => {
+      const correctAnswerLabelsFr = question.answers
+        .filter((answer) => answer.isCorrect)
+        .map((answer) => answer.labelFr);
+      const matchingPairsFr = question.answers.flatMap((answer) =>
+        answer.pairValueFr && answer.pairValueFr.length > 0
+          ? [{ leftLabel: answer.labelFr, rightLabel: answer.pairValueFr }]
+          : [],
+      );
+
+      return {
+        id: question.id,
+        type: question.type,
+        promptFr: question.promptFr,
+        correctAnswerLabelsFr,
+        textAnswerFr: correctAnswerLabelsFr[0],
+        matchingPairsFr,
+        orderingLabelsFr: correctAnswerLabelsFr,
+      };
+    }),
   };
 
   // Écrire dans e2e/.cache/ (ignoré par git via .gitignore de apps/web)

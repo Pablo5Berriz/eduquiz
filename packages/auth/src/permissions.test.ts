@@ -30,6 +30,7 @@ function makeUser(role: UserRole, overrides: Partial<AuthSessionUser> = {}): Aut
     emailVerifiedAt: new Date(),
     disabledAt: null,
     deletedAt: null,
+    sessionVersion: 0,
     ...overrides,
   };
 }

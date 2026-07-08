@@ -107,6 +107,7 @@ export default function SignInPage({
                 invalidCredentials: t(messages, 'auth.signin.errors.invalidCredentials'),
                 accountDisabled: t(messages, 'auth.signin.errors.accountDisabled'),
                 unverified: t(messages, 'auth.signin.errors.unverified'),
+                rateLimited: t(messages, 'auth.signin.errors.rateLimited'),
                 unknown: t(messages, 'auth.signin.errors.unknown'),
               },
             }}

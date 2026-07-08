@@ -1,5 +1,9 @@
 # Découpage en lots de livraison — EduQuiz Public
 
+> Ce document décrit le découpage cible et l'ordre recommandé. Il ne doit pas
+> être lu comme une preuve que les lots sont livrés. Le suivi courant se trouve
+> dans [`09-implementation-status.md`](./09-implementation-status.md).
+
 ## Principes du découpage
 
 Un lot est livrable quand il produit une valeur utilisable de bout en bout. Les

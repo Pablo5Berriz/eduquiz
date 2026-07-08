@@ -3,7 +3,7 @@ import { getMessages, t } from '@eduquiz/i18n';
 import { Button, Container } from '@eduquiz/ui';
 import Link from 'next/link';
 
-import { resolveLocaleParam, type LocaleRouteParams } from '../../../../../lib/i18n/locale';
+import { resolveLocaleParam } from '../../../../../lib/i18n/locale';
 
 import { ResetPasswordForm } from './ResetPasswordForm';
 
@@ -58,7 +58,7 @@ export default async function ResetPasswordPage({
   // (autre purpose) du cas « inconnu/expiré ». On affiche un message
   // « invalide » dans tous les cas — l'utilisateur peut alors demander
   // un nouveau lien.
-  const validForReset = peeked && peeked.purpose === 'reset-password';
+  const validForReset = peeked?.purpose === 'reset-password';
 
   if (!validForReset) {
     return (
@@ -115,6 +115,7 @@ export default async function ResetPasswordPage({
                 passwordMismatch: t(messages, 'auth.resetPassword.errors.passwordMismatch'),
                 tokenExpired: t(messages, 'auth.resetPassword.errors.tokenExpired'),
                 tokenInvalid: t(messages, 'auth.resetPassword.errors.tokenInvalid'),
+                rateLimited: t(messages, 'auth.resetPassword.errors.rateLimited'),
                 unknown: t(messages, 'auth.resetPassword.errors.unknown'),
               },
             }}

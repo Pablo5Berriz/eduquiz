@@ -9,7 +9,8 @@
     "build": "next build",
     "start": "next start --port 3000",
     "lint": "eslint . --max-warnings=0",
-    "test": "echo \"[@eduquiz/web] test — Playwright + Vitest à venir (étape 1.x)\" && exit 0",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "clean": "rm -rf .next .turbo node_modules"
   },
@@ -24,10 +25,13 @@
     "next": "^14.2.18",
     "next-auth": "5.0.0-beta.25",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "pdf-lib": "^1.17.1",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@eduquiz/config": "workspace:*",
+    "@playwright/test": "^1.59.1",
     "@types/node": "^22.10.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

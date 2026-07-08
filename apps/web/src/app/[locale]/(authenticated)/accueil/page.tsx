@@ -212,7 +212,10 @@ export default async function AccueilPage({ params }: AccueilPageProps): Promise
         {!overviewError && (
           <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
             {/* Skill progress */}
-            <section className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <section
+              className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
+              data-testid="learning-progress"
+            >
               <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
                 <h2 className="font-semibold text-slate-950 dark:text-slate-50">
                   {c.progressTitle}
@@ -274,7 +277,10 @@ export default async function AccueilPage({ params }: AccueilPageProps): Promise
             </section>
 
             {/* Recent attempts */}
-            <section className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <section
+              className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
+              data-testid="recent-attempts"
+            >
               <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
                 <h2 className="font-semibold text-slate-950 dark:text-slate-50">
                   {c.historyTitle}

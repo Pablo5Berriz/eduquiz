@@ -11,14 +11,14 @@
  *
  *   - `completePasswordReset` : reçoit token + nouveau mot de passe + sa
  *     confirmation. Valide via Zod (complexité), consomme le token,
- *     met à jour `passwordHash`, **invalide toutes les sessions
- *     actives** de l'utilisateur (sécurité forte standard), trace
+ *     met à jour `passwordHash`, incrémente `sessionVersion` pour
+ *     invalider les anciens JWT côté serveur, trace
  *     `AUTH_PASSWORD_RESET` dans AuditLog.
  */
 
 import { hashPassword } from '@eduquiz/auth/password';
 import { consumeToken, createToken } from '@eduquiz/auth/tokens';
-import { AuditEventKind, prisma } from '@eduquiz/db';
+import { AuditEventKind, prismaService as prisma } from '@eduquiz/db';
 import { buildResetPasswordEmail, sendEmail } from '@eduquiz/email';
 import { z } from 'zod';
 
@@ -143,23 +143,22 @@ export async function completePasswordReset(
   // distingué via `peekToken` au rendu si l'utilisateur veut savoir
   // pourquoi il est arrivé sur l'écran d'erreur.
   const consumed = await consumeToken(data.token);
-  if (!consumed || consumed.purpose !== 'reset-password') {
+  if (consumed?.purpose !== 'reset-password') {
     return { ok: false, fieldErrors: { form: 'tokenInvalid' } };
   }
 
   try {
     const passwordHash = await hashPassword(data.newPassword);
 
-    const updated = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       const user = await tx.user.update({
         where: { email: consumed.email },
-        data: { passwordHash },
+        data: { passwordHash, sessionVersion: { increment: 1 } },
         select: { id: true },
       });
 
-      // Invalide toutes les sessions actives — sécurité standard
-      // après un reset. L'utilisateur devra se reconnecter sur tous
-      // ses appareils. Cohérent avec la stratégie session=database.
+      // Défense en profondeur si la stratégie DB est réactivée. Avec JWT,
+      // la révocation effective passe par `sessionVersion`.
       await tx.session.deleteMany({ where: { userId: user.id } });
 
       // Audit append-only.
@@ -172,11 +171,9 @@ export async function completePasswordReset(
           payload: { trigger: 'forgot-password' } as never,
         },
       });
-
-      return user;
     });
 
-    return updated ? { ok: true } : { ok: false, fieldErrors: { form: 'unknown' } };
+    return { ok: true };
   } catch {
     return { ok: false, fieldErrors: { form: 'unknown' } };
   }

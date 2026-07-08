@@ -25,7 +25,7 @@
     "@auth/prisma-adapter": "^2.7.4",
     "@eduquiz/db": "workspace:*",
     "@eduquiz/i18n": "workspace:*",
-    "argon2": "^0.41.1",
+    "@node-rs/argon2": "^2.0.2",
     "next-auth": "5.0.0-beta.25",
     "zod": "^3.24.1"
   },

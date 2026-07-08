@@ -12,6 +12,8 @@ import { UserRole } from '@eduquiz/db';
 
 import type { AuthSessionUser } from './session.js';
 
+export type { AuthSessionUser } from './session.js';
+
 export class UnauthenticatedError extends Error {
   readonly code = 'UNAUTHENTICATED' as const;
   constructor(message = 'Authentification requise') {

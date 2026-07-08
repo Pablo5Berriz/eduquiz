@@ -96,6 +96,67 @@ function getAnswerPairId(answer: unknown): string | null {
   return typeof answer.pairId === 'string' && answer.pairId.length > 0 ? answer.pairId : null;
 }
 
+function getAnswerPairValue(
+  answer: unknown,
+  locale: Locale,
+): { readonly id: string; readonly label: string } | null {
+  if (typeof answer !== 'object' || answer === null) return null;
+
+  const pairId = getAnswerPairId(answer);
+  if (pairId) {
+    return { id: pairId, label: pairId };
+  }
+
+  const pairValueFr =
+    'pairValueFr' in answer && typeof answer.pairValueFr === 'string' ? answer.pairValueFr : null;
+  const pairValueEn =
+    'pairValueEn' in answer && typeof answer.pairValueEn === 'string' ? answer.pairValueEn : null;
+  const label = localized(locale, pairValueFr, pairValueEn);
+  if (!label) return null;
+
+  return {
+    id: stableQuizDisplayKey('matching-pair', label),
+    label,
+  };
+}
+
+function stableQuizDisplayKey(seed: string, id: string): string {
+  let hash = 2166136261;
+  const value = `${seed}:${id}`;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash.toString(16).padStart(8, '0');
+}
+
+function orderAnswersForQuizTaking<
+  T extends {
+    readonly id: string;
+    readonly ordinal: number;
+  },
+>(question: {
+  readonly id: string;
+  readonly type: string;
+  readonly answers: readonly T[];
+}): readonly T[] {
+  if (question.type === 'ORDERING') {
+    const naturalOrder = [...question.answers].sort((left, right) => left.ordinal - right.ordinal);
+    const displayOrder = [...question.answers].sort((left, right) =>
+      stableQuizDisplayKey(question.id, left.id).localeCompare(
+        stableQuizDisplayKey(question.id, right.id),
+      ),
+    );
+    const stillNaturalOrder = displayOrder.every(
+      (answer, index) => answer.id === naturalOrder[index]?.id,
+    );
+
+    return stillNaturalOrder ? displayOrder.reverse() : displayOrder;
+  }
+
+  return [...question.answers].sort((left, right) => left.ordinal - right.ordinal);
+}
+
 export async function getPublishedLearningCatalog(locale: Locale) {
   const courses = await prisma.course.findMany({
     where: {
@@ -351,7 +412,103 @@ export async function getQuizAttemptHistory(params: {
   }));
 }
 
-export async function getPublishedQuizByActivityId(activityId: string, locale: Locale) {
+export async function getPublishedQuizForTakingByActivityId(activityId: string, locale: Locale) {
+  const activity = await prisma.activity.findUnique({
+    where: { id: activityId },
+    include: {
+      lesson: {
+        include: {
+          course: { include: { subject: true, level: true } },
+          skillLinks: { include: { skill: true } },
+        },
+      },
+      quiz: {
+        include: {
+          questions: {
+            orderBy: { ordinal: 'asc' },
+            include: { answers: { orderBy: { ordinal: 'asc' } } },
+          },
+        },
+      },
+    },
+  });
+
+  if (
+    activity?.kind !== ActivityKind.QUIZ ||
+    activity.status !== ContentStatus.PUBLISHED ||
+    !activity.quiz ||
+    activity.lesson.status !== ContentStatus.PUBLISHED ||
+    activity.lesson.course.status !== ContentStatus.PUBLISHED
+  ) {
+    return null;
+  }
+
+  return {
+    id: activity.id,
+    lesson: {
+      id: activity.lesson.id,
+      slug: activity.lesson.slug,
+      title: localized(locale, activity.lesson.titleFr, activity.lesson.titleEn),
+      subject: localized(
+        locale,
+        activity.lesson.course.subject.nameFr,
+        activity.lesson.course.subject.nameEn,
+      ),
+      level: localized(
+        locale,
+        activity.lesson.course.level.nameFr,
+        activity.lesson.course.level.nameEn,
+      ),
+    },
+    title: localized(locale, activity.quiz.titleFr, activity.quiz.titleEn),
+    introduction: localized(locale, activity.quiz.introductionFr, activity.quiz.introductionEn),
+    questions: activity.quiz.questions.map((question) => {
+      const answers = orderAnswersForQuizTaking(question);
+      const matchingLeftAnswers = answers.filter((answer) =>
+        Boolean(getAnswerPairValue(answer, locale)),
+      );
+      const matchingRightAnswers = Array.from(
+        new Map(
+          matchingLeftAnswers.flatMap((answer) => {
+            const pairValue = getAnswerPairValue(answer, locale);
+            return pairValue ? [[pairValue.id, pairValue]] : [];
+          }),
+        ).values(),
+      ).sort((left, right) =>
+        stableQuizDisplayKey(question.id, left.id).localeCompare(
+          stableQuizDisplayKey(question.id, right.id),
+        ),
+      );
+
+      return {
+        id: question.id,
+        prompt: localized(locale, question.promptFr, question.promptEn),
+        type: question.type,
+        answers:
+          question.type === 'MATCHING'
+            ? [
+                ...matchingLeftAnswers.map((answer) => ({
+                  id: answer.id,
+                  label: localized(locale, answer.labelFr, answer.labelEn),
+                  side: 'left' as const,
+                })),
+                ...matchingRightAnswers.map((answer) => ({
+                  id: answer.id,
+                  label: answer.label,
+                  side: 'right' as const,
+                })),
+              ]
+            : answers.map((answer) => ({
+                id: answer.id,
+                label: localized(locale, answer.labelFr, answer.labelEn),
+                side: null,
+              })),
+      };
+    }),
+  };
+}
+
+export async function getPublishedQuizForScoringByActivityId(activityId: string, locale: Locale) {
   const activity = await prisma.activity.findUnique({
     where: { id: activityId },
     include: {
@@ -401,23 +558,17 @@ export async function getPublishedQuizByActivityId(activityId: string, locale: L
       ),
       skillIds: activity.lesson.skillLinks.map((link) => link.skillId),
     },
-    title: localized(locale, activity.quiz.titleFr, activity.quiz.titleEn),
-    introduction: localized(locale, activity.quiz.introductionFr, activity.quiz.introductionEn),
     questions: activity.quiz.questions.map((question) => ({
       id: question.id,
       prompt: localized(locale, question.promptFr, question.promptEn),
-      explanation: localized(locale, question.explanationFr, question.explanationEn),
       type: question.type,
       points: question.points,
-      // NOTE: isCorrect est volontairement exposé ici.
-      // Le quiz est soumis via Server Action (submitQuizAttempt) : le scoring
-      // s'effectue entièrement côté serveur. isCorrect n'est utilisé côté client
-      // que pour afficher le feedback post-soumission dans QuizForm.
-      // Retirer ce champ casserait le feedback sans améliorer la sécurité,
-      // puisque la valeur authoritative reste celle enregistrée en base par le serveur.
       answers: question.answers.map((answer) => ({
         id: answer.id,
         label: localized(locale, answer.labelFr, answer.labelEn),
+        ...(getAnswerPairValue(answer, locale)
+          ? { pairId: getAnswerPairValue(answer, locale)?.id ?? '' }
+          : {}),
         isCorrect: answer.isCorrect,
       })),
     })),
@@ -440,7 +591,12 @@ export async function getAttemptResult(params: {
         include: {
           activity: {
             include: {
-              lesson: { include: { course: { include: { subject: true, level: true } } } },
+              lesson: {
+                include: {
+                  course: { include: { subject: true, level: true } },
+                  skillLinks: { include: { skill: { include: { subject: true } } } },
+                },
+              },
               quiz: true,
             },
           },
@@ -459,6 +615,7 @@ export async function getAttemptResult(params: {
     rawScore: attempt.rawScore,
     maxScore: attempt.maxScore,
     passed: attempt.passed,
+    passingScore: attempt.activity.passingScore,
     submittedAt: attempt.submittedAt,
     lesson: {
       slug: attempt.activity.lesson.slug,
@@ -477,6 +634,11 @@ export async function getAttemptResult(params: {
         attempt.activity.lesson.course.level.nameFr,
         attempt.activity.lesson.course.level.nameEn,
       ),
+      skills: attempt.activity.lesson.skillLinks.map((link) => ({
+        id: link.skill.id,
+        name: localized(params.locale, link.skill.nameFr, link.skill.nameEn),
+        subject: localized(params.locale, link.skill.subject.nameFr, link.skill.subject.nameEn),
+      })),
     },
     quizTitle: localized(
       params.locale,
@@ -489,11 +651,16 @@ export async function getAttemptResult(params: {
       const selectedOrderedAnswerIds = extractOrderedAnswerIds(answer.response);
       const selectedMatches = extractSubmittedMatches(answer.response);
       const answersById = new Map(answer.question.answers.map((choice) => [choice.id, choice]));
+      const matchingRightLabelsById = new Map(
+        answer.question.answers.flatMap((choice) => {
+          const pairValue = getAnswerPairValue(choice, params.locale);
+          return pairValue ? [[pairValue.id, pairValue.label]] : [];
+        }),
+      );
       const formatAnswerLabel = (answerId: string): string => {
         const choice = answersById.get(answerId);
-        return choice
-          ? localized(params.locale, choice.labelFr, choice.labelEn)
-          : params.unknownAnswerLabel;
+        if (choice) return localized(params.locale, choice.labelFr, choice.labelEn);
+        return matchingRightLabelsById.get(answerId) ?? params.unknownAnswerLabel;
       };
       const formatMatchLabel = (match: SubmittedMatch): string =>
         `${formatAnswerLabel(match.leftId)} → ${formatAnswerLabel(match.rightId)}`;
@@ -511,8 +678,8 @@ export async function getAttemptResult(params: {
         .map((choice) => localized(params.locale, choice.labelFr, choice.labelEn));
       const selectedMatchLabels = selectedMatches.map(formatMatchLabel);
       const correctMatchLabels = answer.question.answers.flatMap((choice) => {
-        const pairId = getAnswerPairId(choice);
-        return pairId ? [formatMatchLabel({ leftId: choice.id, rightId: pairId })] : [];
+        const pairValue = getAnswerPairValue(choice, params.locale);
+        return pairValue ? [formatMatchLabel({ leftId: choice.id, rightId: pairValue.id })] : [];
       });
       const selectedOrderingLabels = selectedOrderedAnswerIds.map(formatOrderingAnswerLabel);
       const correctOrderingLabels = correctAnswerLabels;
@@ -531,8 +698,14 @@ export async function getAttemptResult(params: {
         correctAnswerLabels,
         correctMatchLabels,
         correctOrderingLabels,
+        explanation: localized(
+          params.locale,
+          answer.question.explanationFr,
+          answer.question.explanationEn,
+        ),
         isCorrect: answer.isCorrect,
         pointsEarned: answer.pointsEarned,
+        pointsPossible: answer.question.points,
       };
     }),
   };

@@ -7,8 +7,10 @@
  * middleware Auth.js).
  *
  * Tous les helpers s'appuient sur `auth()` (instancié dans
- * `apps/web/src/auth.ts`) qui résout la session depuis le cookie en
- * faisant une lecture DB (stratégie `database`).
+ * `apps/web/src/auth.ts`) qui résout la session depuis le cookie JWT.
+ * Les helpers protégés relisent ensuite l'utilisateur en DB pour
+ * appliquer la révocation stricte (`sessionVersion`) et éviter les
+ * rôles/états obsolètes.
  */
 
 import {
@@ -17,7 +19,7 @@ import {
   isAccountActive,
   type AuthSessionUser,
 } from '@eduquiz/auth/permissions';
-import { UserRole } from '@eduquiz/db';
+import { ParentLinkState, UserRole, prismaService as prisma } from '@eduquiz/db';
 import { redirect } from 'next/navigation';
 
 import { auth } from '../../auth';
@@ -31,12 +33,45 @@ export async function getSession() {
 }
 
 /**
- * Retourne l'utilisateur courant ou `null`. Sucre syntaxique sur
- * `getSession()` qui évite le `?.user` à chaque appel.
+ * Retourne l'utilisateur courant validé contre la DB ou `null`.
+ * Un vieux JWT reste lisible par Auth.js jusqu'à son expiration, mais
+ * devient inutilisable ici dès que `User.sessionVersion` a changé.
  */
 export async function getCurrentUser(): Promise<AuthSessionUser | null> {
   const session = await getSession();
-  return session?.user ?? null;
+  const sessionUser = session?.user;
+  if (!sessionUser) return null;
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: sessionUser.id },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      locale: true,
+      emailVerifiedAt: true,
+      disabledAt: true,
+      deletedAt: true,
+      sessionVersion: true,
+      profile: { select: { displayName: true, firstName: true, avatarUrl: true } },
+    },
+  });
+
+  if (!dbUser) return null;
+  if (sessionUser.sessionVersion !== dbUser.sessionVersion) return null;
+
+  return {
+    id: dbUser.id,
+    email: dbUser.email,
+    name: dbUser.profile?.displayName ?? dbUser.profile?.firstName ?? sessionUser.name ?? null,
+    image: dbUser.profile?.avatarUrl ?? sessionUser.image ?? null,
+    role: dbUser.role,
+    locale: dbUser.locale,
+    emailVerifiedAt: dbUser.emailVerifiedAt,
+    disabledAt: dbUser.disabledAt,
+    deletedAt: dbUser.deletedAt,
+    sessionVersion: dbUser.sessionVersion,
+  };
 }
 
 /**
@@ -90,6 +125,34 @@ export async function requireApiUser(): Promise<AuthSessionUser> {
   if (!user) throw new UnauthenticatedError();
   if (!isAccountActive(user)) throw new ForbiddenError('Compte désactivé');
   return user;
+}
+
+/**
+ * Guard Loi 25 — Tâche 2.3.
+ *
+ * Un `LEARNER_MINOR` sans lien `VERIFIED` ne doit pas accéder au contenu
+ * pédagogique. Redirige vers `/apprendre/relier-parent` si le mineur n'a
+ * pas encore de parent confirmé.
+ *
+ * À appeler dans chaque Server Component du flux learning :
+ * `/apprendre`, `/apprendre/[lesson]`, `/quiz/[id]`, `/quiz/[id]/resultat/[id]`.
+ *
+ * Les non-mineurs (LEARNER_ADULT, PARENT, ADMIN) passent sans requête DB.
+ */
+export async function guardMinorParentLink(
+  user: AuthSessionUser,
+  locale: string,
+): Promise<void> {
+  if (user.role !== UserRole.LEARNER_MINOR) return;
+
+  const verified = await prisma.parentChildLink.findFirst({
+    where: { childId: user.id, state: ParentLinkState.VERIFIED },
+    select: { id: true },
+  });
+
+  if (!verified) {
+    redirect(`/${locale}/apprendre/relier-parent`);
+  }
 }
 
 export { UnauthenticatedError, ForbiddenError };

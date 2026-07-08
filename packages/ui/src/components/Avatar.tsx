@@ -59,7 +59,7 @@ const PALETTE = [
 function pickColor(name: string): string {
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
-  return PALETTE[Math.abs(hash) % PALETTE.length] ?? PALETTE[0]!;
+  return PALETTE[Math.abs(hash) % PALETTE.length] ?? 'bg-brand-600';
 }
 
 function computeInitials(name: string): string {
@@ -67,8 +67,11 @@ function computeInitials(name: string): string {
   if (!trimmed) return '?';
   const parts = trimmed.split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '?';
-  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
-  return (parts[0]!.charAt(0) + parts[parts.length - 1]!.charAt(0)).toUpperCase();
+  const first = parts[0];
+  if (!first) return '?';
+  if (parts.length === 1) return first.slice(0, 2).toUpperCase();
+  const last = parts.at(-1) ?? first;
+  return (first.charAt(0) + last.charAt(0)).toUpperCase();
 }
 
 export function Avatar({ src, name, size, className, ariaLabel }: AvatarProps): JSX.Element {
@@ -78,7 +81,6 @@ export function Avatar({ src, name, size, className, ariaLabel }: AvatarProps): 
 
   if (src) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={src}
         alt={ariaLabel ?? name}
