@@ -12,7 +12,7 @@
 #  Les scripts sont copiés dans /usr/local/bin, la crontab dans /etc/crontabs.
 # ─────────────────────────────────────────────────────────────────────────────
 
-FROM alpine:3.20
+FROM alpine:3.24
 
 RUN apk add --no-cache \
     bash \
