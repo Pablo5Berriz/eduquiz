@@ -5,6 +5,11 @@
 Plateforme éducative bilingue FR/EN pour élèves québécois du Primaire 3 à la
 Secondaire 5. Mode libre uniquement (B2C).
 
+EduQuiz aide les élèves à apprendre leurs leçons, réviser les notions scolaires
+et pratiquer avec des quiz adaptés à leur niveau. Le produit vise une expérience
+d'apprentissage simple, motivante et structurée, utilisable par les élèves, les
+parents et, à terme, les enseignants.
+
 Monorepo Turborepo + pnpm workspaces, Node 22 LTS, TypeScript strict.
 
 - **Phase 0** (scaffolding et fondations techniques) majoritairement livrée.
