@@ -70,6 +70,8 @@ let cached: AuthEnv | undefined;
 
 export function getAuthEnv(source: NodeJS.ProcessEnv = process.env): AuthEnv {
   if (cached) return cached;
+  // DIAGNOSTIC TEMPORAIRE — à retirer après investigation CI
+  console.error('[DIAGNOSTIC] AUTH_SECRET reçu:', JSON.stringify(source.AUTH_SECRET), 'longueur:', source.AUTH_SECRET?.length);
   const result = authEnvSchema.safeParse(source);
   if (!result.success) {
     const issues = result.error.issues
