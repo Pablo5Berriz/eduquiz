@@ -85,8 +85,12 @@ describe('prédicats isXxx', () => {
 describe('isAccountActive', () => {
   it('false si null/disabled/deleted', () => {
     expect(isAccountActive(null)).toBe(false);
-    expect(isAccountActive(makeUser(UserRole.LEARNER_ADULT, { disabledAt: new Date() }))).toBe(false);
-    expect(isAccountActive(makeUser(UserRole.LEARNER_ADULT, { deletedAt: new Date() }))).toBe(false);
+    expect(isAccountActive(makeUser(UserRole.LEARNER_ADULT, { disabledAt: new Date() }))).toBe(
+      false,
+    );
+    expect(isAccountActive(makeUser(UserRole.LEARNER_ADULT, { deletedAt: new Date() }))).toBe(
+      false,
+    );
   });
   it('true sinon', () => {
     expect(isAccountActive(makeUser(UserRole.LEARNER_ADULT))).toBe(true);

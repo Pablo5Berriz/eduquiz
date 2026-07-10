@@ -61,7 +61,12 @@ describe('resendVerification rate limiting', () => {
   });
 
   it('reste anti-enumeration si Redis bypass est fail-open surveillé et ne loggue pas email brut', async () => {
-    mockWithRateLimit.mockResolvedValue({ allowed: true, remaining: 3, resetAt: null, bypassed: true });
+    mockWithRateLimit.mockResolvedValue({
+      allowed: true,
+      remaining: 3,
+      resetAt: null,
+      bypassed: true,
+    });
     mockFindUnique.mockResolvedValue(null);
 
     const result = await resendVerification({ email: 'User@Test.Example', locale: 'fr' });
@@ -83,7 +88,12 @@ describe('resendVerification rate limiting', () => {
   });
 
   it('retourne ok:true si le rate-limit bloque et loggue uniquement keyHash', async () => {
-    mockWithRateLimit.mockResolvedValue({ allowed: false, remaining: 0, resetAt: Date.now() + 60_000, bypassed: false });
+    mockWithRateLimit.mockResolvedValue({
+      allowed: false,
+      remaining: 0,
+      resetAt: Date.now() + 60_000,
+      bypassed: false,
+    });
 
     const result = await resendVerification({ email: 'User@Test.Example', locale: 'fr' });
 

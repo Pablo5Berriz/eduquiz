@@ -87,9 +87,7 @@ export default function AccountTypePickerPage({
             aria-disabled="true"
             className="relative flex h-full flex-col gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 opacity-75 dark:border-slate-700 dark:bg-slate-900/40"
           >
-            <span
-              className="absolute right-4 top-4 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:bg-amber-900/40 dark:text-amber-200"
-            >
+            <span className="absolute right-4 top-4 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
               {t(messages, 'auth.accountTypePicker.optionParent.comingSoon')}
             </span>
             <span aria-hidden="true" className="text-3xl">
@@ -110,9 +108,7 @@ export default function AccountTypePickerPage({
             aria-disabled="true"
             className="relative flex h-full flex-col gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 opacity-75 dark:border-slate-700 dark:bg-slate-900/40"
           >
-            <span
-              className="absolute right-4 top-4 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:bg-amber-900/40 dark:text-amber-200"
-            >
+            <span className="absolute right-4 top-4 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
               {t(messages, 'auth.accountTypePicker.optionMinor.comingSoon')}
             </span>
             <span aria-hidden="true" className="text-3xl">

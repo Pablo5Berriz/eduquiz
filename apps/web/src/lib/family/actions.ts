@@ -20,7 +20,13 @@
  */
 
 import { createToken, consumeToken } from '@eduquiz/auth/tokens';
-import { AuditEventKind, ConsentEventKind, ParentLinkState, UserRole, prismaService as prisma } from '@eduquiz/db';
+import {
+  AuditEventKind,
+  ConsentEventKind,
+  ParentLinkState,
+  UserRole,
+  prismaService as prisma,
+} from '@eduquiz/db';
 import { buildParentLinkConfirmEmail, sendEmail } from '@eduquiz/email';
 import { headers } from 'next/headers';
 
@@ -70,9 +76,7 @@ export type ConfirmLinkResult =
  * Réservé au rôle PARENT (ou ADMIN). Le parent spécifie l'email du
  * compte élève à rattacher.
  */
-export async function createParentInvitation(
-  childEmail: string,
-): Promise<InvitationResult> {
+export async function createParentInvitation(childEmail: string): Promise<InvitationResult> {
   const user = await requireApiUser();
 
   // Seul un PARENT (ou ADMIN) peut créer une invitation.
@@ -159,10 +163,7 @@ export async function createParentInvitation(
  * Le mineur saisit le code fourni par son parent. Enregistre l'IP et
  * envoie un email de confirmation au parent.
  */
-export async function redeemParentCode(
-  code: string,
-  _locale: string,
-): Promise<RedeemResult> {
+export async function redeemParentCode(code: string, _locale: string): Promise<RedeemResult> {
   const user = await requireApiUser();
 
   // Seul un mineur peut saisir un code.
@@ -220,9 +221,7 @@ export async function redeemParentCode(
       email: link.id, // linkId stocké dans le champ "email" du token
     });
 
-    const resolvedLocale = resolveLocaleParam(
-      link.parent.locale.toLowerCase() as string,
-    );
+    const resolvedLocale = resolveLocaleParam(link.parent.locale.toLowerCase() as string);
     const confirmUrl = getCanonicalAuthUrl(
       `/${resolvedLocale}/rattachement/${encodeURIComponent(token)}`,
     );

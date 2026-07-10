@@ -28,7 +28,9 @@ function serializeRedisError(error: unknown): Record<string, unknown> {
   return {
     errorName: error.name,
     errorMessage: sanitizeLogValue(error.message),
-    ...(typeof withCode.code === 'string' || typeof withCode.code === 'number' ? { errorCode: withCode.code } : {}),
+    ...(typeof withCode.code === 'string' || typeof withCode.code === 'number'
+      ? { errorCode: withCode.code }
+      : {}),
   };
 }
 

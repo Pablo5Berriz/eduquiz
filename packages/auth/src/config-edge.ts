@@ -27,8 +27,7 @@ function optionalJwtUser<T>(user: T): Partial<T> | undefined {
   return user ?? undefined;
 }
 
-const COOKIE_PREFIX =
-  process.env.NODE_ENV === 'production' ? '__Secure-eduquiz' : 'eduquiz';
+const COOKIE_PREFIX = process.env.NODE_ENV === 'production' ? '__Secure-eduquiz' : 'eduquiz';
 
 export const authConfigEdge: NextAuthConfig = {
   // Pas d'adapter ici : Edge ne sert qu'à lire le JWT chiffré porté par
@@ -64,7 +63,12 @@ export const authConfigEdge: NextAuthConfig = {
     },
     csrfToken: {
       name: `${COOKIE_PREFIX}.csrf-token`,
-      options: { httpOnly: true, sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' },
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
     },
   },
 
@@ -79,7 +83,7 @@ export const authConfigEdge: NextAuthConfig = {
     jwt({ token, user }) {
       const maybeUser = optionalJwtUser(user);
       if (maybeUser) {
-        if (maybeUser.id) token.sub = maybeUser.id;          // ← garde, pas d'assignation si undefined
+        if (maybeUser.id) token.sub = maybeUser.id; // ← garde, pas d'assignation si undefined
         token.role = maybeUser.role ?? token.role ?? UserRole.LEARNER_ADULT;
         token.locale = maybeUser.locale ?? token.locale ?? Locale.FR;
         token.emailVerifiedAt = maybeUser.emailVerifiedAt ?? token.emailVerifiedAt ?? null;
@@ -98,7 +102,7 @@ export const authConfigEdge: NextAuthConfig = {
     // Dans config-edge.ts — callback session
     session({ session, token }) {
       if (token.sub) {
-        session.user.id = token.sub;               // ← token.sub garanti string par le if
+        session.user.id = token.sub; // ← token.sub garanti string par le if
         session.user.role = (token.role as UserRole | undefined) ?? UserRole.LEARNER_ADULT;
         session.user.locale = (token.locale as Locale | undefined) ?? Locale.FR;
         session.user.emailVerifiedAt = (token.emailVerifiedAt as Date | null | undefined) ?? null;
@@ -152,7 +156,11 @@ export const authConfigEdge: NextAuthConfig = {
       // Zone admin : exige rôle ADMIN.
       if (zone === 'admin' && auth.user.role !== UserRole.ADMIN) return false;
       // Zone parent : PARENT ou ADMIN.
-      if (zone === 'parent' && auth.user.role !== UserRole.PARENT && auth.user.role !== UserRole.ADMIN) {
+      if (
+        zone === 'parent' &&
+        auth.user.role !== UserRole.PARENT &&
+        auth.user.role !== UserRole.ADMIN
+      ) {
         return false;
       }
       return true;

@@ -1,7 +1,7 @@
 // packages/auth/src/constants.ts
 export const UserRole = {
   LEARNER_ADULT: 'LEARNER_ADULT',
-  LEARNER_MINOR: 'LEARNER_MINOR',   // ← était LEARNER_CHILD, corrigez ici
+  LEARNER_MINOR: 'LEARNER_MINOR', // ← était LEARNER_CHILD, corrigez ici
   PARENT: 'PARENT',
   ADMIN: 'ADMIN',
 } as const;

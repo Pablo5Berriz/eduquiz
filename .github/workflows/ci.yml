@@ -67,6 +67,9 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Prisma generate
+        run: pnpm --filter @eduquiz/db run db:generate
+
       - name: Lint
         run: pnpm lint
 
@@ -174,7 +177,7 @@ jobs:
       DIRECT_URL: postgresql://eduquiz:eduquiz@localhost:5432/eduquiz?schema=public
       # Secret factice : utilisé uniquement pour que les modules Auth.js
       # s'initialisent sans lever en build. Pas de valeur sensible ici.
-      AUTH_SECRET: ci-build-only-not-a-real-secret
+      AUTH_SECRET: ci-build-only-not-a-real-secret-32chars-min
       AUTH_URL: http://localhost:3000
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       NEXT_PUBLIC_DEFAULT_LOCALE: fr-CA
@@ -250,7 +253,7 @@ jobs:
           docker run -d --name web --network ci-net \
             -e DATABASE_URL=postgresql://eduquiz:eduquiz@pg:5432/eduquiz?schema=public \
             -e DIRECT_URL=postgresql://eduquiz:eduquiz@pg:5432/eduquiz?schema=public \
-            -e AUTH_SECRET=ci-smoke-not-a-real-secret \
+            -e AUTH_SECRET=ci-smoke-not-a-real-secret-32chars-min \
             -e AUTH_URL=http://localhost:3000 \
             -p 3000:3000 \
             eduquiz/web:ci

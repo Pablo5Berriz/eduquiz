@@ -92,11 +92,7 @@ export function Avatar({ src, name, size, className, ariaLabel }: AvatarProps): 
   }
 
   return (
-    <span
-      className={cn(styles, color, className)}
-      aria-label={ariaLabel ?? name}
-      role="img"
-    >
+    <span className={cn(styles, color, className)} aria-label={ariaLabel ?? name} role="img">
       <span aria-hidden="true">{initials}</span>
     </span>
   );

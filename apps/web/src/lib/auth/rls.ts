@@ -62,6 +62,7 @@ export async function withAuthenticatedDb<T>(
   } = {};
   if (options.maxWait !== undefined) transactionOptions.maxWait = options.maxWait;
   if (options.timeout !== undefined) transactionOptions.timeout = options.timeout;
-  if (options.isolationLevel !== undefined) transactionOptions.isolationLevel = options.isolationLevel;
+  if (options.isolationLevel !== undefined)
+    transactionOptions.isolationLevel = options.isolationLevel;
   return withUser(ctx).$transaction((tx) => fn(tx, ctx), transactionOptions);
 }

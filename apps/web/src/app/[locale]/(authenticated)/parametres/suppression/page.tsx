@@ -46,7 +46,10 @@ export default function DeleteAccountPage({
         <ul className="mt-3 flex flex-col gap-1.5 text-sm text-slate-700 dark:text-slate-200">
           {(['profile', 'progress', 'badges'] as const).map((k) => (
             <li key={k} className="flex items-start gap-2">
-              <span aria-hidden="true" className="mt-1.5 inline-block h-1 w-1 shrink-0 rounded-full bg-danger-500" />
+              <span
+                aria-hidden="true"
+                className="mt-1.5 inline-block h-1 w-1 shrink-0 rounded-full bg-danger-500"
+              />
               <span>{t(messages, `account.deletion.includes.${k}`)}</span>
             </li>
           ))}

@@ -29,7 +29,7 @@ const COPY: Record<Locale, Copy> = {
   fr: {
     subject: 'Ton compte EduQuiz est prêt 🎉',
     greeting: 'Bienvenue parmi nous !',
-    body: "Ton adresse courriel est confirmée et ton compte est actif. Tu peux maintenant te connecter et commencer à explorer le programme québécois.",
+    body: 'Ton adresse courriel est confirmée et ton compte est actif. Tu peux maintenant te connecter et commencer à explorer le programme québécois.',
     cta: 'Me connecter',
     footer: '— L’équipe EduQuiz',
   },
@@ -44,7 +44,9 @@ const COPY: Record<Locale, Copy> = {
 
 export function buildWelcomeEmail(input: WelcomeEmailInput): EmailMessage {
   const c = COPY[input.locale];
-  const text = [c.greeting, '', c.body, '', `${c.cta}: ${input.signInUrl}`, '', c.footer].join('\n');
+  const text = [c.greeting, '', c.body, '', `${c.cta}: ${input.signInUrl}`, '', c.footer].join(
+    '\n',
+  );
 
   const html = `<!doctype html>
 <html lang="${input.locale}">
@@ -68,5 +70,10 @@ export function buildWelcomeEmail(input: WelcomeEmailInput): EmailMessage {
 }
 
 function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }

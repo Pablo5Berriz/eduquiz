@@ -7,7 +7,11 @@ import {
   setLessonStatus,
   updateLesson,
 } from '../../../../../../../../lib/admin/actions';
-import { resolveLocaleParam, type LocaleRouteParams } from '../../../../../../../../lib/i18n/locale';
+import { discardResult } from '../../../../../../../../lib/admin/form-action';
+import {
+  resolveLocaleParam,
+  type LocaleRouteParams,
+} from '../../../../../../../../lib/i18n/locale';
 
 import type { JSX } from 'react';
 
@@ -59,9 +63,13 @@ export default async function AdminLessonDetailPage({
 
   if (lesson?.course.id !== courseId) notFound();
 
-  const updateLessonAction = updateLesson.bind(null, locale, lessonId, courseId);
-  const publishLesson = setLessonStatus.bind(null, locale, lessonId, courseId, ContentStatus.PUBLISHED);
-  const unpublishLesson = setLessonStatus.bind(null, locale, lessonId, courseId, ContentStatus.DRAFT);
+  const updateLessonAction = discardResult(updateLesson.bind(null, locale, lessonId, courseId));
+  const publishLesson = discardResult(
+    setLessonStatus.bind(null, locale, lessonId, courseId, ContentStatus.PUBLISHED),
+  );
+  const unpublishLesson = discardResult(
+    setLessonStatus.bind(null, locale, lessonId, courseId, ContentStatus.DRAFT),
+  );
 
   return (
     <div>
@@ -71,10 +79,7 @@ export default async function AdminLessonDetailPage({
           Cours
         </Link>
         {' / '}
-        <Link
-          href={`/${locale}/admin/cours/${courseId}`}
-          className="hover:text-brand-700"
-        >
+        <Link href={`/${locale}/admin/cours/${courseId}`} className="hover:text-brand-700">
           {lesson.course.titleFr}
         </Link>
         {' / '}
@@ -84,9 +89,7 @@ export default async function AdminLessonDetailPage({
       {/* Header */}
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            {lesson.titleFr}
-          </h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">{lesson.titleFr}</h1>
           <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
             slug :{' '}
             <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-xs dark:bg-slate-800">
@@ -252,19 +255,23 @@ export default async function AdminLessonDetailPage({
                     activity.kind === ActivityKind.QUIZ
                       ? 'Quiz'
                       : `Exercice · ${activity.exercise?.type ?? ''}`;
-                  const publishActivity = setActivityStatus.bind(
-                    null,
-                    locale,
-                    activity.id,
-                    lessonId,
-                    ContentStatus.PUBLISHED,
+                  const publishActivity = discardResult(
+                    setActivityStatus.bind(
+                      null,
+                      locale,
+                      activity.id,
+                      lessonId,
+                      ContentStatus.PUBLISHED,
+                    ),
                   );
-                  const unpublishActivity = setActivityStatus.bind(
-                    null,
-                    locale,
-                    activity.id,
-                    lessonId,
-                    ContentStatus.DRAFT,
+                  const unpublishActivity = discardResult(
+                    setActivityStatus.bind(
+                      null,
+                      locale,
+                      activity.id,
+                      lessonId,
+                      ContentStatus.DRAFT,
+                    ),
                   );
 
                   return (
@@ -274,7 +281,9 @@ export default async function AdminLessonDetailPage({
                       </td>
                       <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{kind}</td>
                       <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
-                        {activity.passingScore !== null ? `${String(activity.passingScore)} %` : '—'}
+                        {activity.passingScore !== null
+                          ? `${String(activity.passingScore)} %`
+                          : '—'}
                       </td>
                       <td className="px-4 py-3">
                         <span

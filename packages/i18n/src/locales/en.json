@@ -252,12 +252,7 @@
     "ctaSecondary": "Explore the subjects",
     "trust": {
       "title": "Built with and for Quebec families",
-      "items": [
-        "PFEQ-aligned",
-        "Hosted in Montreal",
-        "Law 25 compliant",
-        "Bilingual FR + EN"
-      ]
+      "items": ["PFEQ-aligned", "Hosted in Montreal", "Law 25 compliant", "Bilingual FR + EN"]
     },
     "features": {
       "kicker": "Features",
@@ -496,12 +491,7 @@
         "shortDescription": "Oral communication, reading and writing in second language.",
         "levels": "Grade 3 – Secondary 5",
         "image": "/images/subjects/anglais.svg",
-        "topics": [
-          "Oral interactions",
-          "Reading and texts",
-          "Written production",
-          "Anglophone culture"
-        ],
+        "topics": ["Oral interactions", "Reading and texts", "Written production", "Anglophone culture"],
         "skills": [
           "Interact orally in English",
           "Reinvest understanding of texts read or heard",
@@ -566,12 +556,7 @@
         "shortDescription": "Natural sciences and technology, from Cycle 2 of primary through secondary.",
         "levels": "Grade 5 – Secondary 5",
         "image": "/images/subjects/sciences-technologie.svg",
-        "topics": [
-          "Material world",
-          "Living world",
-          "Earth and space",
-          "Technology"
-        ],
+        "topics": ["Material world", "Living world", "Earth and space", "Technology"],
         "skills": [
           "Explore the world of science and technology",
           "Make use of tools, objects and processes",
@@ -629,12 +614,7 @@
         "shortDescription": "From early societies to the present day, with a Quebec perspective.",
         "levels": "Grade 3 – Secondary 4",
         "image": "/images/subjects/histoire-quebec-canada.svg",
-        "topics": [
-          "Early societies",
-          "New France",
-          "British regime",
-          "Modern Quebec"
-        ],
+        "topics": ["Early societies", "New France", "British regime", "Modern Quebec"],
         "skills": [
           "Examine social realities from a historical perspective",
           "Interpret social realities using the historical method",
@@ -678,12 +658,7 @@
         "shortDescription": "Territories, landscapes and contemporary issues.",
         "levels": "Grade 3 – Secondary 2",
         "image": "/images/subjects/geographie.svg",
-        "topics": [
-          "Map reading",
-          "Human territories",
-          "Environmental issues",
-          "Regions of the world"
-        ],
+        "topics": ["Map reading", "Human territories", "Environmental issues", "Regions of the world"],
         "skills": [
           "Read the organization of a territory",
           "Interpret a territorial issue",
@@ -727,12 +702,7 @@
         "shortDescription": "Budget, consumption, taxation and life projects.",
         "levels": "Secondary 5",
         "image": "/images/subjects/education-financiere.svg",
-        "topics": [
-          "Consumption",
-          "Work and income",
-          "Savings and credit",
-          "Taxation and projects"
-        ],
+        "topics": ["Consumption", "Work and income", "Savings and credit", "Taxation and projects"],
         "skills": [
           "Take a position on a financial issue",
           "Analyze a consumption choice",
@@ -755,12 +725,7 @@
         "shortDescription": "Varied physical activities, fitness and healthy habits.",
         "levels": "Grade 3 – Secondary 5",
         "image": "/images/subjects/education-physique-sante.svg",
-        "topics": [
-          "Individual activities",
-          "Team activities",
-          "Healthy lifestyle habits",
-          "Mental and social health"
-        ],
+        "topics": ["Individual activities", "Team activities", "Healthy lifestyle habits", "Mental and social health"],
         "skills": [
           "Perform movement skills in different physical activity settings",
           "Interact with others in different physical activity settings",
@@ -825,12 +790,7 @@
         "shortDescription": "Identity, diversity, democracy and culture in Quebec.",
         "levels": "Grade 3 – Secondary 5",
         "image": "/images/subjects/culture-citoyennete-quebecoise.svg",
-        "topics": [
-          "Democratic citizenship",
-          "Identity and diversity",
-          "Quebec culture",
-          "Ethics and society"
-        ],
+        "topics": ["Democratic citizenship", "Identity and diversity", "Quebec culture", "Ethics and society"],
         "skills": [
           "Deliberate on ethical and cultural issues",
           "Engage in dialogue in a pluralistic society",
@@ -895,12 +855,7 @@
         "shortDescription": "Global issues of population, wealth, power and environment.",
         "levels": "Secondary 5",
         "image": "/images/subjects/monde-contemporain.svg",
-        "topics": [
-          "Population and settlement",
-          "Environment",
-          "Wealth",
-          "Power and tensions"
-        ],
+        "topics": ["Population and settlement", "Environment", "Wealth", "Power and tensions"],
         "skills": [
           "Interpret a contemporary world problem",
           "Take a position on a contemporary world issue",

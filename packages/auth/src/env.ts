@@ -86,10 +86,7 @@ export function getAuthEnv(source: NodeJS.ProcessEnv = process.env): AuthEnv {
  * non vides). Pratique pour conditionner l'inclusion du provider dans
  * la liste passée à NextAuth.
  */
-export function isProviderConfigured(
-  env: AuthEnv,
-  provider: 'google' | 'apple',
-): boolean {
+export function isProviderConfigured(env: AuthEnv, provider: 'google' | 'apple'): boolean {
   if (provider === 'google') {
     return env.AUTH_GOOGLE_ID.length > 0 && env.AUTH_GOOGLE_SECRET.length > 0;
   }

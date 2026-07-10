@@ -27,7 +27,12 @@ export interface PasswordInputProps extends Omit<InputProps, 'type'> {
 
 export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
   function PasswordInput(
-    { showLabel = 'Afficher le mot de passe', hideLabel = 'Masquer le mot de passe', className, ...rest },
+    {
+      showLabel = 'Afficher le mot de passe',
+      hideLabel = 'Masquer le mot de passe',
+      className,
+      ...rest
+    },
     ref,
   ): JSX.Element {
     const [visible, setVisible] = useState(false);

@@ -32,11 +32,7 @@ export function generateMetadata({ params }: { params: LocaleRouteParams }): Met
   };
 }
 
-export default function BlogPage({
-  params,
-}: {
-  readonly params: LocaleRouteParams;
-}): JSX.Element {
+export default function BlogPage({ params }: { readonly params: LocaleRouteParams }): JSX.Element {
   const locale = resolveLocaleParam(params.locale);
   const messages = getMessages(locale);
 

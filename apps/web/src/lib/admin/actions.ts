@@ -239,16 +239,21 @@ export async function updateCourse(
   });
   if (!before) return { ok: false, code: 'notFound', message: 'Cours introuvable.' };
 
+  const titleFr = str(formData, 'titleFr');
+  const titleEn = str(formData, 'titleEn');
+  const ordinal = numOrUndefined(formData, 'ordinal');
+  const estimatedMinutes = numOrUndefined(formData, 'estimatedMinutes');
+
   try {
     const after = await prisma.course.update({
       where: { id: courseId },
       data: {
-        titleFr: str(formData, 'titleFr') || undefined,
-        titleEn: str(formData, 'titleEn') || undefined,
+        ...(titleFr ? { titleFr } : {}),
+        ...(titleEn ? { titleEn } : {}),
         descriptionFr: str(formData, 'descriptionFr') || null,
         descriptionEn: str(formData, 'descriptionEn') || null,
-        ordinal: numOrUndefined(formData, 'ordinal'),
-        estimatedMinutes: numOrUndefined(formData, 'estimatedMinutes'),
+        ...(ordinal !== undefined ? { ordinal } : {}),
+        ...(estimatedMinutes !== undefined ? { estimatedMinutes } : {}),
       },
       select: { id: true, titleFr: true, titleEn: true, status: true, ordinal: true },
     });
@@ -293,8 +298,8 @@ export async function setCourseStatus(
     where: { id: courseId },
     data: {
       status,
-      publishedAt: status === ContentStatus.PUBLISHED ? now : undefined,
-      archivedAt: status === ContentStatus.ARCHIVED ? now : undefined,
+      ...(status === ContentStatus.PUBLISHED ? { publishedAt: now } : {}),
+      ...(status === ContentStatus.ARCHIVED ? { archivedAt: now } : {}),
     },
     select: { id: true, status: true, publishedAt: true, archivedAt: true },
   });
@@ -372,16 +377,21 @@ export async function updateLesson(
   });
   if (!before) return { ok: false, code: 'notFound', message: 'Leçon introuvable.' };
 
+  const titleFr = str(formData, 'titleFr');
+  const titleEn = str(formData, 'titleEn');
+  const ordinal = numOrUndefined(formData, 'ordinal');
+  const estimatedMinutes = numOrUndefined(formData, 'estimatedMinutes');
+
   try {
     const after = await prisma.lesson.update({
       where: { id: lessonId },
       data: {
-        titleFr: str(formData, 'titleFr') || undefined,
-        titleEn: str(formData, 'titleEn') || undefined,
+        ...(titleFr ? { titleFr } : {}),
+        ...(titleEn ? { titleEn } : {}),
         summaryFr: str(formData, 'summaryFr') || null,
         summaryEn: str(formData, 'summaryEn') || null,
-        ordinal: numOrUndefined(formData, 'ordinal'),
-        estimatedMinutes: numOrUndefined(formData, 'estimatedMinutes'),
+        ...(ordinal !== undefined ? { ordinal } : {}),
+        ...(estimatedMinutes !== undefined ? { estimatedMinutes } : {}),
       },
       select: { id: true, titleFr: true, titleEn: true, status: true, ordinal: true },
     });
@@ -428,8 +438,8 @@ export async function setLessonStatus(
     where: { id: lessonId },
     data: {
       status,
-      publishedAt: status === ContentStatus.PUBLISHED ? now : undefined,
-      archivedAt: status === ContentStatus.ARCHIVED ? now : undefined,
+      ...(status === ContentStatus.PUBLISHED ? { publishedAt: now } : {}),
+      ...(status === ContentStatus.ARCHIVED ? { archivedAt: now } : {}),
     },
     select: { id: true, status: true, publishedAt: true, archivedAt: true },
   });

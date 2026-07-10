@@ -126,7 +126,10 @@ export function ContactForm({ labels }: { labels: ContactFormLabels }): JSX.Elem
       className="flex flex-col gap-5"
     >
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={nameId} className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+        <label
+          htmlFor={nameId}
+          className="text-sm font-semibold text-slate-800 dark:text-slate-100"
+        >
           {labels.nameLabel}
         </label>
         <input
@@ -146,7 +149,10 @@ export function ContactForm({ labels }: { labels: ContactFormLabels }): JSX.Elem
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={emailId} className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+        <label
+          htmlFor={emailId}
+          className="text-sm font-semibold text-slate-800 dark:text-slate-100"
+        >
           {labels.emailLabel}
         </label>
         <input
@@ -166,7 +172,10 @@ export function ContactForm({ labels }: { labels: ContactFormLabels }): JSX.Elem
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={topicId} className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+        <label
+          htmlFor={topicId}
+          className="text-sm font-semibold text-slate-800 dark:text-slate-100"
+        >
           {labels.topicLabel}
         </label>
         <select

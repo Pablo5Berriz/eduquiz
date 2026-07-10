@@ -36,15 +36,14 @@ interface HealthReport {
 
 export async function GET(): Promise<NextResponse<HealthReport>> {
   const timestamp = new Date().toISOString();
-  const version =
-    process.env.NEXT_PUBLIC_APP_VERSION ?? process.env.npm_package_version ?? '0.0.0';
+  const version = process.env.NEXT_PUBLIC_APP_VERSION ?? process.env.npm_package_version ?? '0.0.0';
 
   let database: 'ok' | 'down' = 'ok';
   try {
     await prisma.$queryRaw`SELECT 1`;
   } catch (err: unknown) {
     database = 'down';
-     
+
     console.error('[health] database check failed:', err);
   }
 

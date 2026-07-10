@@ -37,8 +37,12 @@ export function ResendVerificationButton({
 
   useEffect(() => {
     if (cooldown <= 0) return;
-    const t = setTimeout(() => { setCooldown((c) => c - 1); }, 1000);
-    return () => { clearTimeout(t); };
+    const t = setTimeout(() => {
+      setCooldown((c) => c - 1);
+    }, 1000);
+    return () => {
+      clearTimeout(t);
+    };
   }, [cooldown]);
 
   function onClick(): void {
@@ -47,25 +51,29 @@ export function ResendVerificationButton({
       setSuccess(true);
       setCooldown(COOLDOWN_SECONDS);
       // Le succès s'efface après le cooldown.
-      setTimeout(() => { setSuccess(false); }, COOLDOWN_SECONDS * 1000);
+      setTimeout(() => {
+        setSuccess(false);
+      }, COOLDOWN_SECONDS * 1000);
     });
   }
 
   const disabled = pending || cooldown > 0;
-  const label = cooldown > 0
-    ? resendCooldownTemplate.replace('{seconds}', String(cooldown))
-    : resendCta;
+  const label =
+    cooldown > 0 ? resendCooldownTemplate.replace('{seconds}', String(cooldown)) : resendCta;
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <Button variant="secondary" size="md" onClick={onClick} disabled={disabled} isLoading={pending}>
+      <Button
+        variant="secondary"
+        size="md"
+        onClick={onClick}
+        disabled={disabled}
+        isLoading={pending}
+      >
         {label}
       </Button>
       {success && cooldown > 0 ? (
-        <p
-          role="status"
-          className="text-xs font-medium text-emerald-700 dark:text-emerald-300"
-        >
+        <p role="status" className="text-xs font-medium text-emerald-700 dark:text-emerald-300">
           {resendSuccess}
         </p>
       ) : null}

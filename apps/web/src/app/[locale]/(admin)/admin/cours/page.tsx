@@ -2,6 +2,7 @@ import { prismaService as prisma } from '@eduquiz/db';
 import Link from 'next/link';
 
 import { createCourse } from '../../../../../lib/admin/actions';
+import { discardResult } from '../../../../../lib/admin/form-action';
 import { resolveLocaleParam, type LocaleRouteParams } from '../../../../../lib/i18n/locale';
 
 import type { JSX } from 'react';
@@ -35,7 +36,7 @@ export default async function AdminCoursListPage({
     prisma.level.findMany({ orderBy: { ordinal: 'asc' }, select: { id: true, nameFr: true } }),
   ]);
 
-  const createCourseAction = createCourse.bind(null, locale);
+  const createCourseAction = discardResult(createCourse.bind(null, locale));
 
   return (
     <div>
@@ -71,10 +72,7 @@ export default async function AdminCoursListPage({
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {courses.map((course) => (
-                <tr
-                  key={course.id}
-                  className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                >
+                <tr key={course.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                   <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
                     {course.titleFr}
                   </td>

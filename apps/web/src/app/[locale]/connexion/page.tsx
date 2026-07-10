@@ -65,8 +65,7 @@ export default function SignInPage({
   // Sécurise le `next` côté serveur : on garde uniquement les chemins
   // relatifs commençant par `/`.
   const rawNext = searchParams.next;
-  const nextPath =
-    rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : null;
+  const nextPath = rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : null;
 
   return (
     <Container width="md" className="py-12 sm:py-16">

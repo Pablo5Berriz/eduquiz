@@ -118,9 +118,15 @@ describe('withRateLimit (avec Redis mock)', () => {
     _setRedisForTests({
       multi() {
         return {
-          incr() { return this; },
-          pexpire() { return this; },
-          pttl() { return this; },
+          incr() {
+            return this;
+          },
+          pexpire() {
+            return this;
+          },
+          pttl() {
+            return this;
+          },
           exec: vi.fn().mockResolvedValue(null),
         };
       },

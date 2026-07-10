@@ -43,11 +43,7 @@ export function generateMetadata({ params }: { params: LocaleRouteParams }): Met
   };
 }
 
-export default function AboutPage({
-  params,
-}: {
-  readonly params: LocaleRouteParams;
-}): JSX.Element {
+export default function AboutPage({ params }: { readonly params: LocaleRouteParams }): JSX.Element {
   const locale = resolveLocaleParam(params.locale);
   const messages = getMessages(locale);
 
@@ -101,16 +97,10 @@ export default function AboutPage({
         </section>
       </Container>
 
-      <section
-        aria-labelledby="about-cta-title"
-        className="bg-slate-50 dark:bg-slate-900/40"
-      >
+      <section aria-labelledby="about-cta-title" className="bg-slate-50 dark:bg-slate-900/40">
         <Container width="lg" className="py-20">
           <div className="mx-auto flex max-w-3xl flex-col items-center gap-5 text-center">
-            <h2
-              id="about-cta-title"
-              className="text-balance text-2xl font-bold sm:text-3xl"
-            >
+            <h2 id="about-cta-title" className="text-balance text-2xl font-bold sm:text-3xl">
               {t(messages, 'about.ctaTitle')}
             </h2>
             <p className="text-balance text-slate-600 dark:text-slate-300">

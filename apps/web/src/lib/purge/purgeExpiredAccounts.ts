@@ -23,12 +23,7 @@
  * n'empêche pas le traitement des suivants.
  */
 
-import {
-  AuditEventKind,
-  DataRequestKind,
-  DataRequestStatus,
-  prisma,
-} from '@eduquiz/db';
+import { AuditEventKind, DataRequestKind, DataRequestStatus, prisma } from '@eduquiz/db';
 
 import { logger } from '../logger';
 

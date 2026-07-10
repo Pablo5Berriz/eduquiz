@@ -26,7 +26,11 @@ export default async function LinkParentPage({
   readonly params: LocaleRouteParams;
 }): Promise<JSX.Element> {
   const locale = resolveLocaleParam(params.locale);
-  const user = await requireRoleOrRedirect(locale, UserRole.LEARNER_MINOR, '/apprendre/relier-parent');
+  const user = await requireRoleOrRedirect(
+    locale,
+    UserRole.LEARNER_MINOR,
+    '/apprendre/relier-parent',
+  );
   const messages = getMessages(locale);
 
   // Si un lien VERIFIED existe déjà, afficher un message sans le formulaire.

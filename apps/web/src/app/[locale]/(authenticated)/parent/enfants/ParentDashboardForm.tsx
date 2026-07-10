@@ -11,7 +11,10 @@
 import { Alert, Button, FormField, Input } from '@eduquiz/ui';
 import { useState, useTransition } from 'react';
 
-import { createParentInvitation, type InvitationErrorCode } from '../../../../../lib/family/actions';
+import {
+  createParentInvitation,
+  type InvitationErrorCode,
+} from '../../../../../lib/family/actions';
 
 import type { JSX } from 'react';
 
@@ -78,7 +81,11 @@ export function ParentDashboardForm({ initialLinks, copy }: ParentDashboardFormP
           ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
           : 'inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400';
     const label =
-      state === 'VERIFIED' ? copy.stateVerified : state === 'PENDING' ? copy.statePending : copy.stateRevoked;
+      state === 'VERIFIED'
+        ? copy.stateVerified
+        : state === 'PENDING'
+          ? copy.statePending
+          : copy.stateRevoked;
     return <span className={classes}>{label}</span>;
   }
 
@@ -102,7 +109,7 @@ export function ParentDashboardForm({ initialLinks, copy }: ParentDashboardFormP
             <p className="text-xs text-slate-500 dark:text-slate-400">{copy.codeExpiry}</p>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={() => setGeneratedCode(null)}
             >

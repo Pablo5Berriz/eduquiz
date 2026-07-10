@@ -139,10 +139,7 @@ export async function requireApiUser(): Promise<AuthSessionUser> {
  *
  * Les non-mineurs (LEARNER_ADULT, PARENT, ADMIN) passent sans requête DB.
  */
-export async function guardMinorParentLink(
-  user: AuthSessionUser,
-  locale: string,
-): Promise<void> {
+export async function guardMinorParentLink(user: AuthSessionUser, locale: string): Promise<void> {
   if (user.role !== UserRole.LEARNER_MINOR) return;
 
   const verified = await prisma.parentChildLink.findFirst({

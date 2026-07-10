@@ -24,9 +24,5 @@ export default async function AuthenticatedLayout({
   const user = await requireAuthenticated(locale, '/');
   await guardMinorParentLink(user, locale);
 
-  return (
-    <div className="flex-1 bg-slate-50 dark:bg-slate-950">
-      {children}
-    </div>
-  );
+  return <div className="flex-1 bg-slate-50 dark:bg-slate-950">{children}</div>;
 }

@@ -140,7 +140,10 @@ export function SignupAdultForm({ locale, copy }: SignupAdultFormProps): JSX.Ele
       >
         {copy.termsLabel}
         {errors.acceptTerms ? (
-          <span role="alert" className="mt-1 block text-xs font-medium text-danger-700 dark:text-danger-300">
+          <span
+            role="alert"
+            className="mt-1 block text-xs font-medium text-danger-700 dark:text-danger-300"
+          >
             {copy.errors[errors.acceptTerms]}
           </span>
         ) : null}

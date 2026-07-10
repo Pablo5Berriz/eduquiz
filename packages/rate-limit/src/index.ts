@@ -12,11 +12,6 @@
  * Redis monté ou en CI sans service Redis dédié.
  */
 
-export {
-  withRateLimit,
-  clientIpFrom,
-  type RateLimitInput,
-  type RateLimitResult,
-} from './limit.js';
+export { withRateLimit, clientIpFrom, type RateLimitInput, type RateLimitResult } from './limit.js';
 
 export { getRateLimitEnv, type RateLimitEnv } from './env.js';

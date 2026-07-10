@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { ContentStatus, prismaService as prisma } from '@eduquiz/db';
+import { discardResult } from '../../../../../../lib/admin/form-action';
 import { resolveLocaleParam, type LocaleRouteParams } from '../../../../../../lib/i18n/locale';
 import {
   updateCourse,
@@ -52,13 +53,19 @@ export default async function AdminCoursDetailPage({
 
   if (!course) notFound();
 
-  const updateCourseAction = updateCourse.bind(null, locale, courseId);
-  const createLessonAction = createLesson.bind(null, locale, courseId);
+  const updateCourseAction = discardResult(updateCourse.bind(null, locale, courseId));
+  const createLessonAction = discardResult(createLesson.bind(null, locale, courseId));
 
   // Status transition helpers
-  const publishCourse = setCourseStatus.bind(null, locale, courseId, ContentStatus.PUBLISHED);
-  const unpublishCourse = setCourseStatus.bind(null, locale, courseId, ContentStatus.DRAFT);
-  const archiveCourse = setCourseStatus.bind(null, locale, courseId, ContentStatus.ARCHIVED);
+  const publishCourse = discardResult(
+    setCourseStatus.bind(null, locale, courseId, ContentStatus.PUBLISHED),
+  );
+  const unpublishCourse = discardResult(
+    setCourseStatus.bind(null, locale, courseId, ContentStatus.DRAFT),
+  );
+  const archiveCourse = discardResult(
+    setCourseStatus.bind(null, locale, courseId, ContentStatus.ARCHIVED),
+  );
 
   return (
     <div>
@@ -74,9 +81,7 @@ export default async function AdminCoursDetailPage({
       {/* Header */}
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            {course.titleFr}
-          </h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">{course.titleFr}</h1>
           <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
             {course.subject.nameFr} · {course.level.nameFr} · slug :{' '}
             <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-xs dark:bg-slate-800">
@@ -223,26 +228,21 @@ export default async function AdminCoursDetailPage({
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {course.lessons.map((lesson) => {
-                  const publishLesson = setLessonStatus.bind(
-                    null,
-                    locale,
-                    lesson.id,
-                    courseId,
-                    ContentStatus.PUBLISHED,
+                  const publishLesson = discardResult(
+                    setLessonStatus.bind(
+                      null,
+                      locale,
+                      lesson.id,
+                      courseId,
+                      ContentStatus.PUBLISHED,
+                    ),
                   );
-                  const unpublishLesson = setLessonStatus.bind(
-                    null,
-                    locale,
-                    lesson.id,
-                    courseId,
-                    ContentStatus.DRAFT,
+                  const unpublishLesson = discardResult(
+                    setLessonStatus.bind(null, locale, lesson.id, courseId, ContentStatus.DRAFT),
                   );
 
                   return (
-                    <tr
-                      key={lesson.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                    >
+                    <tr key={lesson.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                       <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
                         {lesson.titleFr}
                       </td>

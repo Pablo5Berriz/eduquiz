@@ -252,12 +252,7 @@
     "ctaSecondary": "Découvrir les matières",
     "trust": {
       "title": "Conçu avec et pour les familles du Québec",
-      "items": [
-        "Aligné PFEQ",
-        "Hébergé à Montréal",
-        "Conforme Loi 25",
-        "Bilingue FR + EN"
-      ]
+      "items": ["Aligné PFEQ", "Hébergé à Montréal", "Conforme Loi 25", "Bilingue FR + EN"]
     },
     "features": {
       "kicker": "Fonctionnalités",
@@ -496,12 +491,7 @@
         "shortDescription": "Communication orale, lecture et écriture en langue seconde.",
         "levels": "Primaire 3 – Secondaire 5",
         "image": "/images/subjects/anglais.svg",
-        "topics": [
-          "Interactions orales",
-          "Lecture et textes",
-          "Production écrite",
-          "Culture anglophone"
-        ],
+        "topics": ["Interactions orales", "Lecture et textes", "Production écrite", "Culture anglophone"],
         "skills": [
           "Interagir oralement en anglais",
           "Comprendre des textes lus ou entendus",
@@ -566,12 +556,7 @@
         "shortDescription": "Sciences de la nature et technologie, du 2ᵉ cycle primaire au secondaire.",
         "levels": "Primaire 5 – Secondaire 5",
         "image": "/images/subjects/sciences-technologie.svg",
-        "topics": [
-          "Univers matériel",
-          "Univers vivant",
-          "Terre et espace",
-          "Technologie"
-        ],
+        "topics": ["Univers matériel", "Univers vivant", "Terre et espace", "Technologie"],
         "skills": [
           "Explorer le monde de la science et de la technologie",
           "Mettre à profit des outils, objets et procédés",
@@ -629,12 +614,7 @@
         "shortDescription": "Des premières sociétés à nos jours, avec un regard québécois.",
         "levels": "Primaire 3 – Secondaire 4",
         "image": "/images/subjects/histoire-quebec-canada.svg",
-        "topics": [
-          "Premières sociétés",
-          "Nouvelle-France",
-          "Régime britannique",
-          "Québec moderne"
-        ],
+        "topics": ["Premières sociétés", "Nouvelle-France", "Régime britannique", "Québec moderne"],
         "skills": [
           "Interroger les réalités sociales dans une perspective historique",
           "Interpréter les réalités sociales à l'aide de la méthode historique",
@@ -678,12 +658,7 @@
         "shortDescription": "Territoires, paysages et enjeux contemporains.",
         "levels": "Primaire 3 – Secondaire 2",
         "image": "/images/subjects/geographie.svg",
-        "topics": [
-          "Lecture de cartes",
-          "Territoires humains",
-          "Enjeux environnementaux",
-          "Régions du monde"
-        ],
+        "topics": ["Lecture de cartes", "Territoires humains", "Enjeux environnementaux", "Régions du monde"],
         "skills": [
           "Lire l'organisation d'un territoire",
           "Interpréter un enjeu territorial",
@@ -727,12 +702,7 @@
         "shortDescription": "Budget, consommation, fiscalité et projets de vie.",
         "levels": "Secondaire 5",
         "image": "/images/subjects/education-financiere.svg",
-        "topics": [
-          "Consommation",
-          "Travail et revenu",
-          "Épargne et crédit",
-          "Fiscalité et projets"
-        ],
+        "topics": ["Consommation", "Travail et revenu", "Épargne et crédit", "Fiscalité et projets"],
         "skills": [
           "Prendre position sur un enjeu financier",
           "Analyser un choix de consommation",
@@ -825,12 +795,7 @@
         "shortDescription": "Identité, diversité, démocratie et culture au Québec.",
         "levels": "Primaire 3 – Secondaire 5",
         "image": "/images/subjects/culture-citoyennete-quebecoise.svg",
-        "topics": [
-          "Citoyenneté démocratique",
-          "Identité et diversité",
-          "Culture québécoise",
-          "Éthique et société"
-        ],
+        "topics": ["Citoyenneté démocratique", "Identité et diversité", "Culture québécoise", "Éthique et société"],
         "skills": [
           "Délibérer sur des enjeux éthiques et culturels",
           "Dialoguer dans une société pluraliste",
@@ -895,12 +860,7 @@
         "shortDescription": "Enjeux mondiaux de population, richesse, pouvoir et environnement.",
         "levels": "Secondaire 5",
         "image": "/images/subjects/monde-contemporain.svg",
-        "topics": [
-          "Population et peuplement",
-          "Environnement",
-          "Richesse",
-          "Pouvoir et tensions"
-        ],
+        "topics": ["Population et peuplement", "Environnement", "Richesse", "Pouvoir et tensions"],
         "skills": [
           "Interpréter un problème du monde contemporain",
           "Prendre position sur un enjeu du monde contemporain",

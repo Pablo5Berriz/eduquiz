@@ -58,7 +58,7 @@ export default async function EditProfilePage({
   const welcomeCopy =
     locale === 'fr'
       ? {
-          title: "Bienvenue sur EduQuiz !",
+          title: 'Bienvenue sur EduQuiz !',
           body: "Commence par compléter ton profil — ça prend moins d'une minute.",
         }
       : {

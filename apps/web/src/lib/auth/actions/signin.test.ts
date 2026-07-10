@@ -30,8 +30,12 @@ describe('signInAdult rate limiting', () => {
     vi.clearAllMocks();
   });
 
-  it("bloque sans appeler Auth.js et loggue uniquement le hash de clé", async () => {
-    mockCheckRateLimit.mockResolvedValue({ allowed: false, bypassed: false, keyHash: 'abc123def456' });
+  it('bloque sans appeler Auth.js et loggue uniquement le hash de clé', async () => {
+    mockCheckRateLimit.mockResolvedValue({
+      allowed: false,
+      bypassed: false,
+      keyHash: 'abc123def456',
+    });
 
     const result = await signInAdult({
       locale: 'fr',
