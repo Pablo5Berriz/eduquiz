@@ -67,6 +67,9 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Prisma generate
+        run: pnpm --filter @eduquiz/db run db:generate
+
       - name: Lint
         run: pnpm lint
 
