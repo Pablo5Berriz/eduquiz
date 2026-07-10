@@ -7,6 +7,7 @@ import {
   setLessonStatus,
   updateLesson,
 } from '../../../../../../../../lib/admin/actions';
+import { discardResult } from '../../../../../../../../lib/admin/form-action';
 import { resolveLocaleParam, type LocaleRouteParams } from '../../../../../../../../lib/i18n/locale';
 
 import type { JSX } from 'react';
@@ -59,9 +60,13 @@ export default async function AdminLessonDetailPage({
 
   if (lesson?.course.id !== courseId) notFound();
 
-  const updateLessonAction = updateLesson.bind(null, locale, lessonId, courseId);
-  const publishLesson = setLessonStatus.bind(null, locale, lessonId, courseId, ContentStatus.PUBLISHED);
-  const unpublishLesson = setLessonStatus.bind(null, locale, lessonId, courseId, ContentStatus.DRAFT);
+  const updateLessonAction = discardResult(updateLesson.bind(null, locale, lessonId, courseId));
+  const publishLesson = discardResult(
+    setLessonStatus.bind(null, locale, lessonId, courseId, ContentStatus.PUBLISHED),
+  );
+  const unpublishLesson = discardResult(
+    setLessonStatus.bind(null, locale, lessonId, courseId, ContentStatus.DRAFT),
+  );
 
   return (
     <div>
@@ -252,19 +257,11 @@ export default async function AdminLessonDetailPage({
                     activity.kind === ActivityKind.QUIZ
                       ? 'Quiz'
                       : `Exercice · ${activity.exercise?.type ?? ''}`;
-                  const publishActivity = setActivityStatus.bind(
-                    null,
-                    locale,
-                    activity.id,
-                    lessonId,
-                    ContentStatus.PUBLISHED,
+                  const publishActivity = discardResult(
+                    setActivityStatus.bind(null, locale, activity.id, lessonId, ContentStatus.PUBLISHED),
                   );
-                  const unpublishActivity = setActivityStatus.bind(
-                    null,
-                    locale,
-                    activity.id,
-                    lessonId,
-                    ContentStatus.DRAFT,
+                  const unpublishActivity = discardResult(
+                    setActivityStatus.bind(null, locale, activity.id, lessonId, ContentStatus.DRAFT),
                   );
 
                   return (

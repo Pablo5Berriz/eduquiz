@@ -717,10 +717,12 @@ function moveAnswerId(
   if (targetIndex < 0 || targetIndex >= answerIds.length) return answerIds;
 
   const nextAnswerIds = [...answerIds];
-  [nextAnswerIds[index], nextAnswerIds[targetIndex]] = [
-    nextAnswerIds[targetIndex],
-    nextAnswerIds[index],
-  ];
+  const current = nextAnswerIds[index];
+  const target = nextAnswerIds[targetIndex];
+  if (current === undefined || target === undefined) return answerIds;
+
+  nextAnswerIds[index] = target;
+  nextAnswerIds[targetIndex] = current;
   return nextAnswerIds;
 }
 

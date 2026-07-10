@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { ContentStatus, prismaService as prisma } from '@eduquiz/db';
+import { discardResult } from '../../../../../../lib/admin/form-action';
 import { resolveLocaleParam, type LocaleRouteParams } from '../../../../../../lib/i18n/locale';
 import {
   updateCourse,
@@ -52,13 +53,19 @@ export default async function AdminCoursDetailPage({
 
   if (!course) notFound();
 
-  const updateCourseAction = updateCourse.bind(null, locale, courseId);
-  const createLessonAction = createLesson.bind(null, locale, courseId);
+  const updateCourseAction = discardResult(updateCourse.bind(null, locale, courseId));
+  const createLessonAction = discardResult(createLesson.bind(null, locale, courseId));
 
   // Status transition helpers
-  const publishCourse = setCourseStatus.bind(null, locale, courseId, ContentStatus.PUBLISHED);
-  const unpublishCourse = setCourseStatus.bind(null, locale, courseId, ContentStatus.DRAFT);
-  const archiveCourse = setCourseStatus.bind(null, locale, courseId, ContentStatus.ARCHIVED);
+  const publishCourse = discardResult(
+    setCourseStatus.bind(null, locale, courseId, ContentStatus.PUBLISHED),
+  );
+  const unpublishCourse = discardResult(
+    setCourseStatus.bind(null, locale, courseId, ContentStatus.DRAFT),
+  );
+  const archiveCourse = discardResult(
+    setCourseStatus.bind(null, locale, courseId, ContentStatus.ARCHIVED),
+  );
 
   return (
     <div>
@@ -223,19 +230,11 @@ export default async function AdminCoursDetailPage({
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {course.lessons.map((lesson) => {
-                  const publishLesson = setLessonStatus.bind(
-                    null,
-                    locale,
-                    lesson.id,
-                    courseId,
-                    ContentStatus.PUBLISHED,
+                  const publishLesson = discardResult(
+                    setLessonStatus.bind(null, locale, lesson.id, courseId, ContentStatus.PUBLISHED),
                   );
-                  const unpublishLesson = setLessonStatus.bind(
-                    null,
-                    locale,
-                    lesson.id,
-                    courseId,
-                    ContentStatus.DRAFT,
+                  const unpublishLesson = discardResult(
+                    setLessonStatus.bind(null, locale, lesson.id, courseId, ContentStatus.DRAFT),
                   );
 
                   return (

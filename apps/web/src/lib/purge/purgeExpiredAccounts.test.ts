@@ -116,7 +116,16 @@ describe('purgeExpiredAccounts', () => {
     const req = makeExpiredRequest({ id: 'req-42', userId: 'user-99' });
     mockFindMany.mockResolvedValue([req]);
 
-    let capturedTx: Record<string, Record<string, ReturnType<typeof vi.fn>>> | null = null;
+    interface CapturedTx {
+      user: { update: ReturnType<typeof vi.fn> };
+      profile: { deleteMany: ReturnType<typeof vi.fn> };
+      account: { deleteMany: ReturnType<typeof vi.fn> };
+      session: { deleteMany: ReturnType<typeof vi.fn> };
+      dataRequest: { update: ReturnType<typeof vi.fn> };
+      auditLog: { create: ReturnType<typeof vi.fn> };
+    }
+
+    let capturedTx: CapturedTx | null = null;
     mockTransaction.mockImplementation(async (cb: (tx: unknown) => Promise<void>) => {
       const tx = {
         user: { update: vi.fn().mockResolvedValue(undefined) },

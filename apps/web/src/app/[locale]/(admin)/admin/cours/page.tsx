@@ -2,6 +2,7 @@ import { prismaService as prisma } from '@eduquiz/db';
 import Link from 'next/link';
 
 import { createCourse } from '../../../../../lib/admin/actions';
+import { discardResult } from '../../../../../lib/admin/form-action';
 import { resolveLocaleParam, type LocaleRouteParams } from '../../../../../lib/i18n/locale';
 
 import type { JSX } from 'react';
@@ -35,7 +36,7 @@ export default async function AdminCoursListPage({
     prisma.level.findMany({ orderBy: { ordinal: 'asc' }, select: { id: true, nameFr: true } }),
   ]);
 
-  const createCourseAction = createCourse.bind(null, locale);
+  const createCourseAction = discardResult(createCourse.bind(null, locale));
 
   return (
     <div>

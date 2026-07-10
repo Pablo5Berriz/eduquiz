@@ -102,7 +102,7 @@ export function ParentDashboardForm({ initialLinks, copy }: ParentDashboardFormP
             <p className="text-xs text-slate-500 dark:text-slate-400">{copy.codeExpiry}</p>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={() => setGeneratedCode(null)}
             >

@@ -199,7 +199,7 @@ async function globalSetup(): Promise<void> {
     lessonTitleFr: firstQuizActivity.lesson.titleFr,
     subjectNameFr: firstQuizActivity.lesson.course.subject.nameFr,
     levelNameFr: firstQuizActivity.lesson.course.level.nameFr,
-    draftLessonTitleFr: draftLesson?.titleFr,
+    ...(draftLesson?.titleFr !== undefined ? { draftLessonTitleFr: draftLesson.titleFr } : {}),
     quizQuestions: firstQuizActivity.quiz.questions.map((question) => {
       const correctAnswerLabelsFr = question.answers
         .filter((answer) => answer.isCorrect)
@@ -210,12 +210,14 @@ async function globalSetup(): Promise<void> {
           : [],
       );
 
+      const [firstCorrectLabel] = correctAnswerLabelsFr;
+
       return {
         id: question.id,
         type: question.type,
         promptFr: question.promptFr,
         correctAnswerLabelsFr,
-        textAnswerFr: correctAnswerLabelsFr[0],
+        ...(firstCorrectLabel !== undefined ? { textAnswerFr: firstCorrectLabel } : {}),
         matchingPairsFr,
         orderingLabelsFr: correctAnswerLabelsFr,
       };
