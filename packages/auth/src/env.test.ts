@@ -18,10 +18,12 @@ describe('getAuthEnv', () => {
   });
 
   it('accepte un environnement minimal valide', () => {
-    const parsed = getAuthEnv(env({
-      AUTH_SECRET: 'a'.repeat(32),
-      AUTH_URL: 'http://localhost:3000',
-    }));
+    const parsed = getAuthEnv(
+      env({
+        AUTH_SECRET: 'a'.repeat(32),
+        AUTH_URL: 'http://localhost:3000',
+      }),
+    );
 
     expect(parsed.AUTH_SECRET.length).toBeGreaterThanOrEqual(32);
     expect(parsed.AUTH_URL).toBe('http://localhost:3000');
@@ -33,28 +35,34 @@ describe('getAuthEnv', () => {
 
   it('refuse un AUTH_SECRET trop court', () => {
     expect(() =>
-      getAuthEnv(env({
-        AUTH_SECRET: 'short',
-        AUTH_URL: 'http://localhost:3000',
-      })),
+      getAuthEnv(
+        env({
+          AUTH_SECRET: 'short',
+          AUTH_URL: 'http://localhost:3000',
+        }),
+      ),
     ).toThrow(/AUTH_SECRET/);
   });
 
   it('refuse une AUTH_URL non absolue', () => {
     expect(() =>
-      getAuthEnv(env({
-        AUTH_SECRET: 'a'.repeat(32),
-        AUTH_URL: 'not-a-url',
-      })),
+      getAuthEnv(
+        env({
+          AUTH_SECRET: 'a'.repeat(32),
+          AUTH_URL: 'not-a-url',
+        }),
+      ),
     ).toThrow(/AUTH_URL/);
   });
 
   it('parse AUTH_TRUST_HOST avec différentes formes truthy/falsy', () => {
-    const parsed = getAuthEnv(env({
-      AUTH_SECRET: 'a'.repeat(32),
-      AUTH_URL: 'http://localhost:3000',
-      AUTH_TRUST_HOST: 'false',
-    }));
+    const parsed = getAuthEnv(
+      env({
+        AUTH_SECRET: 'a'.repeat(32),
+        AUTH_URL: 'http://localhost:3000',
+        AUTH_TRUST_HOST: 'false',
+      }),
+    );
     expect(parsed.AUTH_TRUST_HOST).toBe(false);
   });
 });
@@ -62,23 +70,27 @@ describe('getAuthEnv', () => {
 describe('isProviderConfigured', () => {
   it('détecte Google configuré quand id ET secret sont posés', () => {
     _resetAuthEnvCacheForTests();
-    const parsed = getAuthEnv(env({
-      AUTH_SECRET: 'a'.repeat(32),
-      AUTH_URL: 'http://localhost:3000',
-      AUTH_GOOGLE_ID: 'client-id',
-      AUTH_GOOGLE_SECRET: 'client-secret',
-    }));
+    const parsed = getAuthEnv(
+      env({
+        AUTH_SECRET: 'a'.repeat(32),
+        AUTH_URL: 'http://localhost:3000',
+        AUTH_GOOGLE_ID: 'client-id',
+        AUTH_GOOGLE_SECRET: 'client-secret',
+      }),
+    );
     expect(isProviderConfigured(parsed, 'google')).toBe(true);
     expect(isProviderConfigured(parsed, 'apple')).toBe(false);
   });
 
   it('refuse si une seule des deux variables est posée', () => {
     _resetAuthEnvCacheForTests();
-    const parsed = getAuthEnv(env({
-      AUTH_SECRET: 'a'.repeat(32),
-      AUTH_URL: 'http://localhost:3000',
-      AUTH_GOOGLE_ID: 'client-id',
-    }));
+    const parsed = getAuthEnv(
+      env({
+        AUTH_SECRET: 'a'.repeat(32),
+        AUTH_URL: 'http://localhost:3000',
+        AUTH_GOOGLE_ID: 'client-id',
+      }),
+    );
     expect(isProviderConfigured(parsed, 'google')).toBe(false);
   });
 });

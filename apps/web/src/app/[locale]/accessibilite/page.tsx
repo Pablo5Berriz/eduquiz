@@ -1,9 +1,6 @@
 import { getMessages, t } from '@eduquiz/i18n';
 
-import {
-  LegalDocument,
-  getRelatedLegalLinks,
-} from '../../../components/layout/LegalDocument';
+import { LegalDocument, getRelatedLegalLinks } from '../../../components/layout/LegalDocument';
 import { resolveLocaleParam, type LocaleRouteParams } from '../../../lib/i18n/locale';
 
 import type { Metadata } from 'next';

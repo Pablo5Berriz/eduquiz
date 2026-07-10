@@ -35,7 +35,8 @@ const input = tv({
     },
     invalid: {
       true: 'border-danger-500 focus-visible:ring-danger-500 dark:border-danger-500',
-      false: 'border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600',
+      false:
+        'border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600',
     },
   },
   defaultVariants: {
@@ -47,8 +48,7 @@ const input = tv({
 export type InputVariants = VariantProps<typeof input>;
 
 export interface InputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>,
-    InputVariants {}
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>, InputVariants {}
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   { size, invalid, className, type = 'text', ...rest },

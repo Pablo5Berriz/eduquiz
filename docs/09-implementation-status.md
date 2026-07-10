@@ -1,6 +1,7 @@
 # Statut d'implémentation — EduQuiz
 
-Dernière mise à jour : 2026-05-05. (EMA mastery, tests Vitest submitQuizAttempt, E2E découplé, TRUE_FALSE exercices guidés)
+Dernière mise à jour : 2026-05-05. (EMA mastery, tests Vitest submitQuizAttempt,
+E2E découplé, TRUE_FALSE exercices guidés)
 
 Ce document distingue la vision cible décrite dans les autres documents de
 l'état réellement livré dans le dépôt. Il doit primer lorsqu'une page de doc
@@ -15,26 +16,26 @@ produit n'est toutefois pas encore une V1 pédagogique complète : le coeur
 éditoriale des contenus, les tableaux de bord et les tests de parcours réels
 restent à livrer.
 
-| Domaine                 | Statut            | Commentaire                                                                                                                                             |
-| ----------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Monorepo pnpm/Turborepo | Livré             | Structure `apps/*` et `packages/*` en place.                                                                                                            |
-| Web Next.js public      | Livré partiel     | Vitrine, pages légales, matières/niveaux statiques ou semi-statiques.                                                                                   |
-| Mobile Expo             | Squelette         | `_layout.tsx` et écran d'accueil seulement.                                                                                                             |
-| Auth adulte             | Livré partiel     | Credentials, vérification email, reset password, profil, paramètres.                                                                                    |
-| Auth parent/mineur      | Non commencé      | UI partiellement préparée, flux de rattachement non livré.                                                                                              |
-| Sessions                | Livré avec nuance | Auth.js en JWT avec validation serveur via `User.sessionVersion`; les anciennes mentions "sessions DB révocables" sont obsolètes.                       |
-| Loi 25                  | Partiel           | Consentement adulte, export JSON, soft delete, audit et **purge cron** livrés. Manque : export asynchrone/PDF, EFVP, registre incidents, validations juridiques. |
-| RLS                     | Livré partiel     | Politiques et helpers existent; `withUser` est désormais appelé dans toutes les routes d'apprentissage (`getAttemptResult`, `getQuizAttemptHistory`, `getLearnerLearningOverview`, `submitQuizAttempt`). Les routes admin et l'export Loi 25 restent à vérifier.                                                                                        |
-| Catalogue pédagogique   | Livré minimal     | Mini-catalogue seedé et espace authentifié `/apprendre` connecté à la DB.                                                                               |
-| Leçons                  | Livré minimal     | Lecteur simple de leçon publiée avec contenu structuré `bodyFr/bodyEn`, compétences, objectifs et accès au quiz.                                        |
-| Exercices               | Livré minimal     | Exercices guidés `MCQ_SINGLE` et `TRUE_FALSE` affichés dans la page leçon avec feedback immédiat. `TRUE_FALSE` : boutons Vrai/Faux (plus radio). Les autres types restent à exposer. |
-| Quiz                    | Livré minimal     | `MCQ_SINGLE` et `TRUE_FALSE`, scoring, erreurs de soumission affichées, tentative immuable et résultat visible.                                         |
-| Progression             | Livré minimal     | Mise à jour de `Progress` par compétence et carte de progression visible dans `/apprendre`.                                                             |
-| Gamification            | Non livré         | Tables préparées, pas d'expérience.                                                                                                                     |
-| Paiement Stripe         | Non livré         | Variables/infra prévues, intégration absente.                                                                                                           |
-| CI                      | Livré partiel     | Lint/typecheck/test/build sont câblés; e2e web minimal ajouté; mobile reste largement placeholder.                                                      |
-| Tests                   | Partiel           | Tests unitaires auth/email/rate-limit + scoring + mastery EMA + submitQuizAttempt (11 cas). Playwright découplé du seed. Maestro mobile absent.          |
-| Infra Docker/Proxmox    | Préparé           | Compose dev/prod, Traefik, MinIO, Redis, Postgres, backup; validation production réelle à faire.                                                        |
+| Domaine                 | Statut            | Commentaire                                                                                                                                                                                                                                                      |
+| ----------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Monorepo pnpm/Turborepo | Livré             | Structure `apps/*` et `packages/*` en place.                                                                                                                                                                                                                     |
+| Web Next.js public      | Livré partiel     | Vitrine, pages légales, matières/niveaux statiques ou semi-statiques.                                                                                                                                                                                            |
+| Mobile Expo             | Squelette         | `_layout.tsx` et écran d'accueil seulement.                                                                                                                                                                                                                      |
+| Auth adulte             | Livré partiel     | Credentials, vérification email, reset password, profil, paramètres.                                                                                                                                                                                             |
+| Auth parent/mineur      | Non commencé      | UI partiellement préparée, flux de rattachement non livré.                                                                                                                                                                                                       |
+| Sessions                | Livré avec nuance | Auth.js en JWT avec validation serveur via `User.sessionVersion`; les anciennes mentions "sessions DB révocables" sont obsolètes.                                                                                                                                |
+| Loi 25                  | Partiel           | Consentement adulte, export JSON, soft delete, audit et **purge cron** livrés. Manque : export asynchrone/PDF, EFVP, registre incidents, validations juridiques.                                                                                                 |
+| RLS                     | Livré partiel     | Politiques et helpers existent; `withUser` est désormais appelé dans toutes les routes d'apprentissage (`getAttemptResult`, `getQuizAttemptHistory`, `getLearnerLearningOverview`, `submitQuizAttempt`). Les routes admin et l'export Loi 25 restent à vérifier. |
+| Catalogue pédagogique   | Livré minimal     | Mini-catalogue seedé et espace authentifié `/apprendre` connecté à la DB.                                                                                                                                                                                        |
+| Leçons                  | Livré minimal     | Lecteur simple de leçon publiée avec contenu structuré `bodyFr/bodyEn`, compétences, objectifs et accès au quiz.                                                                                                                                                 |
+| Exercices               | Livré minimal     | Exercices guidés `MCQ_SINGLE` et `TRUE_FALSE` affichés dans la page leçon avec feedback immédiat. `TRUE_FALSE` : boutons Vrai/Faux (plus radio). Les autres types restent à exposer.                                                                             |
+| Quiz                    | Livré minimal     | `MCQ_SINGLE` et `TRUE_FALSE`, scoring, erreurs de soumission affichées, tentative immuable et résultat visible.                                                                                                                                                  |
+| Progression             | Livré minimal     | Mise à jour de `Progress` par compétence et carte de progression visible dans `/apprendre`.                                                                                                                                                                      |
+| Gamification            | Non livré         | Tables préparées, pas d'expérience.                                                                                                                                                                                                                              |
+| Paiement Stripe         | Non livré         | Variables/infra prévues, intégration absente.                                                                                                                                                                                                                    |
+| CI                      | Livré partiel     | Lint/typecheck/test/build sont câblés; e2e web minimal ajouté; mobile reste largement placeholder.                                                                                                                                                               |
+| Tests                   | Partiel           | Tests unitaires auth/email/rate-limit + scoring + mastery EMA + submitQuizAttempt (11 cas). Playwright découplé du seed. Maestro mobile absent.                                                                                                                  |
+| Infra Docker/Proxmox    | Préparé           | Compose dev/prod, Traefik, MinIO, Redis, Postgres, backup; validation production réelle à faire.                                                                                                                                                                 |
 
 ## Ce qui est réellement utilisable
 

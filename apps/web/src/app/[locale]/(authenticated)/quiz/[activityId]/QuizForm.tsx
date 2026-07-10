@@ -223,7 +223,13 @@ export function QuizForm({
         );
       })}
 
-      <Button type="submit" variant="primary" size="lg" isLoading={pending} data-testid="quiz-submit">
+      <Button
+        type="submit"
+        variant="primary"
+        size="lg"
+        isLoading={pending}
+        data-testid="quiz-submit"
+      >
         {pending ? copy.submitting : copy.submit}
       </Button>
     </form>

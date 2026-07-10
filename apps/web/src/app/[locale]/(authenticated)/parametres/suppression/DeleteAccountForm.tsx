@@ -64,7 +64,9 @@ export function DeleteAccountForm({ locale, copy }: DeleteAccountFormProps): JSX
       const result = await requestAccountDeletion(input);
       if (result.ok) {
         setDone(true);
-        setTimeout(() => { router.push(`/${locale}/?disabled=1`); }, 1200);
+        setTimeout(() => {
+          router.push(`/${locale}/?disabled=1`);
+        }, 1200);
         return;
       }
       setErrors(result.fieldErrors as Record<string, DeletionFieldErrorCode>);
@@ -128,7 +130,9 @@ export function DeleteAccountForm({ locale, copy }: DeleteAccountFormProps): JSX
           type="button"
           variant="ghost"
           size="lg"
-          onClick={() => { router.push(`/${locale}/parametres`); }}
+          onClick={() => {
+            router.push(`/${locale}/parametres`);
+          }}
         >
           {copy.cancel}
         </Button>

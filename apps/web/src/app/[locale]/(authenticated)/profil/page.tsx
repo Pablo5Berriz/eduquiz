@@ -32,9 +32,15 @@ export function generateMetadata({ params }: { params: LocaleRouteParams }): Met
 function gradeLabel(grade: string | null | undefined): string | null {
   if (!grade) return null;
   const map: Record<string, string> = {
-    P3: 'Primaire 3', P4: 'Primaire 4', P5: 'Primaire 5', P6: 'Primaire 6',
-    S1: 'Secondaire 1', S2: 'Secondaire 2', S3: 'Secondaire 3',
-    S4: 'Secondaire 4', S5: 'Secondaire 5',
+    P3: 'Primaire 3',
+    P4: 'Primaire 4',
+    P5: 'Primaire 5',
+    P6: 'Primaire 6',
+    S1: 'Secondaire 1',
+    S2: 'Secondaire 2',
+    S3: 'Secondaire 3',
+    S4: 'Secondaire 4',
+    S5: 'Secondaire 5',
   };
   return map[grade] ?? grade;
 }
@@ -74,7 +80,7 @@ export default async function ProfilePage({
     profile?.displayName && profile.displayName.length > 0
       ? profile.displayName
       : profile?.firstName
-        ? `${profile.firstName}${profile.lastName ? " " + profile.lastName : ""}`
+        ? `${profile.firstName}${profile.lastName ? ' ' + profile.lastName : ''}`
         : (user.email.split('@')[0] ?? user.email);
 
   const fullName =
@@ -96,7 +102,7 @@ export default async function ProfilePage({
           fields: {
             firstName: 'Prénom',
             lastName: 'Nom de famille',
-            displayName: "Pseudo affiché",
+            displayName: 'Pseudo affiché',
             currentGrade: 'Niveau scolaire',
             preferredLocale: 'Langue',
             email: 'Adresse e-mail',
@@ -134,7 +140,6 @@ export default async function ProfilePage({
   return (
     <Container width="lg" className="py-12">
       <div className="mx-auto max-w-3xl space-y-8">
-
         {/* ── Header card: avatar + name + email + edit CTA ── */}
         <Card variant="surface" padding="lg">
           <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
@@ -173,7 +178,9 @@ export default async function ProfilePage({
         {/* ── Completion nudge ── */}
         {isIncomplete && (
           <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-700/50 dark:bg-amber-950/30">
-            <span className="mt-0.5 text-lg" aria-hidden="true">⚠️</span>
+            <span className="mt-0.5 text-lg" aria-hidden="true">
+              ⚠️
+            </span>
             <div>
               <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
                 {copy.completionBanner.incomplete}
@@ -200,7 +207,9 @@ export default async function ProfilePage({
             ).map(({ label, value }) => (
               <div key={label} className="flex items-center justify-between py-3">
                 <dt className="text-sm text-slate-500 dark:text-slate-400">{label}</dt>
-                <dd className={`text-sm font-medium ${value ? 'text-slate-900 dark:text-slate-100' : 'text-slate-400 dark:text-slate-600'}`}>
+                <dd
+                  className={`text-sm font-medium ${value ? 'text-slate-900 dark:text-slate-100' : 'text-slate-400 dark:text-slate-600'}`}
+                >
                   {value && value.length > 0 ? value : noValue}
                 </dd>
               </div>
@@ -217,12 +226,17 @@ export default async function ProfilePage({
             {(
               [
                 { label: copy.fields.currentGrade, value: gradeLabel(profile?.currentGrade) },
-                { label: copy.fields.preferredLocale, value: localeLabel(profile?.preferredLocale) },
+                {
+                  label: copy.fields.preferredLocale,
+                  value: localeLabel(profile?.preferredLocale),
+                },
               ] as { label: string; value: string | null }[]
             ).map(({ label, value }) => (
               <div key={label} className="flex items-center justify-between py-3">
                 <dt className="text-sm text-slate-500 dark:text-slate-400">{label}</dt>
-                <dd className={`text-sm font-medium ${value ? 'text-slate-900 dark:text-slate-100' : 'text-slate-400 dark:text-slate-600'}`}>
+                <dd
+                  className={`text-sm font-medium ${value ? 'text-slate-900 dark:text-slate-100' : 'text-slate-400 dark:text-slate-600'}`}
+                >
                   {value ?? noValue}
                 </dd>
               </div>
@@ -244,7 +258,6 @@ export default async function ProfilePage({
             </div>
           </dl>
         </Card>
-
       </div>
     </Container>
   );

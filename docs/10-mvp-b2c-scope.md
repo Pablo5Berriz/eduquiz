@@ -81,8 +81,8 @@ Le MVP inclut :
 - export et suppression des données si déjà prévus dans le projet ;
 - tests critiques.
 
-Les fonctionnalités incluses doivent servir directement le parcours :
-apprendre, pratiquer, évaluer, corriger et reprendre.
+Les fonctionnalités incluses doivent servir directement le parcours : apprendre,
+pratiquer, évaluer, corriger et reprendre.
 
 ## 6. Fonctionnalités exclues
 
@@ -152,9 +152,9 @@ Les règles métier minimales du MVP sont :
 - un parent ne voit qu'un enfant lié avec consentement valide ;
 - un admin contenu ne doit pas accéder inutilement aux données privées.
 
-Toute logique de score, de correction, de progression ou de permission doit
-être contrôlée côté serveur. Le client ne doit jamais être une source de vérité
-pour les résultats.
+Toute logique de score, de correction, de progression ou de permission doit être
+contrôlée côté serveur. Le client ne doit jamais être une source de vérité pour
+les résultats.
 
 ## 9. Parcours critique MVP
 

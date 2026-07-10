@@ -71,12 +71,13 @@ function shouldFailClosedOnBypass(input: ServerCheckRateLimitInput): boolean {
 
 function allowE2ERateLimitBypass(): boolean {
   return (
-    process.env.NODE_ENV !== 'production' &&
-    process.env.EDUQUIZ_E2E_ALLOW_RATE_LIMIT_BYPASS === '1'
+    process.env.NODE_ENV !== 'production' && process.env.EDUQUIZ_E2E_ALLOW_RATE_LIMIT_BYPASS === '1'
   );
 }
 
-export async function checkRateLimit(input: ServerCheckRateLimitInput): Promise<CheckRateLimitResult> {
+export async function checkRateLimit(
+  input: ServerCheckRateLimitInput,
+): Promise<CheckRateLimitResult> {
   const config = RateLimits[input.bucket];
   const keyHash = hashRateLimitKey(input.key);
   const result = await withRateLimit({

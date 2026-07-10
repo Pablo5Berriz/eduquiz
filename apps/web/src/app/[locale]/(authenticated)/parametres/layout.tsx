@@ -44,9 +44,21 @@ export default function SettingsLayout({
   else if (path.includes('/parametres/suppression')) activeKey = 'deletion';
 
   const items = [
-    { key: 'account', href: `/${locale}/parametres/compte`, label: t(messages, 'account.settings.navigation.account') },
-    { key: 'language', href: `/${locale}/parametres/langue`, label: t(messages, 'account.settings.navigation.language') },
-    { key: 'data', href: `/${locale}/parametres/donnees`, label: t(messages, 'account.settings.navigation.data') },
+    {
+      key: 'account',
+      href: `/${locale}/parametres/compte`,
+      label: t(messages, 'account.settings.navigation.account'),
+    },
+    {
+      key: 'language',
+      href: `/${locale}/parametres/langue`,
+      label: t(messages, 'account.settings.navigation.language'),
+    },
+    {
+      key: 'data',
+      href: `/${locale}/parametres/donnees`,
+      label: t(messages, 'account.settings.navigation.data'),
+    },
     {
       key: 'deletion',
       href: `/${locale}/parametres/suppression`,

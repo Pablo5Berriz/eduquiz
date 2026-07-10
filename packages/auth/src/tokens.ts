@@ -29,9 +29,9 @@ export type TokenPurpose = 'verify-email' | 'reset-password' | 'magic-link' | 'c
 
 /** Durées de vie par usage (en minutes). */
 const TTL_MINUTES: Record<TokenPurpose, number> = {
-  'verify-email': 60 * 24,       // 24 h
-  'reset-password': 60,          // 1 h
-  'magic-link': 15,              // 15 min
+  'verify-email': 60 * 24, // 24 h
+  'reset-password': 60, // 1 h
+  'magic-link': 15, // 15 min
   'confirm-parent-link': 60 * 24, // 24 h — parent confirme le rattachement
 };
 

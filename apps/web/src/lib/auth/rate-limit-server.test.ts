@@ -31,7 +31,9 @@ describe('rate-limit-server', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     delete process.env.REDIS_URL;
-    mockHeaders.mockReturnValue(new Headers({ 'x-forwarded-for': '203.0.113.10', 'x-request-id': 'req-1' }));
+    mockHeaders.mockReturnValue(
+      new Headers({ 'x-forwarded-for': '203.0.113.10', 'x-request-id': 'req-1' }),
+    );
   });
 
   afterEach(() => {
@@ -48,7 +50,12 @@ describe('rate-limit-server', () => {
   });
 
   it('retourne keyHash et ne loggue pas la clé brute lors du bypass', async () => {
-    mockWithRateLimit.mockResolvedValue({ allowed: true, remaining: 5, resetAt: null, bypassed: true });
+    mockWithRateLimit.mockResolvedValue({
+      allowed: true,
+      remaining: 5,
+      resetAt: null,
+      bypassed: true,
+    });
     const rawKey = '203.0.113.10:test@example.com';
 
     const result = await checkRateLimit({ bucket: 'signin', key: rawKey });
@@ -64,7 +71,12 @@ describe('rate-limit-server', () => {
 
   it('fail-closed sur un bucket critique si REDIS_URL est défini et Redis bypass', async () => {
     process.env.REDIS_URL = 'redis://localhost:6379/0';
-    mockWithRateLimit.mockResolvedValue({ allowed: true, remaining: 5, resetAt: null, bypassed: true });
+    mockWithRateLimit.mockResolvedValue({
+      allowed: true,
+      remaining: 5,
+      resetAt: null,
+      bypassed: true,
+    });
     const rawKey = '203.0.113.10:test@example.com';
 
     const result = await checkRateLimit({ bucket: 'signin', key: rawKey });
@@ -80,7 +92,12 @@ describe('rate-limit-server', () => {
 
   it('reste fail-open surveillé sur un bucket non critique si Redis bypass', async () => {
     process.env.REDIS_URL = 'redis://localhost:6379/0';
-    mockWithRateLimit.mockResolvedValue({ allowed: true, remaining: 3, resetAt: null, bypassed: true });
+    mockWithRateLimit.mockResolvedValue({
+      allowed: true,
+      remaining: 3,
+      resetAt: null,
+      bypassed: true,
+    });
     const rawKey = 'test@example.com';
 
     const result = await checkRateLimit({ bucket: 'resendVerification', key: rawKey });

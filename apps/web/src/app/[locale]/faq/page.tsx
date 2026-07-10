@@ -47,11 +47,7 @@ export function generateMetadata({ params }: { params: LocaleRouteParams }): Met
   };
 }
 
-export default function FaqPage({
-  params,
-}: {
-  readonly params: LocaleRouteParams;
-}): JSX.Element {
+export default function FaqPage({ params }: { readonly params: LocaleRouteParams }): JSX.Element {
   const locale = resolveLocaleParam(params.locale);
   const messages = getMessages(locale);
 
@@ -86,10 +82,7 @@ export default function FaqPage({
         </ul>
       </Container>
 
-      <section
-        aria-labelledby="faq-cta-title"
-        className="bg-slate-50 dark:bg-slate-900/40"
-      >
+      <section aria-labelledby="faq-cta-title" className="bg-slate-50 dark:bg-slate-900/40">
         <Container width="lg" className="py-16">
           <div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
             <SectionHeading

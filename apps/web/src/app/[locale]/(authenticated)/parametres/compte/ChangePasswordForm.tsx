@@ -63,7 +63,9 @@ export function ChangePasswordForm({ locale, copy }: ChangePasswordFormProps): J
         // Toutes les sessions ayant été invalidées (y compris la
         // courante), on renvoie vers la connexion avec un drapeau
         // explicite pour expliquer la déconnexion.
-        setTimeout(() => { router.push(`/${locale}/connexion?session=expired`); }, 800);
+        setTimeout(() => {
+          router.push(`/${locale}/connexion?session=expired`);
+        }, 800);
         return;
       }
       setErrors(result.fieldErrors as Record<string, ChangePasswordFieldErrorCode>);

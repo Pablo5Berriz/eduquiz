@@ -101,33 +101,33 @@ function dicebear(style: string, seed: string): string {
 
 const AVATAR_OPTIONS: AvatarOption[] = [
   // Avataaars — humains cartoonesques
-  { url: dicebear('avataaars', 'Luna'),    label: 'Luna' },
-  { url: dicebear('avataaars', 'Felix'),   label: 'Felix' },
-  { url: dicebear('avataaars', 'Mila'),    label: 'Mila' },
-  { url: dicebear('avataaars', 'Noah'),    label: 'Noah' },
-  { url: dicebear('avataaars', 'Sofia'),   label: 'Sofia' },
-  { url: dicebear('avataaars', 'Ethan'),   label: 'Ethan' },
+  { url: dicebear('avataaars', 'Luna'), label: 'Luna' },
+  { url: dicebear('avataaars', 'Felix'), label: 'Felix' },
+  { url: dicebear('avataaars', 'Mila'), label: 'Mila' },
+  { url: dicebear('avataaars', 'Noah'), label: 'Noah' },
+  { url: dicebear('avataaars', 'Sofia'), label: 'Sofia' },
+  { url: dicebear('avataaars', 'Ethan'), label: 'Ethan' },
   // Pixel art — style rétro
-  { url: dicebear('pixel-art', 'Star'),    label: 'Star' },
-  { url: dicebear('pixel-art', 'Comet'),   label: 'Comet' },
-  { url: dicebear('pixel-art', 'Nova'),    label: 'Nova' },
-  { url: dicebear('pixel-art', 'Blaze'),   label: 'Blaze' },
-  { url: dicebear('pixel-art', 'Storm'),   label: 'Storm' },
-  { url: dicebear('pixel-art', 'Frost'),   label: 'Frost' },
+  { url: dicebear('pixel-art', 'Star'), label: 'Star' },
+  { url: dicebear('pixel-art', 'Comet'), label: 'Comet' },
+  { url: dicebear('pixel-art', 'Nova'), label: 'Nova' },
+  { url: dicebear('pixel-art', 'Blaze'), label: 'Blaze' },
+  { url: dicebear('pixel-art', 'Storm'), label: 'Storm' },
+  { url: dicebear('pixel-art', 'Frost'), label: 'Frost' },
   // Fun emoji
-  { url: dicebear('fun-emoji', 'Happy'),   label: 'Happy' },
-  { url: dicebear('fun-emoji', 'Champ'),   label: 'Champ' },
-  { url: dicebear('fun-emoji', 'Sunny'),   label: 'Sunny' },
-  { url: dicebear('fun-emoji', 'Sage'),    label: 'Sage' },
-  { url: dicebear('fun-emoji', 'Spark'),   label: 'Spark' },
-  { url: dicebear('fun-emoji', 'Breeze'),  label: 'Breeze' },
+  { url: dicebear('fun-emoji', 'Happy'), label: 'Happy' },
+  { url: dicebear('fun-emoji', 'Champ'), label: 'Champ' },
+  { url: dicebear('fun-emoji', 'Sunny'), label: 'Sunny' },
+  { url: dicebear('fun-emoji', 'Sage'), label: 'Sage' },
+  { url: dicebear('fun-emoji', 'Spark'), label: 'Spark' },
+  { url: dicebear('fun-emoji', 'Breeze'), label: 'Breeze' },
   // Bottts — robots
-  { url: dicebear('bottts', 'R2'),         label: 'R2' },
-  { url: dicebear('bottts', 'Axiom'),      label: 'Axiom' },
-  { url: dicebear('bottts', 'Zephyr'),     label: 'Zephyr' },
-  { url: dicebear('bottts', 'Pixel'),      label: 'Pixel' },
-  { url: dicebear('bottts', 'Volt'),       label: 'Volt' },
-  { url: dicebear('bottts', 'Nano'),       label: 'Nano' },
+  { url: dicebear('bottts', 'R2'), label: 'R2' },
+  { url: dicebear('bottts', 'Axiom'), label: 'Axiom' },
+  { url: dicebear('bottts', 'Zephyr'), label: 'Zephyr' },
+  { url: dicebear('bottts', 'Pixel'), label: 'Pixel' },
+  { url: dicebear('bottts', 'Volt'), label: 'Volt' },
+  { url: dicebear('bottts', 'Nano'), label: 'Nano' },
 ];
 
 interface AvatarPickerProps {
@@ -148,17 +148,15 @@ function AvatarPicker({ value, onChange, displayName, label }: AvatarPickerProps
         <Avatar src={value || null} name={displayName || label} size="lg" ariaLabel={label} />
         <span className="text-xs text-slate-500 dark:text-slate-400">
           {value
-            ? (isPreset ? AVATAR_OPTIONS.find((a) => a.url === value)?.label ?? '' : '🔗 URL personnalisée')
+            ? isPreset
+              ? (AVATAR_OPTIONS.find((a) => a.url === value)?.label ?? '')
+              : '🔗 URL personnalisée'
             : 'Aucun avatar sélectionné'}
         </span>
       </div>
 
       {/* Grid */}
-      <div
-        role="radiogroup"
-        aria-label={label}
-        className="grid grid-cols-6 gap-2 sm:grid-cols-8"
-      >
+      <div role="radiogroup" aria-label={label} className="grid grid-cols-6 gap-2 sm:grid-cols-8">
         {AVATAR_OPTIONS.map((av) => {
           const selected = value === av.url;
           return (
@@ -169,7 +167,10 @@ function AvatarPicker({ value, onChange, displayName, label }: AvatarPickerProps
               aria-checked={selected}
               aria-label={av.label}
               title={av.label}
-              onClick={() => { onChange(av.url); setShowCustom(false); }}
+              onClick={() => {
+                onChange(av.url);
+                setShowCustom(false);
+              }}
               className={[
                 'rounded-xl border-2 p-0.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
                 selected
@@ -194,10 +195,12 @@ function AvatarPicker({ value, onChange, displayName, label }: AvatarPickerProps
       {/* Toggle URL personnalisée */}
       <button
         type="button"
-        onClick={() => { setShowCustom((v) => !v); }}
+        onClick={() => {
+          setShowCustom((v) => !v);
+        }}
         className="self-start text-xs text-brand-600 underline-offset-2 hover:underline dark:text-brand-400"
       >
-        {showCustom ? '▲ Masquer l\'URL personnalisée' : '▼ Utiliser une URL personnalisée'}
+        {showCustom ? "▲ Masquer l'URL personnalisée" : '▼ Utiliser une URL personnalisée'}
       </button>
 
       {showCustom && (
@@ -206,7 +209,9 @@ function AvatarPicker({ value, onChange, displayName, label }: AvatarPickerProps
           name="avatarUrl-custom"
           type="url"
           value={value}
-          onChange={(e) => { onChange((e.target as HTMLInputElement).value); }}
+          onChange={(e) => {
+            onChange((e.target as HTMLInputElement).value);
+          }}
           maxLength={2048}
           placeholder="https://…"
           aria-label="URL de l'avatar"
@@ -254,7 +259,9 @@ export function EditProfileForm({
         setSuccess(true);
         // Courte pause pour que l'utilisateur voie le message de succès,
         // puis redirection vers la destination.
-        setTimeout(() => { router.push(destination); }, 800);
+        setTimeout(() => {
+          router.push(destination);
+        }, 800);
         return;
       }
       setErrors(result.fieldErrors as Record<string, UpdateProfileFieldErrorCode>);
@@ -358,7 +365,11 @@ export function EditProfileForm({
       <FormField
         id="avatar"
         label={locale === 'fr' ? 'Avatar' : 'Avatar'}
-        hint={locale === 'fr' ? "Choisis un avatar parmi la sélection ou entre une URL." : "Pick an avatar or enter a custom URL."}
+        hint={
+          locale === 'fr'
+            ? 'Choisis un avatar parmi la sélection ou entre une URL.'
+            : 'Pick an avatar or enter a custom URL.'
+        }
         error={errors.avatarUrl ? copy.errors[errors.avatarUrl] : undefined}
       >
         <AvatarPicker
@@ -380,7 +391,9 @@ export function EditProfileForm({
           type="button"
           variant="ghost"
           size="lg"
-          onClick={() => { router.push(`/${locale}/profil`); }}
+          onClick={() => {
+            router.push(`/${locale}/profil`);
+          }}
         >
           {copy.cancel}
         </Button>

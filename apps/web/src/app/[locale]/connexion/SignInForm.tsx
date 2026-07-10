@@ -13,10 +13,7 @@ import { Alert, Button, FormField, Input, PasswordInput } from '@eduquiz/ui';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
 
-import {
-  signInAdult,
-  type SignInErrorCode,
-} from '../../../lib/auth/actions/signin';
+import { signInAdult, type SignInErrorCode } from '../../../lib/auth/actions/signin';
 
 import type { JSX } from 'react';
 

@@ -36,7 +36,7 @@ const COPY: Record<Locale, Copy> = {
     subject: 'Réinitialise ton mot de passe EduQuiz',
     preheader: 'Lien valide 1 heure. Ignore si tu n’as rien demandé.',
     greeting: 'Demande de nouveau mot de passe',
-    body: "Tu as demandé à réinitialiser ton mot de passe EduQuiz. Clique sur le bouton ci-dessous pour en choisir un nouveau.",
+    body: 'Tu as demandé à réinitialiser ton mot de passe EduQuiz. Clique sur le bouton ci-dessous pour en choisir un nouveau.',
     cta: 'Choisir un nouveau mot de passe',
     fallback: 'Le bouton ne fonctionne pas ? Copie-colle ce lien dans ton navigateur :',
     validity: 'Ce lien expire dans 1 heure et ne peut être utilisé qu’une seule fois.',

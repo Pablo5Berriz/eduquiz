@@ -18,7 +18,10 @@ import { cn } from '../utils/cn';
 
 import type { InputHTMLAttributes, JSX, ReactNode } from 'react';
 
-export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
+export interface CheckboxProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'type' | 'size'
+> {
   readonly invalid?: boolean;
   /** Label affiché à droite de la case. */
   readonly children: ReactNode;

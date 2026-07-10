@@ -114,7 +114,9 @@ export type CompletePasswordResetResult =
   | { readonly ok: true }
   | {
       readonly ok: false;
-      readonly fieldErrors: Partial<Record<keyof CompletePasswordResetInput | 'form', PasswordResetFieldErrorCode>>;
+      readonly fieldErrors: Partial<
+        Record<keyof CompletePasswordResetInput | 'form', PasswordResetFieldErrorCode>
+      >;
     };
 
 export async function completePasswordReset(
@@ -122,7 +124,9 @@ export async function completePasswordReset(
 ): Promise<CompletePasswordResetResult> {
   const parsed = completeSchema.safeParse(input);
   if (!parsed.success) {
-    const fieldErrors: Partial<Record<keyof CompletePasswordResetInput | 'form', PasswordResetFieldErrorCode>> = {};
+    const fieldErrors: Partial<
+      Record<keyof CompletePasswordResetInput | 'form', PasswordResetFieldErrorCode>
+    > = {};
     for (const issue of parsed.error.issues) {
       const path = issue.path[0];
       if (path === 'newPassword') fieldErrors.newPassword = 'passwordTooShort';

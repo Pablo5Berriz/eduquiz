@@ -168,17 +168,11 @@ export default function SchoolLevelDetailPage({
           className="border-t border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/40"
         >
           <Container width="lg" className="py-16">
-            <SectionHeading
-              kicker=""
-              title={t(messages, 'levels.detail.subjectsLabel')}
-            />
+            <SectionHeading kicker="" title={t(messages, 'levels.detail.subjectsLabel')} />
             <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {subjectsAtLevel.map((subjectKey) => {
                 const subjectTitle = t(messages, `subjects.list.${subjectKey}.title`);
-                const subjectShort = t(
-                  messages,
-                  `subjects.list.${subjectKey}.shortDescription`,
-                );
+                const subjectShort = t(messages, `subjects.list.${subjectKey}.shortDescription`);
                 const subjectSlug = getSubjectSlug(messages, subjectKey);
                 return (
                   <li
@@ -192,9 +186,7 @@ export default function SchoolLevelDetailPage({
                       <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
                         {subjectTitle}
                       </h3>
-                      <p className="text-sm text-slate-600 dark:text-slate-300">
-                        {subjectShort}
-                      </p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">{subjectShort}</p>
                       <span className="mt-auto inline-flex items-center gap-2 pt-2 text-sm font-semibold text-brand-700 dark:text-brand-300">
                         {t(messages, 'common.readMore')}
                         <span aria-hidden="true">→</span>

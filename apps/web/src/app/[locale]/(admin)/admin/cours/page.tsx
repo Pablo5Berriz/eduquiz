@@ -72,10 +72,7 @@ export default async function AdminCoursListPage({
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {courses.map((course) => (
-                <tr
-                  key={course.id}
-                  className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                >
+                <tr key={course.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                   <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
                     {course.titleFr}
                   </td>

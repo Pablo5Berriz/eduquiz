@@ -51,7 +51,11 @@ import { registerAdult, registerMinor } from './register';
 describe('register rate limiting', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockCheckRateLimit.mockResolvedValue({ allowed: false, bypassed: false, keyHash: 'abc123def456' });
+    mockCheckRateLimit.mockResolvedValue({
+      allowed: false,
+      bypassed: false,
+      keyHash: 'abc123def456',
+    });
   });
 
   it("bloque l'inscription adulte et loggue uniquement keyHash", async () => {
@@ -65,7 +69,9 @@ describe('register rate limiting', () => {
     });
 
     expect(result).toEqual({ ok: false, fieldErrors: { form: 'rateLimited' } });
-    expect(mockWarn).toHaveBeenCalledWith('auth.register.rate_limited', { keyHash: 'abc123def456' });
+    expect(mockWarn).toHaveBeenCalledWith('auth.register.rate_limited', {
+      keyHash: 'abc123def456',
+    });
     expect(JSON.stringify(mockWarn.mock.calls)).not.toContain('203.0.113.10');
   });
 
@@ -79,7 +85,9 @@ describe('register rate limiting', () => {
     });
 
     expect(result).toEqual({ ok: false, fieldErrors: { form: 'rateLimited' } });
-    expect(mockWarn).toHaveBeenCalledWith('auth.register_minor.rate_limited', { keyHash: 'abc123def456' });
+    expect(mockWarn).toHaveBeenCalledWith('auth.register_minor.rate_limited', {
+      keyHash: 'abc123def456',
+    });
     expect(JSON.stringify(mockWarn.mock.calls)).not.toContain('203.0.113.10');
   });
 });

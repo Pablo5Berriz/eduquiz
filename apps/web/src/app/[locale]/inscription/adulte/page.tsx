@@ -119,22 +119,14 @@ export default function SignupAdultPage({
             </div>
             <div className="mt-4 flex flex-col gap-3">
               {googleEnabled ? (
-                <Link
-                  href="/api/auth/signin/google"
-                  prefetch={false}
-                  className="inline-flex"
-                >
+                <Link href="/api/auth/signin/google" prefetch={false} className="inline-flex">
                   <Button variant="secondary" size="lg" fullWidth>
                     <span aria-hidden="true">G</span> {t(messages, 'auth.signup.adult.googleCta')}
                   </Button>
                 </Link>
               ) : null}
               {appleEnabled ? (
-                <Link
-                  href="/api/auth/signin/apple"
-                  prefetch={false}
-                  className="inline-flex"
-                >
+                <Link href="/api/auth/signin/apple" prefetch={false} className="inline-flex">
                   <Button variant="secondary" size="lg" fullWidth>
                     <span aria-hidden="true"></span> {t(messages, 'auth.signup.adult.appleCta')}
                   </Button>
@@ -175,7 +167,8 @@ function renderTermsLabel(
   let lastIndex = 0;
   let m: RegExpExecArray | null;
   while ((m = re.exec(template)) !== null) {
-    if (m.index > lastIndex) parts.push({ kind: 'text', value: template.slice(lastIndex, m.index) });
+    if (m.index > lastIndex)
+      parts.push({ kind: 'text', value: template.slice(lastIndex, m.index) });
     parts.push({ kind: m[1] as 'terms' | 'privacy' });
     lastIndex = m.index + m[0].length;
   }

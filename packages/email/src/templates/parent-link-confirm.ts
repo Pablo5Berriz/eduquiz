@@ -39,7 +39,8 @@ const COPY: Record<Locale, Copy> = {
     cta: 'Confirmer le rattachement',
     fallback: 'Le bouton ne fonctionne pas ? Copie-colle ce lien dans ton navigateur :',
     validity: 'Ce lien expire dans 24 heures.',
-    notYou: "Tu n'es pas à l'origine de cette invitation ? Ignore ce message — aucune action n'est requise.",
+    notYou:
+      "Tu n'es pas à l'origine de cette invitation ? Ignore ce message — aucune action n'est requise.",
     footer: "— L'équipe EduQuiz",
   },
   en: {
@@ -48,7 +49,7 @@ const COPY: Record<Locale, Copy> = {
     greeting: 'Hello,',
     body: 'Student account {childEmail} entered your EduQuiz invitation code. Click below to confirm the link and enable supervision.',
     cta: 'Confirm the link',
-    fallback: "Button not working? Copy-paste this link into your browser:",
+    fallback: 'Button not working? Copy-paste this link into your browser:',
     validity: 'This link expires in 24 hours.',
     notYou: "Didn't create this invitation? Just ignore this message — no action required.",
     footer: '— The EduQuiz team',

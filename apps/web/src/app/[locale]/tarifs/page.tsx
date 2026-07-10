@@ -182,10 +182,7 @@ export default function PricingPage({
         </p>
       </Container>
 
-      <section
-        aria-labelledby="pricing-faq-title"
-        className="bg-slate-50 dark:bg-slate-900/40"
-      >
+      <section aria-labelledby="pricing-faq-title" className="bg-slate-50 dark:bg-slate-900/40">
         <Container width="lg" className="py-16">
           <SectionHeading
             title={<span id="pricing-faq-title">{t(messages, 'pricing.faqTitle')}</span>}

@@ -21,7 +21,13 @@
 
 import { hashPassword } from '@eduquiz/auth/password';
 import { createToken } from '@eduquiz/auth/tokens';
-import { AuditEventKind, ConsentEventKind, Locale, UserRole, prismaService as prisma } from '@eduquiz/db';
+import {
+  AuditEventKind,
+  ConsentEventKind,
+  Locale,
+  UserRole,
+  prismaService as prisma,
+} from '@eduquiz/db';
 import { buildVerificationEmail, sendEmail } from '@eduquiz/email';
 import { z } from 'zod';
 
@@ -76,7 +82,9 @@ export type RegisterAdultResult =
   | {
       readonly ok: false;
       /** Erreurs par champ — la clé est le `name` du champ HTML. */
-      readonly fieldErrors: Partial<Record<keyof RegisterAdultInput | 'form', SignupFieldErrorCode>>;
+      readonly fieldErrors: Partial<
+        Record<keyof RegisterAdultInput | 'form', SignupFieldErrorCode>
+      >;
     };
 
 /** Schéma Zod : règles de format. La règle « majeur » est appliquée après. */
@@ -111,7 +119,8 @@ export async function registerAdult(input: RegisterAdultInput): Promise<Register
   // 1. Validation Zod
   const parsed = inputSchema.safeParse(input);
   if (!parsed.success) {
-    const fieldErrors: Partial<Record<keyof RegisterAdultInput | 'form', SignupFieldErrorCode>> = {};
+    const fieldErrors: Partial<Record<keyof RegisterAdultInput | 'form', SignupFieldErrorCode>> =
+      {};
     for (const issue of parsed.error.issues) {
       const path = issue.path[0];
       if (path === 'email') fieldErrors.email = 'emailInvalid';
@@ -223,7 +232,11 @@ export async function registerAdult(input: RegisterAdultInput): Promise<Register
         `/${data.locale}/verification-email/confirme/${encodeURIComponent(token)}`,
       );
       await sendEmail(
-        buildVerificationEmail({ to: user.email, locale: localeEnum.toLowerCase() as 'fr' | 'en', verifyUrl }),
+        buildVerificationEmail({
+          to: user.email,
+          locale: localeEnum.toLowerCase() as 'fr' | 'en',
+          verifyUrl,
+        }),
       );
     } catch {
       // L'email n'a pas pu partir : l'utilisateur pourra le redemander
@@ -269,7 +282,9 @@ export type RegisterMinorResult =
     }
   | {
       readonly ok: false;
-      readonly fieldErrors: Partial<Record<keyof RegisterMinorInput | 'form', SignupMinorFieldErrorCode>>;
+      readonly fieldErrors: Partial<
+        Record<keyof RegisterMinorInput | 'form', SignupMinorFieldErrorCode>
+      >;
     };
 
 const minorInputSchema = z.object({
@@ -292,7 +307,9 @@ export async function registerMinor(input: RegisterMinorInput): Promise<Register
   // 1. Validation Zod.
   const parsed = minorInputSchema.safeParse(input);
   if (!parsed.success) {
-    const fieldErrors: Partial<Record<keyof RegisterMinorInput | 'form', SignupMinorFieldErrorCode>> = {};
+    const fieldErrors: Partial<
+      Record<keyof RegisterMinorInput | 'form', SignupMinorFieldErrorCode>
+    > = {};
     for (const issue of parsed.error.issues) {
       const path = issue.path[0];
       if (path === 'email') fieldErrors.email = 'emailInvalid';
@@ -396,7 +413,11 @@ export async function registerMinor(input: RegisterMinorInput): Promise<Register
         `/${data.locale}/verification-email/confirme/${encodeURIComponent(token)}`,
       );
       await sendEmail(
-        buildVerificationEmail({ to: user.email, locale: localeEnum.toLowerCase() as 'fr' | 'en', verifyUrl }),
+        buildVerificationEmail({
+          to: user.email,
+          locale: localeEnum.toLowerCase() as 'fr' | 'en',
+          verifyUrl,
+        }),
       );
     } catch {
       // Best-effort : l'utilisateur pourra redemander depuis l'écran de vérification.

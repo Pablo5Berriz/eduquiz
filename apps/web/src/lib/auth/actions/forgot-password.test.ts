@@ -53,23 +53,35 @@ describe('requestPasswordReset rate limiting and anti-enumeration', () => {
   });
 
   it('retourne ok:true quand le rate limit bloque et ne loggue que keyHash', async () => {
-    mockCheckRateLimit.mockResolvedValue({ allowed: false, bypassed: false, keyHash: 'abc123def456' });
+    mockCheckRateLimit.mockResolvedValue({
+      allowed: false,
+      bypassed: false,
+      keyHash: 'abc123def456',
+    });
 
     const result = await requestPasswordReset({ locale: 'fr', email: 'user@example.com' });
 
     expect(result).toEqual({ ok: true });
-    expect(mockWarn).toHaveBeenCalledWith('auth.forgot_password.rate_limited', { keyHash: 'abc123def456' });
+    expect(mockWarn).toHaveBeenCalledWith('auth.forgot_password.rate_limited', {
+      keyHash: 'abc123def456',
+    });
     expect(JSON.stringify(mockWarn.mock.calls)).not.toContain('203.0.113.10');
     expect(JSON.stringify(mockWarn.mock.calls)).not.toContain('user@example.com');
   });
 
   it('retourne ok:true et loggue un warning si une erreur interne survient', async () => {
-    mockCheckRateLimit.mockResolvedValue({ allowed: true, bypassed: true, keyHash: 'abc123def456' });
+    mockCheckRateLimit.mockResolvedValue({
+      allowed: true,
+      bypassed: true,
+      keyHash: 'abc123def456',
+    });
     mockFindUnique.mockRejectedValue(new Error('database unavailable'));
 
     const result = await requestPasswordReset({ locale: 'fr', email: 'user@example.com' });
 
     expect(result).toEqual({ ok: true });
-    expect(mockWarn).toHaveBeenCalledWith('auth.forgot_password.internal_bypassed', { keyHash: 'abc123def456' });
+    expect(mockWarn).toHaveBeenCalledWith('auth.forgot_password.internal_bypassed', {
+      keyHash: 'abc123def456',
+    });
   });
 });

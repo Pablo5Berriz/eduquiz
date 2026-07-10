@@ -15,6 +15,12 @@
 export { sendEmail, type EmailMessage } from './sender.js';
 export { buildVerificationEmail, type VerificationEmailInput } from './templates/verification.js';
 export { buildWelcomeEmail, type WelcomeEmailInput } from './templates/welcome.js';
-export { buildResetPasswordEmail, type ResetPasswordEmailInput } from './templates/reset-password.js';
-export { buildParentLinkConfirmEmail, type ParentLinkConfirmEmailInput } from './templates/parent-link-confirm.js';
+export {
+  buildResetPasswordEmail,
+  type ResetPasswordEmailInput,
+} from './templates/reset-password.js';
+export {
+  buildParentLinkConfirmEmail,
+  type ParentLinkConfirmEmailInput,
+} from './templates/parent-link-confirm.js';
 export { getEmailEnv, type EmailEnv } from './env.js';

@@ -65,7 +65,11 @@ import { createParentInvitation, redeemParentCode } from './actions';
 describe('family actions rate limiting', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockCheckRateLimit.mockResolvedValue({ allowed: false, bypassed: false, keyHash: 'abc123def456' });
+    mockCheckRateLimit.mockResolvedValue({
+      allowed: false,
+      bypassed: false,
+      keyHash: 'abc123def456',
+    });
   });
 
   it('bloque createParentInvitation et loggue uniquement keyHash', async () => {
@@ -80,7 +84,9 @@ describe('family actions rate limiting', () => {
     expect(mockWarn).toHaveBeenCalledWith('family.create_parent_invitation.rate_limited', {
       keyHash: 'abc123def456',
     });
-    expect(JSON.stringify(mockWarn.mock.calls)).not.toContain('550e8400-e29b-41d4-a716-446655440000');
+    expect(JSON.stringify(mockWarn.mock.calls)).not.toContain(
+      '550e8400-e29b-41d4-a716-446655440000',
+    );
   });
 
   it('bloque redeemParentCode et loggue uniquement keyHash', async () => {
@@ -95,6 +101,8 @@ describe('family actions rate limiting', () => {
     expect(mockWarn).toHaveBeenCalledWith('family.redeem_parent_code.rate_limited', {
       keyHash: 'abc123def456',
     });
-    expect(JSON.stringify(mockWarn.mock.calls)).not.toContain('550e8400-e29b-41d4-a716-446655440000');
+    expect(JSON.stringify(mockWarn.mock.calls)).not.toContain(
+      '550e8400-e29b-41d4-a716-446655440000',
+    );
   });
 });

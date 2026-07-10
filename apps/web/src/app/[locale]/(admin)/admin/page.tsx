@@ -26,10 +26,8 @@ export default async function AdminDashboardPage({
     prisma.user.count(),
   ]);
 
-  const byStatus = (
-    groups: { status: string; _count: { id: number } }[],
-    status: ContentStatus,
-  ) => groups.find((g) => g.status === status)?._count.id ?? 0;
+  const byStatus = (groups: { status: string; _count: { id: number } }[], status: ContentStatus) =>
+    groups.find((g) => g.status === status)?._count.id ?? 0;
 
   const stats = [
     {

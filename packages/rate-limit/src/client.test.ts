@@ -42,10 +42,13 @@ describe('getRedis Redis error logging', () => {
     getRedis();
 
     capturedErrorHandler?.(
-      Object.assign(new Error('connect ECONNREFUSED redis://:super-secret-token@localhost:6379/0'), {
-        code: 'ECONNREFUSED',
-        stack: 'stack should not be logged',
-      }),
+      Object.assign(
+        new Error('connect ECONNREFUSED redis://:super-secret-token@localhost:6379/0'),
+        {
+          code: 'ECONNREFUSED',
+          stack: 'stack should not be logged',
+        },
+      ),
     );
     capturedErrorHandler?.(new Error('second error'));
 

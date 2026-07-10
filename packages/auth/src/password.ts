@@ -13,7 +13,7 @@
 import { hash, verify } from '@node-rs/argon2';
 
 const ARGON2_OPTIONS = {
-  algorithm: 2,          // 2 = Argon2id (valeur numérique directe, évite le const enum)
+  algorithm: 2, // 2 = Argon2id (valeur numérique directe, évite le const enum)
   memoryCost: 19_456,
   timeCost: 2,
   parallelism: 1,

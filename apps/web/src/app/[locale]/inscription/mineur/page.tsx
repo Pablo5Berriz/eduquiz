@@ -123,7 +123,8 @@ function renderTermsLabel(
   let lastIndex = 0;
   let m: RegExpExecArray | null;
   while ((m = re.exec(template)) !== null) {
-    if (m.index > lastIndex) parts.push({ kind: 'text', value: template.slice(lastIndex, m.index) });
+    if (m.index > lastIndex)
+      parts.push({ kind: 'text', value: template.slice(lastIndex, m.index) });
     parts.push({ kind: m[1] as 'terms' | 'privacy' });
     lastIndex = m.index + m[0].length;
   }

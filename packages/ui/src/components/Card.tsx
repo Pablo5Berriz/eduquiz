@@ -23,8 +23,7 @@ const card = tv({
     variant: {
       surface:
         'border-slate-200 bg-white shadow-sm hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700',
-      muted:
-        'border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/60',
+      muted: 'border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/60',
       accent:
         'border-brand-200 bg-brand-50 ring-1 ring-brand-100 dark:border-brand-800 dark:bg-brand-950/40 dark:ring-brand-900',
     },

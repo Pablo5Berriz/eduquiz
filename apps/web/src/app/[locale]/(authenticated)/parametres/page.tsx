@@ -51,8 +51,8 @@ export default function SettingsIndexPage({
       icon: '🔑',
       label: t(messages, 'account.settings.navigation.account'),
       description: isFr
-        ? "Mets à jour ton mot de passe et sécurise ton compte."
-        : "Update your password and secure your account.",
+        ? 'Mets à jour ton mot de passe et sécurise ton compte.'
+        : 'Update your password and secure your account.',
     },
     {
       key: 'language',
@@ -61,7 +61,7 @@ export default function SettingsIndexPage({
       label: t(messages, 'account.settings.navigation.language'),
       description: isFr
         ? "Choisis la langue d'affichage et des e-mails."
-        : "Choose your display language and email language.",
+        : 'Choose your display language and email language.',
     },
     {
       key: 'data',
@@ -69,8 +69,8 @@ export default function SettingsIndexPage({
       icon: '📦',
       label: t(messages, 'account.settings.navigation.data'),
       description: isFr
-        ? "Télécharge une copie de toutes tes données (Loi 25)."
-        : "Download a copy of all your data.",
+        ? 'Télécharge une copie de toutes tes données (Loi 25).'
+        : 'Download a copy of all your data.',
     },
     {
       key: 'deletion',
@@ -78,8 +78,8 @@ export default function SettingsIndexPage({
       icon: '🗑️',
       label: t(messages, 'account.settings.navigation.deletion'),
       description: isFr
-        ? "Supprime définitivement ton compte et toutes tes données."
-        : "Permanently delete your account and all your data.",
+        ? 'Supprime définitivement ton compte et toutes tes données.'
+        : 'Permanently delete your account and all your data.',
       tone: 'danger',
     },
   ];
@@ -101,31 +101,33 @@ export default function SettingsIndexPage({
                 variant="surface"
                 padding="lg"
                 className={[
-                  "h-full transition-all duration-150",
+                  'h-full transition-all duration-150',
                   s.tone === 'danger'
-                    ? "border-danger-200 group-hover:border-danger-400 group-hover:shadow-sm dark:border-danger-800 group-hover:dark:border-danger-600"
-                    : "group-hover:border-brand-300 group-hover:shadow-sm dark:group-hover:border-brand-700",
+                    ? 'border-danger-200 group-hover:border-danger-400 group-hover:shadow-sm dark:border-danger-800 group-hover:dark:border-danger-600'
+                    : 'group-hover:border-brand-300 group-hover:shadow-sm dark:group-hover:border-brand-700',
                 ].join(' ')}
               >
                 <div className="flex items-start gap-4">
                   <span
                     className={[
-                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xl",
+                      'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xl',
                       s.tone === 'danger'
-                        ? "bg-danger-50 dark:bg-danger-950/40"
-                        : "bg-brand-50 dark:bg-brand-950/40",
+                        ? 'bg-danger-50 dark:bg-danger-950/40'
+                        : 'bg-brand-50 dark:bg-brand-950/40',
                     ].join(' ')}
                     aria-hidden="true"
                   >
                     {s.icon}
                   </span>
                   <div className="min-w-0">
-                    <p className={[
-                      "text-sm font-semibold",
-                      s.tone === 'danger'
-                        ? "text-danger-700 dark:text-danger-400"
-                        : "text-slate-900 dark:text-slate-100 group-hover:text-brand-700 dark:group-hover:text-brand-300",
-                    ].join(' ')}>
+                    <p
+                      className={[
+                        'text-sm font-semibold',
+                        s.tone === 'danger'
+                          ? 'text-danger-700 dark:text-danger-400'
+                          : 'text-slate-900 dark:text-slate-100 group-hover:text-brand-700 dark:group-hover:text-brand-300',
+                      ].join(' ')}
+                    >
                       {s.label}
                     </p>
                     <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
@@ -134,10 +136,10 @@ export default function SettingsIndexPage({
                   </div>
                   <span
                     className={[
-                      "ml-auto shrink-0 self-center text-sm transition-transform duration-150 group-hover:translate-x-0.5",
+                      'ml-auto shrink-0 self-center text-sm transition-transform duration-150 group-hover:translate-x-0.5',
                       s.tone === 'danger'
-                        ? "text-danger-400 dark:text-danger-600"
-                        : "text-slate-400 dark:text-slate-600",
+                        ? 'text-danger-400 dark:text-danger-600'
+                        : 'text-slate-400 dark:text-slate-600',
                     ].join(' ')}
                     aria-hidden="true"
                   >
