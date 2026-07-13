@@ -31,8 +31,8 @@
   },
   "devDependencies": {
     "@eduquiz/config": "workspace:*",
-    "@playwright/test": "^1.59.1",
-    "@types/node": "^22.10.5",
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^22.20.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "autoprefixer": "^10.4.20",
