@@ -50,14 +50,14 @@ jobs:
       DATABASE_URL: postgresql://eduquiz:eduquiz@localhost:5432/eduquiz?schema=public
       DIRECT_URL: postgresql://eduquiz:eduquiz@localhost:5432/eduquiz?schema=public
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: "9.12.3"
           run_install: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
           cache: "pnpm"
